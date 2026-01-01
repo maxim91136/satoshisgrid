@@ -67,14 +67,19 @@ class SatoshisGrid {
         // Start grid immediately
         await this.init();
 
-        // Init audio on first click (browser requirement - no user gesture yet)
+        // Init audio on first interaction (browser requirement - no user gesture yet)
         const startAudioOnce = async () => {
             if (this.audioManager && !this.audioManager.isInitialized) {
+                console.log('🎵 Starting audio on first interaction...');
                 await this.audioManager.init();
             }
             document.removeEventListener('click', startAudioOnce);
+            document.removeEventListener('touchstart', startAudioOnce);
+            document.removeEventListener('keydown', startAudioOnce);
         };
         document.addEventListener('click', startAudioOnce);
+        document.addEventListener('touchstart', startAudioOnce);
+        document.addEventListener('keydown', startAudioOnce);
     }
 
     async init() {
