@@ -21,7 +21,16 @@ export class Effects {
 
         // Bloom pulse state
         this.bloomPulse = 0;
-        this.baseBloomStrength = 0.8;
+        this.baseBloomStrength = 0.5;  // Reduced for stability
+        this.isBloomAnimating = false;
+
+        // Whale indicator (reusable)
+        this.whaleIndicator = null;
+        this.whaleTimeout = null;
+
+        // Throttle whale effects
+        this.lastWhaleTime = 0;
+        this.whaleThrottle = 500; // Min 500ms between whale effects
     }
 
     // Screen flash effect (for block found)
@@ -47,27 +56,35 @@ export class Effects {
         }, duration * 1000);
     }
 
-    // Combined effect for whale transactions
+    // Combined effect for whale transactions (throttled)
     onWhaleTransaction(isLarge = false) {
-        const intensity = isLarge ? 1 : 0.5;
+        // Throttle to prevent spam
+        const now = Date.now();
+        if (now - this.lastWhaleTime < this.whaleThrottle) return;
+        this.lastWhaleTime = now;
+
+        const intensity = isLarge ? 0.8 : 0.4;  // Reduced intensity
 
         // Camera shake
-        this.shake(intensity, 0.5);
+        this.shake(intensity, 0.3);
 
-        // Bloom pulse
-        this.pulseBloom(isLarge ? 2 : 1.5, 0.5);
+        // Bloom pulse (only if not already animating)
+        if (!this.isBloomAnimating) {
+            this.pulseBloom(isLarge ? 1.2 : 0.9, 0.4);
+        }
 
         // Subtle screen darken
-        this.darkenScreen(0.3, 0.3);
+        this.darkenScreen(0.2, 0.2);
 
         // Show whale indicator
         this.showWhaleIndicator(isLarge);
     }
 
-    // Pulse bloom effect
+    // Pulse bloom effect (with animation lock)
     pulseBloom(targetStrength, duration) {
-        if (!this.sceneManager.bloomPass) return;
+        if (!this.sceneManager.bloomPass || this.isBloomAnimating) return;
 
+        this.isBloomAnimating = true;
         const startStrength = this.sceneManager.bloomPass.strength;
         const startTime = performance.now();
 
@@ -79,9 +96,9 @@ export class Effects {
             const eased = 1 - Math.pow(1 - t, 3);
 
             if (t < 0.5) {
-                // Ramp up
-                this.sceneManager.bloomPass.strength = startStrength +
-                    (targetStrength - startStrength) * (eased * 2);
+                // Ramp up (capped)
+                const newStrength = startStrength + (targetStrength - startStrength) * (eased * 2);
+                this.sceneManager.bloomPass.strength = Math.min(newStrength, 1.5);
             } else {
                 // Ramp down
                 this.sceneManager.bloomPass.strength = targetStrength -
@@ -92,6 +109,7 @@ export class Effects {
                 requestAnimationFrame(animate);
             } else {
                 this.sceneManager.bloomPass.strength = this.baseBloomStrength;
+                this.isBloomAnimating = false;
             }
         };
 
@@ -134,34 +152,45 @@ export class Effects {
         }, duration * 500);
     }
 
-    // Show whale indicator
+    // Show whale indicator (reuses single element)
     showWhaleIndicator(isLarge) {
-        const indicator = document.createElement('div');
-        indicator.className = 'whale-alert';
-        indicator.innerHTML = isLarge ?
-            '🐋 MEGA WHALE DETECTED 🐋' :
-            '🐋 WHALE ALERT 🐋';
+        // Clear previous timeout
+        if (this.whaleTimeout) {
+            clearTimeout(this.whaleTimeout);
+        }
 
-        indicator.style.cssText = `
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: ${isLarge ? '18px' : '14px'};
-            letter-spacing: 4px;
-            color: ${isLarge ? '#ff0000' : '#f7931a'};
-            text-shadow: 0 0 20px ${isLarge ? 'rgba(255,0,0,0.5)' : 'rgba(247,147,26,0.5)'};
-            z-index: 150;
-            animation: whale-pulse 2s ease-out forwards;
-            font-family: 'JetBrains Mono', monospace;
-            white-space: nowrap;
-        `;
+        // Create indicator once, reuse it
+        if (!this.whaleIndicator) {
+            this.whaleIndicator = document.createElement('div');
+            this.whaleIndicator.className = 'whale-alert';
+            this.whaleIndicator.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                letter-spacing: 4px;
+                z-index: 150;
+                font-family: 'JetBrains Mono', monospace;
+                white-space: nowrap;
+                opacity: 0;
+                transition: opacity 0.3s ease;
+            `;
+            document.body.appendChild(this.whaleIndicator);
+        }
 
-        document.body.appendChild(indicator);
+        // Update content and style
+        this.whaleIndicator.innerHTML = isLarge ? 'MEGA WHALE DETECTED' : 'WHALE ALERT';
+        this.whaleIndicator.style.fontSize = isLarge ? '18px' : '14px';
+        this.whaleIndicator.style.color = isLarge ? '#ff0000' : '#f7931a';
+        this.whaleIndicator.style.textShadow = `0 0 20px ${isLarge ? 'rgba(255,0,0,0.5)' : 'rgba(247,147,26,0.5)'}`;
 
-        setTimeout(() => {
-            indicator.remove();
-        }, 2000);
+        // Show
+        this.whaleIndicator.style.opacity = '1';
+
+        // Hide after delay
+        this.whaleTimeout = setTimeout(() => {
+            this.whaleIndicator.style.opacity = '0';
+        }, 1500);
     }
 
     // Update method called each frame
