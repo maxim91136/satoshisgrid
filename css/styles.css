@@ -183,6 +183,14 @@ html, body {
     letter-spacing: 2px;
 }
 
+.splash-warning {
+    margin-top: 16px;
+    font-size: 10px;
+    color: var(--bitcoin-orange);
+    letter-spacing: 1px;
+    opacity: 0.7;
+}
+
 /* Animated Grid Background */
 .splash-grid {
     position: absolute;

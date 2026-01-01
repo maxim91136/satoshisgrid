@@ -2,6 +2,14 @@
 
 All notable changes to SATOSHI'S GRID will be documented in this file.
 
+## [1.0.7] - 2026-01-01
+
+### Added
+- **Epilepsy Warning** - Photosensitivity warning on splash screen
+
+### Fixed
+- **Mobile HUD Overlap** - Bottom elements now in 3 stacked rows (Logo, Stats, Audio)
+
 ## [1.0.6] - 2026-01-01
 
 ### Fixed
