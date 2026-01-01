@@ -46,8 +46,8 @@ export class Grid {
         gridHelper.position.y = 0;
         group.add(gridHelper);
 
-        // Add glowing center line (the "highway")
-        const centerLineGeometry = new THREE.PlaneGeometry(2, this.gridSize);
+        // Add glowing center line (the "highway") - wider for more presence
+        const centerLineGeometry = new THREE.PlaneGeometry(8, this.gridSize);
         const centerLineMaterial = new THREE.MeshBasicMaterial({
             color: 0x00ffff,
             transparent: true,

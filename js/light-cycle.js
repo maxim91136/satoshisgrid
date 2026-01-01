@@ -22,7 +22,7 @@ export class LightCycle {
         this.sceneManager = sceneManager;
         this.effects = effects;
 
-        this.vehiclePosition = new THREE.Vector3(0, 0, -30);
+        this.vehiclePosition = new THREE.Vector3(0, 0, -15);
         this.isMining = true;
         this.fillLevel = 0;
         this.transactionCount = 0;
@@ -38,7 +38,7 @@ export class LightCycle {
         this.maxParticles = 15; // Strict limit for stability
 
         this.loadLightCycle();
-        this.createLightTrail();
+        // Trail created after bike loads (see loadLightCycle callback)
         this.sceneManager.add(this.cubeGroup);
     }
 
@@ -105,6 +105,9 @@ export class LightCycle {
                 this.bike.rotation.y = Math.PI; // Nach vorne ausrichten
 
                 this.cubeGroup.add(this.bike);
+
+                // Create trail AFTER bike is loaded
+                this.createLightTrail();
                 console.log('🏍️ Light Cycle loaded!');
             },
             undefined, // Skip progress logging to reduce console spam
@@ -127,6 +130,7 @@ export class LightCycle {
         this.bike.position.copy(this.vehiclePosition);
         this.bike.position.y = 1;
         this.cubeGroup.add(this.bike);
+        this.createLightTrail();
     }
 
     createLightTrail() {
