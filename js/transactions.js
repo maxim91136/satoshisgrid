@@ -323,7 +323,7 @@ export class TransactionManager {
         this.lightCycle = lightCycle;
         this.effects = effects;
         this.transactions = [];
-        this.maxTransactions = 75; // Balance between stability and visibility
+        this.maxTransactions = 50; // Reduced for memory stability
 
         // For click detection
         this.raycaster = new THREE.Raycaster();

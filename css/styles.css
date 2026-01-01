@@ -639,46 +639,63 @@ html, body {
 /* Mobile */
 @media (max-width: 500px) {
     :root {
-        --hud-padding: 12px;
-        --hud-padding-mobile: 10px;
+        --hud-padding: 8px;
+        --hud-padding-mobile: 6px;
     }
 
     .hud-label {
-        font-size: 8px;
-        letter-spacing: 1px;
+        font-size: 7px;
+        letter-spacing: 0.5px;
     }
 
     .hud-value {
-        font-size: 12px;
+        font-size: 11px;
     }
 
     .hud-top-left {
-        max-width: 45%;
+        max-width: 48%;
     }
 
     .hud-top-right {
-        max-width: 45%;
+        max-width: 48%;
     }
 
+    /* Stacked layout for bottom on mobile */
     .hud-bottom-left {
-        max-width: 50%;
+        bottom: 50px;
+        max-width: 100%;
+        width: calc(100% - 16px);
     }
 
     .hud-bottom-right {
-        max-width: 45%;
+        bottom: var(--hud-padding);
+        max-width: 100%;
+        width: calc(100% - 16px);
+        text-align: left;
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+    }
+
+    .hud-bottom-right .hud-item {
+        margin-bottom: 0;
     }
 
     .hud-item {
-        margin-bottom: 4px;
+        margin-bottom: 2px;
+    }
+
+    .logo-btn {
+        padding: 4px 8px;
     }
 
     .logo-symbol-small {
-        font-size: 18px;
+        font-size: 16px;
     }
 
     .logo-text-small {
-        font-size: 10px;
-        letter-spacing: 1px;
+        font-size: 9px;
+        letter-spacing: 0.5px;
     }
 
     .logo-text {

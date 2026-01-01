@@ -302,6 +302,7 @@ export class LightCycle {
 
         while (this.monuments.length > this.maxMonuments) {
             const oldest = this.monuments.shift();
+            oldest.userData.disposed = true; // Cancel any running animation
             this.sceneManager.remove(oldest);
             // DON'T dispose geometries - they are shared!
             // Only dispose materials
@@ -323,6 +324,9 @@ export class LightCycle {
         let elapsed = 0;
 
         const animate = () => {
+            // Stop animation if monument was disposed
+            if (monument.userData.disposed) return;
+
             elapsed += 0.016;
             const t = Math.min(elapsed / duration, 1);
             const eased = 1 - Math.pow(1 - t, 3);
