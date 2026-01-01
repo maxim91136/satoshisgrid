@@ -24,46 +24,57 @@ class SatoshisGrid {
         this.hud = null;
         this.effects = null;
 
-        this.setupSplashScreen();
+        // Check if user has entered before (skip splash on refresh)
+        const hasEntered = localStorage.getItem('satoshisgrid_entered');
+        if (hasEntered) {
+            this.skipSplash();
+        } else {
+            this.setupSplashScreen();
+        }
     }
 
     setupSplashScreen() {
         const splash = document.getElementById('splash');
         const enterBtn = document.getElementById('enter-btn');
 
-        // Audio bei ERSTEM Klick irgendwo auf Splash starten
-        const startAudioOnce = async () => {
-            if (!this.audioManager) {
-                console.log('🎵 Starting audio on first interaction...');
-                this.audioManager = new AudioManager();
-                await this.audioManager.init();
-            }
-            // Event Listener entfernen nach erstem Klick
-            splash.removeEventListener('click', startAudioOnce);
-            splash.removeEventListener('touchstart', startAudioOnce);
-        };
-
-        // Auf Klick oder Touch irgendwo auf Splash
-        splash.addEventListener('click', startAudioOnce);
-        splash.addEventListener('touchstart', startAudioOnce);
-
-        // Enter Button führt ins Grid
+        // Enter Button führt ins Grid (Audio startet erst hier durch User-Klick)
         enterBtn.addEventListener('click', async () => {
-            await startAudioOnce(); // Falls noch nicht gestartet
-            this.init();
+            localStorage.setItem('satoshisgrid_entered', 'true');
             splash.classList.add('hidden');
+            await this.init();
+            // Start audio now (user click enables AudioContext)
+            await this.audioManager.init();
         });
 
         // Allow keyboard entry
         document.addEventListener('keydown', async (e) => {
             if (e.code === 'Enter' || e.code === 'Space') {
                 if (!this.isInitialized) {
-                    await startAudioOnce();
-                    this.init();
+                    localStorage.setItem('satoshisgrid_entered', 'true');
                     splash.classList.add('hidden');
+                    await this.init();
+                    await this.audioManager.init();
                 }
             }
         });
+    }
+
+    // Skip splash for returning users (refresh)
+    async skipSplash() {
+        const splash = document.getElementById('splash');
+        splash.classList.add('hidden');
+
+        // Start grid immediately
+        await this.init();
+
+        // Init audio on first click (browser requirement - no user gesture yet)
+        const startAudioOnce = async () => {
+            if (this.audioManager && !this.audioManager.isInitialized) {
+                await this.audioManager.init();
+            }
+            document.removeEventListener('click', startAudioOnce);
+        };
+        document.addEventListener('click', startAudioOnce);
     }
 
     async init() {
@@ -93,10 +104,9 @@ class SatoshisGrid {
                 this.effects
             );
 
-            // Initialize Audio (falls nicht schon auf Splash gestartet)
+            // Create Audio Manager (init happens after user gesture)
             if (!this.audioManager) {
                 this.audioManager = new AudioManager();
-                await this.audioManager.init();
             }
 
             // Initialize HUD

@@ -553,6 +553,14 @@ html, body {
     color: var(--primary);
 }
 
+.menu-version {
+    font-size: 10px;
+    color: var(--electric-cyan);
+    margin-top: 16px;
+    opacity: 0.6;
+    letter-spacing: 2px;
+}
+
 /* ============================================
    FLASH OVERLAY
    ============================================ */

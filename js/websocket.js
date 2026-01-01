@@ -89,10 +89,13 @@ export class WebSocketManager {
             }
 
             if (data.blocks) {
-                // Initial blocks data
+                // Initial blocks data - only use if higher than what we have
                 if (data.blocks.length > 0) {
-                    this.lastBlockHeight = data.blocks[0].height;
-                    this.hud.updateBlockHeight(this.lastBlockHeight);
+                    const wsHeight = data.blocks[0].height;
+                    if (!this.lastBlockHeight || wsHeight > this.lastBlockHeight) {
+                        this.lastBlockHeight = wsHeight;
+                        this.hud.updateBlockHeight(this.lastBlockHeight);
+                    }
                 }
             }
 
