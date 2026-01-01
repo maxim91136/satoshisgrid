@@ -37,6 +37,10 @@ export class LightCycle {
         this.particleGeometry = SHARED_MONUMENT_GEOMETRIES.particle;
         this.maxParticles = 15; // Strict limit for stability
 
+        // Pushing block (temporary, after block found)
+        this.pushingBlock = null;
+        this.pushingBlockTimeout = null;
+
         this.loadLightCycle();
         // Trail created after bike loads (see loadLightCycle callback)
         this.sceneManager.add(this.cubeGroup);
@@ -275,8 +279,98 @@ export class LightCycle {
         if (!this.isMining) return;
         console.log('🔶 Block found!', blockData);
         this.effects.flash();
-        this.createMonument(blockData);
+
+        // Create pushing block in front of bike
+        this.createPushingBlock(blockData);
         this.reset();
+    }
+
+    createPushingBlock(blockData) {
+        // Remove existing pushing block if any
+        if (this.pushingBlock) {
+            this.releasePushingBlock();
+        }
+
+        // Clear any pending timeout
+        if (this.pushingBlockTimeout) {
+            clearTimeout(this.pushingBlockTimeout);
+        }
+
+        const group = new THREE.Group();
+
+        // Use SHARED geometry
+        const material = new THREE.MeshBasicMaterial({
+            color: BITCOIN_ORANGE,
+            transparent: true,
+            opacity: 0.9
+        });
+        const block = new THREE.Mesh(SHARED_MONUMENT_GEOMETRIES.block, material);
+        group.add(block);
+
+        // Outline
+        const outline = new THREE.LineSegments(
+            SHARED_MONUMENT_EDGES,
+            new THREE.LineBasicMaterial({ color: 0xffffff })
+        );
+        group.add(outline);
+
+        // Position in front of bike
+        group.position.set(
+            this.vehiclePosition.x,
+            2,
+            this.vehiclePosition.z - 8  // 8 units in front
+        );
+
+        group.userData.blockData = blockData;
+        this.cubeGroup.add(group);
+        this.pushingBlock = group;
+
+        // After 30 seconds, release the block
+        this.pushingBlockTimeout = setTimeout(() => {
+            this.releasePushingBlock();
+        }, 30000);
+
+        console.log('📦 Pushing block created (30s)');
+    }
+
+    releasePushingBlock() {
+        if (!this.pushingBlock) return;
+
+        // Move to scene (out of cubeGroup) and animate fall
+        const worldPos = new THREE.Vector3();
+        this.pushingBlock.getWorldPosition(worldPos);
+
+        this.cubeGroup.remove(this.pushingBlock);
+        this.pushingBlock.position.copy(worldPos);
+        this.sceneManager.add(this.pushingBlock);
+        this.monuments.push(this.pushingBlock);
+
+        // Animate falling back
+        this.animateMonumentFall(this.pushingBlock);
+
+        this.pushingBlock = null;
+        if (this.pushingBlockTimeout) {
+            clearTimeout(this.pushingBlockTimeout);
+            this.pushingBlockTimeout = null;
+        }
+
+        // Cleanup old monuments
+        while (this.monuments.length > this.maxMonuments) {
+            const oldest = this.monuments.shift();
+            oldest.userData.disposed = true;
+            this.sceneManager.remove(oldest);
+            oldest.traverse((child) => {
+                if (child.material) {
+                    if (Array.isArray(child.material)) {
+                        child.material.forEach(m => m.dispose());
+                    } else {
+                        child.material.dispose();
+                    }
+                }
+            });
+        }
+
+        console.log('📦 Block released → Monument');
     }
 
     createMonument(blockData) {
@@ -319,9 +413,13 @@ export class LightCycle {
     }
 
     animateMonumentFall(monument) {
-        monument.position.y = 15;
+        const startY = monument.position.y;
+        const startZ = monument.position.z;
         const duration = 0.5;
         let elapsed = 0;
+
+        // Lift up first, then fall
+        monument.position.y = 15;
 
         const animate = () => {
             // Stop animation if monument was disposed
@@ -331,7 +429,7 @@ export class LightCycle {
             const t = Math.min(elapsed / duration, 1);
             const eased = 1 - Math.pow(1 - t, 3);
             monument.position.y = 15 - (15 - 2) * eased;
-            monument.position.z = this.vehiclePosition.z - (t * 30);
+            monument.position.z = startZ + (t * 30);  // Move backward from current position
             if (t < 1) requestAnimationFrame(animate);
             else this.sceneManager.shake(0.3);
         };
