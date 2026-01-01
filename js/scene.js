@@ -88,6 +88,12 @@ export class SceneManager {
     }
 
     createPostProcessing() {
+        // Dispose old composer if it exists (prevent memory leak)
+        if (this.composer) {
+            this.composer.dispose();
+            this.composer = null;
+        }
+
         // Wichtig für korrektes Rendering
         this.renderer.autoClear = true;
         this.renderer.setClearColor(0x000000, 1);
@@ -167,8 +173,16 @@ export class SceneManager {
         // Skip rendering if WebGL context is lost
         if (this.contextLost) return;
 
-        this.updateCameraShake();
-        this.composer.render();
+        try {
+            this.updateCameraShake();
+            this.composer.render();
+        } catch (error) {
+            console.error('Render error:', error);
+            // Try to recover by recreating post-processing
+            if (!this.contextLost) {
+                this.createPostProcessing();
+            }
+        }
     }
 
     // Get scene for adding objects

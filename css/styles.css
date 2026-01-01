@@ -341,10 +341,6 @@ html, body {
     color: var(--electric-cyan);
 }
 
-.audio-toggle.muted .audio-icon::after {
-    content: '🔇';
-}
-
 .audio-icon {
     font-size: 18px;
 }
