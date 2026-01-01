@@ -120,12 +120,13 @@ export class LightCycle {
     }
 
     createLightTrail() {
-        const trailHeight = 8;
-        const trailLength = 50;
+        const trailLength = 60;
+        const trailHeight = 10;
 
+        // Vertikale Wand - Länge auf X, Höhe auf Y
         const geometry = new THREE.PlaneGeometry(trailLength, trailHeight);
 
-        const material = new THREE.ShaderMaterial({
+        this.trailMaterial = new THREE.ShaderMaterial({
             uniforms: {
                 color: { value: new THREE.Color(BITCOIN_ORANGE) },
                 time: { value: 0 }
@@ -143,11 +144,24 @@ export class LightCycle {
                 varying vec2 vUv;
 
                 void main() {
-                    float fade = pow(vUv.x, 0.3);
-                    float pulse = 0.85 + 0.15 * sin(time * 4.0 + vUv.x * 20.0);
-                    float vertical = 0.7 + 0.3 * (1.0 - abs(vUv.y - 0.5) * 2.0);
-                    float alpha = fade * pulse * vertical * 0.5;
-                    gl_FragColor = vec4(color, alpha);
+                    // vUv.x: 0 = hinten (fade out), 1 = vorne (am Bike, volle Opacity)
+                    float fade = pow(vUv.x, 0.5);
+
+                    // Subtiler Puls-Effekt
+                    float pulse = 0.9 + 0.1 * sin(time * 3.0 + (1.0 - vUv.x) * 15.0);
+
+                    // Vertikaler Gradient - heller in der Mitte
+                    float vertical = 1.0 - pow(abs(vUv.y - 0.5) * 2.0, 2.0);
+
+                    // Scharfe Kante am Boden
+                    float groundFade = smoothstep(0.0, 0.1, vUv.y);
+
+                    float alpha = fade * pulse * vertical * groundFade * 0.7;
+
+                    // Hellerer Kern
+                    vec3 finalColor = mix(color, vec3(1.0, 0.8, 0.5), vertical * 0.3);
+
+                    gl_FragColor = vec4(finalColor, alpha);
                 }
             `,
             transparent: true,
@@ -156,15 +170,25 @@ export class LightCycle {
             blending: THREE.AdditiveBlending
         });
 
-        this.trail = new THREE.Mesh(geometry, material);
+        this.trail = new THREE.Mesh(geometry, this.trailMaterial);
+
+        // Trail als vertikale Wand hinter dem Bike
+        // Rotation: Plane von XY-Ebene in YZ-Ebene drehen
         this.trail.rotation.y = Math.PI / 2;
+
+        // Position: Trail startet direkt am Bike
+        // trailLength/2 offset weil Plane-Center in der Mitte ist
         this.trail.position.set(
             this.vehiclePosition.x,
-            trailHeight / 2 + 0.5,
-            this.vehiclePosition.z - trailLength / 2 - 5
+            trailHeight / 2,  // Halb-Höhe (Boden bei y=0)
+            this.vehiclePosition.z - trailLength / 2 - 2  // 2 units hinter Bike
         );
 
         this.cubeGroup.add(this.trail);
+
+        // Trail-Länge für Update speichern
+        this.trailLength = trailLength;
+        this.trailHeight = trailHeight;
     }
 
     addTransaction(txData) {
@@ -270,9 +294,14 @@ export class LightCycle {
             this.bike.position.y = 1 + Math.sin(time * 2) * 0.2;
         }
 
-        // Trail pulsieren
-        if (this.trail && this.trail.material.uniforms) {
-            this.trail.material.uniforms.time.value += delta;
+        // Trail Animation
+        if (this.trailMaterial && this.trailMaterial.uniforms) {
+            this.trailMaterial.uniforms.time.value = time;
+        }
+
+        // Trail folgt Bike X-Position (falls Bike sich bewegt)
+        if (this.trail && this.bike) {
+            this.trail.position.x = this.bike.position.x;
         }
 
         // Particles
