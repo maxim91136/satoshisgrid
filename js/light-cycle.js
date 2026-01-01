@@ -190,7 +190,7 @@ export class LightCycle {
         // Position: Direkt hinter dem Bike
         this.trail.position.set(
             this.vehiclePosition.x,
-            0.05,  // Knapp über dem Grid
+            0.15,  // Deutlich über dem Grid (Z-Fighting vermeiden)
             this.vehiclePosition.z + trailLength / 2 + 4
         );
 

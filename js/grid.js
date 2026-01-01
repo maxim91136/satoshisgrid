@@ -56,7 +56,7 @@ export class Grid {
         });
         const centerLine = new THREE.Mesh(centerLineGeometry, centerLineMaterial);
         centerLine.rotation.x = -Math.PI / 2;
-        centerLine.position.y = 0.01;
+        centerLine.position.y = 0.03;
         group.add(centerLine);
 
         // Side boundary lines
