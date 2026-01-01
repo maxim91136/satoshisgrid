@@ -304,6 +304,22 @@ html, body {
     opacity: 1;
 }
 
+.hud-logo:hover .logo-text-small {
+    text-decoration: underline;
+    text-shadow: 0 0 10px var(--electric-cyan);
+}
+
+.hud-logo::after {
+    content: '☰';
+    margin-left: 8px;
+    font-size: 10px;
+    opacity: 0.5;
+}
+
+.hud-logo:hover::after {
+    opacity: 1;
+}
+
 .logo-symbol-small {
     font-size: 24px;
     color: var(--core-orange);
