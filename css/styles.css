@@ -486,6 +486,23 @@ html, body {
     line-height: 1.6;
 }
 
+.menu-credits {
+    font-size: 9px;
+    color: var(--text-dim);
+    line-height: 1.5;
+    margin-top: 16px;
+    opacity: 0.7;
+}
+
+.menu-credits a {
+    color: var(--text-dim);
+    text-decoration: underline;
+}
+
+.menu-credits a:hover {
+    color: var(--primary);
+}
+
 /* ============================================
    FLASH OVERLAY
    ============================================ */

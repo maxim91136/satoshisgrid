@@ -272,9 +272,9 @@ class Transaction {
 }
 
 export class TransactionManager {
-    constructor(sceneManager, miningCube, effects) {
+    constructor(sceneManager, lightCycle, effects) {
         this.sceneManager = sceneManager;
-        this.miningCube = miningCube;
+        this.lightCycle = lightCycle;
         this.effects = effects;
         this.transactions = [];
         this.maxTransactions = 200;

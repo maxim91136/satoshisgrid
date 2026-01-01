@@ -4,9 +4,9 @@
  */
 
 export class WebSocketManager {
-    constructor(transactionManager, miningCube, hud, audioManager, effects) {
+    constructor(transactionManager, lightCycle, hud, audioManager, effects) {
         this.transactionManager = transactionManager;
-        this.miningCube = miningCube;
+        this.lightCycle = lightCycle;
         this.hud = hud;
         this.audioManager = audioManager;
         this.effects = effects;
@@ -123,7 +123,7 @@ export class WebSocketManager {
         this.hud.updateBlockHeight(block.height);
 
         // Notify mining cube
-        this.miningCube.onBlockFound(block);
+        this.lightCycle.onBlockFound(block);
 
         // Play block sound
         this.audioManager.playBlockSound();
@@ -176,7 +176,7 @@ export class WebSocketManager {
         const transaction = this.transactionManager.addTransaction(txData);
 
         // Add to mining cube
-        this.miningCube.addTransaction(txData);
+        this.lightCycle.addTransaction(txData);
 
         // Check for whale
         const btcValue = value / 100000000;

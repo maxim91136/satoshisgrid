@@ -6,7 +6,7 @@
 import { SceneManager } from './scene.js';
 import { Grid } from './grid.js';
 import { TransactionManager } from './transactions.js';
-import { MiningCube } from './mining-cube.js';
+import { LightCycle } from './light-cycle.js';
 import { WebSocketManager } from './websocket.js';
 import { AudioManager } from './audio.js';
 import { HUD } from './hud.js';
@@ -18,7 +18,7 @@ class SatoshisGrid {
         this.sceneManager = null;
         this.grid = null;
         this.transactionManager = null;
-        this.miningCube = null;
+        this.lightCycle = null;
         this.wsManager = null;
         this.audioManager = null;
         this.hud = null;
@@ -64,13 +64,13 @@ class SatoshisGrid {
             // Initialize Grid
             this.grid = new Grid(this.sceneManager);
 
-            // Initialize Mining Cube
-            this.miningCube = new MiningCube(this.sceneManager, this.effects);
+            // Initialize Light Cycle
+            this.lightCycle = new LightCycle(this.sceneManager, this.effects);
 
             // Initialize Transaction Manager
             this.transactionManager = new TransactionManager(
                 this.sceneManager,
-                this.miningCube,
+                this.lightCycle,
                 this.effects
             );
 
@@ -84,7 +84,7 @@ class SatoshisGrid {
             // Initialize WebSocket Connection
             this.wsManager = new WebSocketManager(
                 this.transactionManager,
-                this.miningCube,
+                this.lightCycle,
                 this.hud,
                 this.audioManager,
                 this.effects
@@ -114,7 +114,7 @@ class SatoshisGrid {
         // Update components
         this.grid.update(delta);
         this.transactionManager.update(delta);
-        this.miningCube.update(delta);
+        this.lightCycle.update(delta);
         this.effects.update(delta);
 
         // Render scene
