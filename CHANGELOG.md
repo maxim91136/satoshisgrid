@@ -2,6 +2,11 @@
 
 All notable changes to SATOSHI'S GRID will be documented in this file.
 
+## [1.0.6] - 2026-01-01
+
+### Fixed
+- **White Screen on Block** - Flash overlay now properly resets inline opacity after animation
+
 ## [1.0.5] - 2026-01-01
 
 ### Fixed
