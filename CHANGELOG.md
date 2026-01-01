@@ -2,6 +2,20 @@
 
 All notable changes to SATOSHI'S GRID will be documented in this file.
 
+## [1.0.3] - 2026-01-01
+
+### Fixed
+- **Memory Stability** - Reduced maxTransactions to 50, monument animations now cancel on dispose
+- **Z-Fighting** - Grid highway and trail no longer flicker/disappear
+- **Mobile Layout** - Bottom HUD now stacked, no overlap on small screens
+
+### Added
+- **Menu Indicator** - CSS hamburger icon (3 cyan lines) before logo text
+- **Hover Effects** - Logo text underlines + glows on hover
+
+### Removed
+- **Unused Particle Burst** - Removed createParticleBurst function (memory optimization)
+
 ## [1.0.2] - 2026-01-01
 
 ### Fixed
