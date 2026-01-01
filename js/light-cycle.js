@@ -144,11 +144,12 @@ export class LightCycle {
                 varying vec2 vUv;
 
                 void main() {
-                    // vUv.x: 0 = hinten (fade out), 1 = vorne (am Bike, volle Opacity)
-                    float fade = pow(vUv.x, 0.5);
+                    // UV ist nach Rotation invertiert: vUv.x=0 ist am Bike, vUv.x=1 ist hinten
+                    // Invertieren: Am Bike (vUv.x=0) volle Opacity, hinten (vUv.x=1) fade out
+                    float fade = pow(1.0 - vUv.x, 0.5);
 
                     // Subtiler Puls-Effekt
-                    float pulse = 0.9 + 0.1 * sin(time * 3.0 + (1.0 - vUv.x) * 15.0);
+                    float pulse = 0.9 + 0.1 * sin(time * 3.0 + vUv.x * 15.0);
 
                     // Vertikaler Gradient - heller in der Mitte
                     float vertical = 1.0 - pow(abs(vUv.y - 0.5) * 2.0, 2.0);
@@ -156,10 +157,10 @@ export class LightCycle {
                     // Scharfe Kante am Boden
                     float groundFade = smoothstep(0.0, 0.1, vUv.y);
 
-                    float alpha = fade * pulse * vertical * groundFade * 0.7;
+                    float alpha = fade * pulse * vertical * groundFade * 0.8;
 
-                    // Hellerer Kern
-                    vec3 finalColor = mix(color, vec3(1.0, 0.8, 0.5), vertical * 0.3);
+                    // Hellerer Kern mit Orange-Glow
+                    vec3 finalColor = mix(color, vec3(1.0, 0.7, 0.3), vertical * 0.4);
 
                     gl_FragColor = vec4(finalColor, alpha);
                 }
