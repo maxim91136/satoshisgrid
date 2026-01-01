@@ -49,6 +49,9 @@ export class WebSocketManager {
         // Start price polling
         this.startPricePolling();
 
+        // Start block height polling (REST fallback)
+        this.startBlockHeightPolling();
+
         // Fetch initial hashrate
         this.fetchHashrate();
     }
@@ -248,6 +251,35 @@ export class WebSocketManager {
         this.priceInterval = setInterval(fetchPrice, 30000);
     }
 
+    // Fetch current block height (REST fallback)
+    async fetchBlockHeight() {
+        try {
+            const response = await fetch('https://mempool.space/api/blocks/tip/height');
+            const height = await response.json();
+            if (height && height !== this.lastBlockHeight) {
+                // Only update if different and higher
+                if (!this.lastBlockHeight || height > this.lastBlockHeight) {
+                    console.log('📊 Block height sync:', height);
+                    this.lastBlockHeight = height;
+                    this.hud.updateBlockHeight(height);
+                }
+            }
+        } catch (error) {
+            // Silent fail
+        }
+    }
+
+    // Start block height polling (fallback for missed WS events)
+    startBlockHeightPolling() {
+        // Initial fetch
+        this.fetchBlockHeight();
+
+        // Poll every 30 seconds
+        this.blockHeightInterval = setInterval(() => {
+            this.fetchBlockHeight();
+        }, 30000);
+    }
+
     // Fetch hashrate from mempool.space API
     async fetchHashrate() {
         try {
@@ -343,6 +375,9 @@ export class WebSocketManager {
         }
         if (this.priceInterval) {
             clearInterval(this.priceInterval);
+        }
+        if (this.blockHeightInterval) {
+            clearInterval(this.blockHeightInterval);
         }
         if (this.demoInterval) {
             clearInterval(this.demoInterval);
