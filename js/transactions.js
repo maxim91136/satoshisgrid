@@ -21,6 +21,33 @@ const COLORS = {
     WHITE: 0xffffff
 };
 
+// SHARED GEOMETRIES - Prevents memory leak!
+// These are created once and reused by all transactions
+const SHARED_GEOMETRIES = {
+    // Light Cycle
+    lightCycleBody: new THREE.BoxGeometry(0.3, 0.3, 3),
+    lightCycleGlow: new THREE.BoxGeometry(0.5, 0.5, 4),
+    lightCycleTrail: new THREE.PlaneGeometry(0.2, 8),
+
+    // Armored Transport
+    transportBody: new THREE.BoxGeometry(1.5, 0.8, 4),
+    transportPanel: new THREE.BoxGeometry(0.1, 1, 3),
+    transportGlow: new THREE.BoxGeometry(2, 1.2, 5),
+    transportTrail: new THREE.PlaneGeometry(0.5, 10),
+
+    // Recognizer
+    recognizerArm: new THREE.BoxGeometry(2, 1, 8),
+    recognizerArmLarge: new THREE.BoxGeometry(3, 1.5, 12),
+    recognizerBar: new THREE.BoxGeometry(10, 1, 2),
+    recognizerBarLarge: new THREE.BoxGeometry(15, 1.5, 3),
+    recognizerCore: new THREE.SphereGeometry(1, 16, 16),
+    recognizerCoreLarge: new THREE.SphereGeometry(1.5, 16, 16),
+    recognizerGlow: new THREE.BoxGeometry(12, 3, 10),
+    recognizerGlowLarge: new THREE.BoxGeometry(18, 4.5, 15),
+    recognizerShadow: new THREE.PlaneGeometry(12, 10),
+    recognizerShadowLarge: new THREE.PlaneGeometry(18, 15)
+};
+
 class Transaction {
     constructor(data, sceneManager) {
         this.data = data;
@@ -89,28 +116,26 @@ class Transaction {
         // Sleek, thin light trail - like a motorcycle
         const group = new THREE.Group();
 
-        // Main body - elongated box
-        const bodyGeometry = new THREE.BoxGeometry(0.3, 0.3, 3);
+        // Main body - SHARED geometry
         const bodyMaterial = new THREE.MeshBasicMaterial({
             color: COLORS.CYAN,
             transparent: true,
             opacity: 0.6
         });
-        const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+        const body = new THREE.Mesh(SHARED_GEOMETRIES.lightCycleBody, bodyMaterial);
         group.add(body);
 
-        // Glow effect
-        const glowGeometry = new THREE.BoxGeometry(0.5, 0.5, 4);
+        // Glow effect - SHARED geometry
         const glowMaterial = new THREE.MeshBasicMaterial({
             color: COLORS.CYAN,
             transparent: true,
             opacity: 0.3
         });
-        const glow = new THREE.Mesh(glowGeometry, glowMaterial);
+        const glow = new THREE.Mesh(SHARED_GEOMETRIES.lightCycleGlow, glowMaterial);
         group.add(glow);
 
-        // Trail
-        this.createTrail(group, COLORS.CYAN, 0.2, 8);
+        // Trail - SHARED geometry
+        this.createTrail(group, COLORS.CYAN, 'lightCycle');
 
         this.mesh = group;
     }
@@ -119,44 +144,41 @@ class Transaction {
         // Wider, more substantial vehicle
         const group = new THREE.Group();
 
-        // Main body - wider box
-        const bodyGeometry = new THREE.BoxGeometry(1.5, 0.8, 4);
+        // Main body - SHARED geometry
         const bodyMaterial = new THREE.MeshBasicMaterial({
             color: COLORS.CYAN,
             transparent: true,
             opacity: 0.6
         });
-        const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+        const body = new THREE.Mesh(SHARED_GEOMETRIES.transportBody, bodyMaterial);
         group.add(body);
 
-        // Side panels
-        const panelGeometry = new THREE.BoxGeometry(0.1, 1, 3);
+        // Side panels - SHARED geometry
         const panelMaterial = new THREE.MeshBasicMaterial({
             color: COLORS.WHITE,
             transparent: true,
             opacity: 0.5
         });
 
-        const leftPanel = new THREE.Mesh(panelGeometry, panelMaterial);
+        const leftPanel = new THREE.Mesh(SHARED_GEOMETRIES.transportPanel, panelMaterial);
         leftPanel.position.set(-0.8, 0, 0);
         group.add(leftPanel);
 
-        const rightPanel = new THREE.Mesh(panelGeometry, panelMaterial);
+        const rightPanel = new THREE.Mesh(SHARED_GEOMETRIES.transportPanel, panelMaterial.clone());
         rightPanel.position.set(0.8, 0, 0);
         group.add(rightPanel);
 
-        // Glow
-        const glowGeometry = new THREE.BoxGeometry(2, 1.2, 5);
+        // Glow - SHARED geometry
         const glowMaterial = new THREE.MeshBasicMaterial({
             color: COLORS.CYAN,
             transparent: true,
             opacity: 0.2
         });
-        const glow = new THREE.Mesh(glowGeometry, glowMaterial);
+        const glow = new THREE.Mesh(SHARED_GEOMETRIES.transportGlow, glowMaterial);
         group.add(glow);
 
-        // Trail
-        this.createTrail(group, COLORS.CYAN, 0.5, 10);
+        // Trail - SHARED geometry
+        this.createTrail(group, COLORS.CYAN, 'transport');
 
         this.mesh = group;
     }
@@ -167,57 +189,58 @@ class Transaction {
         const scale = isLarge ? 1.5 : 1;
         const color = COLORS.ORANGE;
 
-        // Main U-shape body
-        // Left arm
-        const armGeometry = new THREE.BoxGeometry(2 * scale, 1 * scale, 8 * scale);
+        // Select appropriate shared geometries
+        const armGeo = isLarge ? SHARED_GEOMETRIES.recognizerArmLarge : SHARED_GEOMETRIES.recognizerArm;
+        const barGeo = isLarge ? SHARED_GEOMETRIES.recognizerBarLarge : SHARED_GEOMETRIES.recognizerBar;
+        const coreGeo = isLarge ? SHARED_GEOMETRIES.recognizerCoreLarge : SHARED_GEOMETRIES.recognizerCore;
+        const glowGeo = isLarge ? SHARED_GEOMETRIES.recognizerGlowLarge : SHARED_GEOMETRIES.recognizerGlow;
+        const shadowGeo = isLarge ? SHARED_GEOMETRIES.recognizerShadowLarge : SHARED_GEOMETRIES.recognizerShadow;
+
+        // Main U-shape body - SHARED geometry
         const armMaterial = new THREE.MeshBasicMaterial({
             color: color,
             transparent: true,
             opacity: 0.6
         });
 
-        const leftArm = new THREE.Mesh(armGeometry, armMaterial);
+        const leftArm = new THREE.Mesh(armGeo, armMaterial);
         leftArm.position.set(-4 * scale, 0, 0);
         group.add(leftArm);
 
-        const rightArm = new THREE.Mesh(armGeometry, armMaterial);
+        const rightArm = new THREE.Mesh(armGeo, armMaterial.clone());
         rightArm.position.set(4 * scale, 0, 0);
         group.add(rightArm);
 
-        // Connecting bar
-        const barGeometry = new THREE.BoxGeometry(10 * scale, 1 * scale, 2 * scale);
-        const bar = new THREE.Mesh(barGeometry, armMaterial);
+        // Connecting bar - SHARED geometry
+        const bar = new THREE.Mesh(barGeo, armMaterial.clone());
         bar.position.set(0, 0, 3 * scale);
         group.add(bar);
 
-        // Central core (glowing)
-        const coreGeometry = new THREE.SphereGeometry(1 * scale, 16, 16);
+        // Central core - SHARED geometry
         const coreMaterial = new THREE.MeshBasicMaterial({
             color: isLarge ? COLORS.RED : color
         });
-        const core = new THREE.Mesh(coreGeometry, coreMaterial);
+        const core = new THREE.Mesh(coreGeo, coreMaterial);
         core.position.set(0, -0.5 * scale, 2 * scale);
         group.add(core);
 
-        // Glow effect
-        const glowGeometry = new THREE.BoxGeometry(12 * scale, 3 * scale, 10 * scale);
+        // Glow effect - SHARED geometry
         const glowMaterial = new THREE.MeshBasicMaterial({
             color: color,
             transparent: true,
             opacity: 0.15
         });
-        const glow = new THREE.Mesh(glowGeometry, glowMaterial);
+        const glow = new THREE.Mesh(glowGeo, glowMaterial);
         group.add(glow);
 
-        // Shadow on grid (dark plane below)
-        const shadowGeometry = new THREE.PlaneGeometry(12 * scale, 10 * scale);
+        // Shadow on grid - SHARED geometry
         const shadowMaterial = new THREE.MeshBasicMaterial({
             color: 0x000000,
             transparent: true,
             opacity: 0.5,
             side: THREE.DoubleSide
         });
-        const shadow = new THREE.Mesh(shadowGeometry, shadowMaterial);
+        const shadow = new THREE.Mesh(shadowGeo, shadowMaterial);
         shadow.rotation.x = -Math.PI / 2;
         shadow.position.y = -this.getYPosition() + 0.1;
         group.add(shadow);
@@ -226,18 +249,34 @@ class Transaction {
         this.speed = this.speed * 0.6; // Recognizers move slower, more ominous
     }
 
-    createTrail(group, color, width, length) {
-        const trailGeometry = new THREE.PlaneGeometry(width, length);
+    createTrail(group, color, type) {
+        // Use shared geometry based on type
+        let trailGeo;
+        let trailZ;
+        switch (type) {
+            case 'lightCycle':
+                trailGeo = SHARED_GEOMETRIES.lightCycleTrail;
+                trailZ = 8 / 2 + 1; // length/2 + 1
+                break;
+            case 'transport':
+                trailGeo = SHARED_GEOMETRIES.transportTrail;
+                trailZ = 10 / 2 + 1;
+                break;
+            default:
+                trailGeo = SHARED_GEOMETRIES.lightCycleTrail;
+                trailZ = 8 / 2 + 1;
+        }
+
         const trailMaterial = new THREE.MeshBasicMaterial({
             color: color,
             transparent: true,
             opacity: 0.4,
             side: THREE.DoubleSide
         });
-        const trail = new THREE.Mesh(trailGeometry, trailMaterial);
+        const trail = new THREE.Mesh(trailGeo, trailMaterial);
         trail.rotation.x = -Math.PI / 2;
         trail.position.y = -0.2;
-        trail.position.z = length / 2 + 1;
+        trail.position.z = trailZ;
         group.add(trail);
         this.trail = trail;
     }
@@ -263,8 +302,15 @@ class Transaction {
         if (this.mesh) {
             this.sceneManager.remove(this.mesh);
             this.mesh.traverse((child) => {
-                if (child.geometry) child.geometry.dispose();
-                if (child.material) child.material.dispose();
+                // DON'T dispose geometries - they are shared!
+                // Only dispose materials
+                if (child.material) {
+                    if (Array.isArray(child.material)) {
+                        child.material.forEach(m => m.dispose());
+                    } else {
+                        child.material.dispose();
+                    }
+                }
             });
             this.mesh = null;
         }
@@ -287,7 +333,26 @@ export class TransactionManager {
     }
 
     setupClickHandler() {
+        // Setup close button handler once
+        const closeBtn = document.getElementById('tx-panel-close');
+        const panel = document.getElementById('tx-panel');
+        if (closeBtn && panel) {
+            closeBtn.addEventListener('click', (event) => {
+                event.stopPropagation(); // Prevent raycast interference
+                panel.classList.add('hidden');
+            });
+        }
+
+        // Raycast click handler - ignore UI elements
         window.addEventListener('click', (event) => {
+            // Ignore clicks on UI elements
+            if (event.target.closest('.tx-panel') ||
+                event.target.closest('.hud') ||
+                event.target.closest('.side-menu') ||
+                event.target.closest('button')) {
+                return;
+            }
+
             this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
             this.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
@@ -321,11 +386,7 @@ export class TransactionManager {
         document.getElementById('tx-size').textContent = `${data.vsize || '--'} vB`;
 
         panel.classList.remove('hidden');
-
-        // Close button
-        document.getElementById('tx-panel-close').onclick = () => {
-            panel.classList.add('hidden');
-        };
+        // Close button handler is set up once in setupClickHandler()
     }
 
     addTransaction(txData) {

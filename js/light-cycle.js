@@ -25,6 +25,10 @@ export class LightCycle {
         this.bike = null;
         this.trail = null;
 
+        // Shared geometry for particles (prevents memory leak!)
+        this.particleGeometry = new THREE.SphereGeometry(0.2, 6, 6);
+        this.maxParticles = 30; // Limit active particles
+
         this.loadLightCycle();
         this.createLightTrail();
         this.sceneManager.add(this.cubeGroup);
@@ -95,9 +99,7 @@ export class LightCycle {
                 this.cubeGroup.add(this.bike);
                 console.log('🏍️ Light Cycle loaded!');
             },
-            (progress) => {
-                console.log('Loading:', Math.round(progress.loaded / progress.total * 100) + '%');
-            },
+            undefined, // Skip progress logging to reduce console spam
             (error) => {
                 console.error('Error loading Light Cycle:', error);
                 // Fallback: Einfaches Placeholder-Objekt
@@ -258,8 +260,14 @@ export class LightCycle {
     }
 
     createParticle(txData) {
+        // Limit particles to prevent memory issues
+        if (this.particles.length >= this.maxParticles) {
+            return; // Skip if too many particles
+        }
+
+        // Reuse shared geometry, only create new material
         const particle = new THREE.Mesh(
-            new THREE.SphereGeometry(0.2, 6, 6),
+            this.particleGeometry, // Shared geometry!
             new THREE.MeshBasicMaterial({
                 color: BITCOIN_ORANGE,
                 transparent: true,
@@ -350,7 +358,7 @@ export class LightCycle {
         this.transactionCount = 0;
         this.particles.forEach(p => {
             this.cubeGroup.remove(p);
-            p.geometry.dispose();
+            // Only dispose material, geometry is shared!
             p.material.dispose();
         });
         this.particles = [];
@@ -392,7 +400,7 @@ export class LightCycle {
             p.material.opacity = p.userData.life;
             if (p.userData.life <= 0) {
                 this.cubeGroup.remove(p);
-                p.geometry.dispose();
+                // Only dispose material, geometry is shared!
                 p.material.dispose();
                 this.particles.splice(i, 1);
             }

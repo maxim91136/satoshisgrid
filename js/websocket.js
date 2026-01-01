@@ -48,6 +48,9 @@ export class WebSocketManager {
 
         // Start price polling
         this.startPricePolling();
+
+        // Fetch initial hashrate
+        this.fetchHashrate();
     }
 
     onOpen() {
@@ -230,6 +233,28 @@ export class WebSocketManager {
         this.priceInterval = setInterval(fetchPrice, 30000);
     }
 
+    // Fetch hashrate from mempool.space API
+    async fetchHashrate() {
+        try {
+            const response = await fetch('https://mempool.space/api/v1/mining/hashrate/3d');
+            const data = await response.json();
+            if (data.currentHashrate) {
+                this.hud.updateHashRate(data.currentHashrate);
+            }
+        } catch (error) {
+            // Fallback: try difficulty endpoint
+            try {
+                const response = await fetch('https://mempool.space/api/v1/difficulty-adjustment');
+                const data = await response.json();
+                if (data.estimatedHashrate) {
+                    this.hud.updateHashRate(data.estimatedHashrate);
+                }
+            } catch (err) {
+                // Silent fail - hashrate will remain at "---"
+            }
+        }
+    }
+
     // Demo mode - simulated transactions when WS unavailable
     startDemoMode() {
         if (this.demoMode) return;
@@ -241,14 +266,15 @@ export class WebSocketManager {
         this.hud.updateBlockHeight(878000);
         this.hud.updateMempoolSize(50000);
         this.hud.updateFeeRate(15);
+        this.hud.updateHashRate(700e18); // ~700 EH/s demo value
 
         // Generate random transactions
         this.demoInterval = setInterval(() => {
             this.generateDemoTransaction();
         }, 200 + Math.random() * 800);
 
-        // Occasional block (every 1-2 minutes in demo)
-        setInterval(() => {
+        // Occasional block (every 1-2 minutes in demo) - STORE THE INTERVAL!
+        this.demoBlockInterval = setInterval(() => {
             if (Math.random() < 0.02) {
                 const newHeight = (this.lastBlockHeight || 878000) + 1;
                 this.handleNewBlock({ height: newHeight });
@@ -305,6 +331,9 @@ export class WebSocketManager {
         }
         if (this.demoInterval) {
             clearInterval(this.demoInterval);
+        }
+        if (this.demoBlockInterval) {
+            clearInterval(this.demoBlockInterval);
         }
     }
 }
