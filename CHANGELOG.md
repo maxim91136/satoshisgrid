@@ -2,6 +2,11 @@
 
 All notable changes to SATOSHI'S GRID will be documented in this file.
 
+## [1.0.4] - 2026-01-01
+
+### Changed
+- **Price API** - Binance as primary source, CoinGecko as fallback (more reliable)
+
 ## [1.0.3] - 2026-01-01
 
 ### Fixed
