@@ -181,13 +181,10 @@ export class WebSocketManager {
         // Add to mining cube
         this.lightCycle.addTransaction(txData);
 
-        // Check for whale
+        // Only whale alerts (≥10 BTC), no transaction beeps
         const btcValue = value / 100000000;
         if (btcValue >= 10) {
             this.audioManager.playWhaleSound(btcValue >= 100);
-        } else if (Math.random() < 0.1) {
-            // Play transaction sound for some regular transactions
-            this.audioManager.playTransactionSound();
         }
     }
 
