@@ -2,6 +2,23 @@
 
 All notable changes to SATOSHI'S GRID will be documented in this file.
 
+## [1.0.1] - 2026-01-01
+
+### Added
+- **Rotating Bitcoin Quotes** - Famous quotes fade in/out in the void area
+- **Hamburger Menu Button** - Visible menu toggle in bottom right corner
+- **Hashrate API** - REST API fallback for hashrate display
+
+### Fixed
+- **Memory Leak** - Shared geometries for all transaction types (major fix)
+- **Mobile HUD** - Responsive layout for screens <500px
+- **Transaction Panel Close** - Proper event handling with stopPropagation
+- **Demo Mode Interval Leak** - demoBlockInterval now properly tracked and cleared
+
+### Improved
+- **Console Spam Reduced** - Loading progress logs removed, memory log interval increased to 5min
+- **Demo Mode** - Now shows realistic hashrate value (700 EH/s)
+
 ## [1.0.0] - 2026-01-01
 
 ### Added
