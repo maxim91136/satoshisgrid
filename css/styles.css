@@ -309,15 +309,17 @@ html, body {
     text-shadow: 0 0 10px var(--electric-cyan);
 }
 
-.hud-logo::after {
+.hud-logo::before {
     content: '☰';
-    margin-left: 8px;
-    font-size: 10px;
-    opacity: 0.5;
+    margin-right: 8px;
+    font-size: 14px;
+    color: var(--electric-cyan);
+    opacity: 0.7;
 }
 
-.hud-logo:hover::after {
+.hud-logo:hover::before {
     opacity: 1;
+    text-shadow: 0 0 8px var(--electric-cyan);
 }
 
 .logo-symbol-small {
