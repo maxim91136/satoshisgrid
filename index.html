@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SATOSHIS GRID | Visualizing Truth</title>
+
+    <!-- SEO & Social -->
+    <meta name="description" content="The most brutal Bitcoin visualization. Watch the blockchain pulse in real-time 3D.">
+    <meta name="keywords" content="Bitcoin, Blockchain, Visualization, Mempool, Cryptocurrency, BTC">
+    <meta name="author" content="Satoshis Grid">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="SATOSHIS GRID | Visualizing Truth">
+    <meta property="og:description" content="The most brutal Bitcoin visualization. Watch the blockchain pulse in real-time 3D.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://satoshisgrid.com">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="SATOSHIS GRID | Visualizing Truth">
+    <meta name="twitter:description" content="The most brutal Bitcoin visualization. Watch the blockchain pulse in real-time 3D.">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>₿</text></svg>">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;700&display=swap" rel="stylesheet">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <!-- Splash Screen -->
+    <div id="splash" class="splash">
+        <div class="splash-content">
+            <div class="splash-logo">
+                <span class="logo-symbol">₿</span>
+                <h1 class="logo-text">SATOSHIS GRID</h1>
+            </div>
+            <p class="splash-tagline">VISUALIZING TRUTH</p>
+            <button id="enter-btn" class="enter-button">
+                <span class="btn-text">ENTER THE GRID</span>
+                <span class="btn-icon">▶</span>
+            </button>
+            <p class="splash-hint">Click to enable audio experience</p>
+        </div>
+        <div class="splash-grid"></div>
+    </div>
+
+    <!-- Main Canvas Container -->
+    <div id="canvas-container"></div>
+
+    <!-- HUD Overlay -->
+    <div id="hud" class="hud hidden">
+        <!-- Top Left -->
+        <div class="hud-corner hud-top-left">
+            <div class="hud-item">
+                <span class="hud-label">BLOCK</span>
+                <span id="block-height" class="hud-value">---,---</span>
+            </div>
+            <div class="hud-item">
+                <span class="hud-label">HASH</span>
+                <span id="hash-rate" class="hud-value">--- EH/s</span>
+            </div>
+        </div>
+
+        <!-- Top Right -->
+        <div class="hud-corner hud-top-right">
+            <div class="hud-item">
+                <span class="hud-label">BTC/USD</span>
+                <span id="btc-price" class="hud-value">$---,---</span>
+            </div>
+        </div>
+
+        <!-- Bottom Left -->
+        <div class="hud-corner hud-bottom-left">
+            <div class="hud-logo" id="logo-btn">
+                <span class="logo-symbol-small">₿</span>
+                <span class="logo-text-small">SATOSHIS GRID</span>
+            </div>
+        </div>
+
+        <!-- Bottom Right -->
+        <div class="hud-corner hud-bottom-right">
+            <div class="hud-item">
+                <span class="hud-label">MEMPOOL</span>
+                <span id="mempool-size" class="hud-value">--- TX</span>
+            </div>
+            <div class="hud-item">
+                <span class="hud-label">FEE</span>
+                <span id="fee-rate" class="hud-value">-- sat/vB</span>
+            </div>
+        </div>
+
+        <!-- Audio Toggle -->
+        <button id="audio-toggle" class="audio-toggle" title="Toggle Audio">
+            <span class="audio-icon">🔊</span>
+        </button>
+    </div>
+
+    <!-- Transaction Info Panel -->
+    <div id="tx-panel" class="tx-panel hidden">
+        <div class="tx-panel-header">
+            <span class="tx-panel-title">TRANSACTION</span>
+            <button id="tx-panel-close" class="tx-panel-close">×</button>
+        </div>
+        <div class="tx-panel-content">
+            <div class="tx-item">
+                <span class="tx-label">TXID</span>
+                <span id="tx-id" class="tx-value tx-hash">---</span>
+            </div>
+            <div class="tx-item">
+                <span class="tx-label">VALUE</span>
+                <span id="tx-value" class="tx-value">--- BTC</span>
+            </div>
+            <div class="tx-item">
+                <span class="tx-label">FEE</span>
+                <span id="tx-fee" class="tx-value">--- sat/vB</span>
+            </div>
+            <div class="tx-item">
+                <span class="tx-label">SIZE</span>
+                <span id="tx-size" class="tx-value">--- vB</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Side Menu -->
+    <div id="side-menu" class="side-menu hidden">
+        <div class="menu-header">
+            <span class="menu-title">MENU</span>
+            <button id="menu-close" class="menu-close">×</button>
+        </div>
+        <div class="menu-content">
+            <a href="#" class="menu-item" id="menu-about">ABOUT</a>
+            <a href="#" class="menu-item" id="menu-settings">SETTINGS</a>
+            <a href="https://github.com" target="_blank" class="menu-item">GITHUB</a>
+            <a href="#" class="menu-item" id="menu-donate">DONATE</a>
+        </div>
+        <div class="menu-footer">
+            <p class="menu-quote">"Bitcoin is not just code. It is energy."</p>
+        </div>
+    </div>
+
+    <!-- Flash Effect Overlay -->
+    <div id="flash-overlay" class="flash-overlay"></div>
+
+    <!-- Three.js -->
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+            "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+        }
+    }
+    </script>
+
+    <!-- Application -->
+    <script type="module" src="js/main.js"></script>
+</body>
+</html>
