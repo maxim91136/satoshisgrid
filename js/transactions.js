@@ -246,7 +246,7 @@ class Transaction {
         group.add(shadow);
 
         this.mesh = group;
-        this.speed = this.speed * 0.6; // Recognizers move slower, more ominous
+        this.speed = this.speed * 0.85; // Recognizers slightly slower but reach camera
     }
 
     createTrail(group, color, type) {
@@ -323,7 +323,7 @@ export class TransactionManager {
         this.lightCycle = lightCycle;
         this.effects = effects;
         this.transactions = [];
-        this.maxTransactions = 50; // Aggressive limit for stability
+        this.maxTransactions = 75; // Balance between stability and visibility
 
         // For click detection
         this.raycaster = new THREE.Raycaster();
