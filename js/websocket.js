@@ -208,18 +208,36 @@ export class WebSocketManager {
         }
     }
 
-    // Price polling (CoinGecko)
+    // Price polling (Binance primary, CoinGecko fallback)
     async startPricePolling() {
         const fetchPrice = async () => {
+            // Try Binance first (more reliable)
+            try {
+                const response = await fetch(
+                    'https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT'
+                );
+                const data = await response.json();
+                if (data.price) {
+                    this.currentPrice = parseFloat(data.price);
+                    this.hud.updatePrice(this.currentPrice);
+                    return;
+                }
+            } catch (e) {
+                // Binance failed, try CoinGecko
+            }
+
+            // Fallback: CoinGecko
             try {
                 const response = await fetch(
                     'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd'
                 );
                 const data = await response.json();
-                this.currentPrice = data.bitcoin.usd;
-                this.hud.updatePrice(this.currentPrice);
+                if (data.bitcoin?.usd) {
+                    this.currentPrice = data.bitcoin.usd;
+                    this.hud.updatePrice(this.currentPrice);
+                }
             } catch (error) {
-                console.error('❌ Price fetch failed:', error);
+                // Both APIs failed, keep last known price
             }
         };
 
