@@ -2,6 +2,11 @@
 
 All notable changes to SATOSHI'S GRID will be documented in this file.
 
+## [1.0.5] - 2026-01-01
+
+### Fixed
+- **TX Click Detection** - Added invisible hitboxes (3-10x larger) for easier clicking on moving transactions
+
 ## [1.0.4] - 2026-01-01
 
 ### Changed

@@ -28,12 +28,14 @@ const SHARED_GEOMETRIES = {
     lightCycleBody: new THREE.BoxGeometry(0.3, 0.3, 3),
     lightCycleGlow: new THREE.BoxGeometry(0.5, 0.5, 4),
     lightCycleTrail: new THREE.PlaneGeometry(0.2, 8),
+    lightCycleHitbox: new THREE.BoxGeometry(3, 3, 8), // Larger invisible hitbox
 
     // Armored Transport
     transportBody: new THREE.BoxGeometry(1.5, 0.8, 4),
     transportPanel: new THREE.BoxGeometry(0.1, 1, 3),
     transportGlow: new THREE.BoxGeometry(2, 1.2, 5),
     transportTrail: new THREE.PlaneGeometry(0.5, 10),
+    transportHitbox: new THREE.BoxGeometry(4, 3, 8), // Larger invisible hitbox
 
     // Recognizer
     recognizerArm: new THREE.BoxGeometry(2, 1, 8),
@@ -45,8 +47,15 @@ const SHARED_GEOMETRIES = {
     recognizerGlow: new THREE.BoxGeometry(12, 3, 10),
     recognizerGlowLarge: new THREE.BoxGeometry(18, 4.5, 15),
     recognizerShadow: new THREE.PlaneGeometry(12, 10),
-    recognizerShadowLarge: new THREE.PlaneGeometry(18, 15)
+    recognizerShadowLarge: new THREE.PlaneGeometry(18, 15),
+    recognizerHitbox: new THREE.BoxGeometry(14, 5, 12), // Larger invisible hitbox
+    recognizerHitboxLarge: new THREE.BoxGeometry(20, 6, 16) // Larger invisible hitbox
 };
+
+// Invisible material for hitboxes
+const HITBOX_MATERIAL = new THREE.MeshBasicMaterial({
+    visible: false
+});
 
 class Transaction {
     constructor(data, sceneManager) {
@@ -116,6 +125,10 @@ class Transaction {
         // Sleek, thin light trail - like a motorcycle
         const group = new THREE.Group();
 
+        // Invisible hitbox for easier clicking
+        const hitbox = new THREE.Mesh(SHARED_GEOMETRIES.lightCycleHitbox, HITBOX_MATERIAL);
+        group.add(hitbox);
+
         // Main body - SHARED geometry
         const bodyMaterial = new THREE.MeshBasicMaterial({
             color: COLORS.CYAN,
@@ -143,6 +156,10 @@ class Transaction {
     createArmoredTransport() {
         // Wider, more substantial vehicle
         const group = new THREE.Group();
+
+        // Invisible hitbox for easier clicking
+        const hitbox = new THREE.Mesh(SHARED_GEOMETRIES.transportHitbox, HITBOX_MATERIAL);
+        group.add(hitbox);
 
         // Main body - SHARED geometry
         const bodyMaterial = new THREE.MeshBasicMaterial({
@@ -188,6 +205,11 @@ class Transaction {
         const group = new THREE.Group();
         const scale = isLarge ? 1.5 : 1;
         const color = COLORS.ORANGE;
+
+        // Invisible hitbox for easier clicking
+        const hitboxGeo = isLarge ? SHARED_GEOMETRIES.recognizerHitboxLarge : SHARED_GEOMETRIES.recognizerHitbox;
+        const hitbox = new THREE.Mesh(hitboxGeo, HITBOX_MATERIAL);
+        group.add(hitbox);
 
         // Select appropriate shared geometries
         const armGeo = isLarge ? SHARED_GEOMETRIES.recognizerArmLarge : SHARED_GEOMETRIES.recognizerArm;
