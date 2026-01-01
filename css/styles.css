@@ -309,17 +309,24 @@ html, body {
     text-shadow: 0 0 10px var(--electric-cyan);
 }
 
+/* Hamburger icon with CSS lines */
 .hud-logo::before {
-    content: '☰';
-    margin-right: 8px;
-    font-size: 14px;
-    color: var(--electric-cyan);
+    content: '';
+    display: inline-block;
+    width: 14px;
+    height: 10px;
+    margin-right: 10px;
+    background:
+        linear-gradient(var(--electric-cyan), var(--electric-cyan)) 0 0 / 100% 2px no-repeat,
+        linear-gradient(var(--electric-cyan), var(--electric-cyan)) 0 4px / 100% 2px no-repeat,
+        linear-gradient(var(--electric-cyan), var(--electric-cyan)) 0 8px / 100% 2px no-repeat;
     opacity: 0.7;
+    vertical-align: middle;
 }
 
 .hud-logo:hover::before {
     opacity: 1;
-    text-shadow: 0 0 8px var(--electric-cyan);
+    filter: drop-shadow(0 0 4px var(--electric-cyan));
 }
 
 .logo-symbol-small {
