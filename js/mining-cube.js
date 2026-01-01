@@ -1,6 +1,6 @@
 /**
- * SATOSHIS GRID - Mining Cube
- * Wireframe block being mined with laser effects, solidifies on block found
+ * SATOSHIS GRID - Mining Vehicle (Tron-Style)
+ * Sleek futuristic vehicle collecting transactions
  */
 
 import * as THREE from 'three';
@@ -10,139 +10,235 @@ export class MiningCube {
         this.sceneManager = sceneManager;
         this.effects = effects;
 
-        // Cube properties
-        this.cubeSize = 8;
-        this.cubePosition = new THREE.Vector3(0, 5, -40);
+        // Vehicle properties
+        this.vehiclePosition = new THREE.Vector3(0, 1.5, -30);
 
         // State
         this.isMining = true;
-        this.fillLevel = 0; // 0 to 1
+        this.fillLevel = 0;
         this.transactionCount = 0;
 
         // Groups
         this.cubeGroup = new THREE.Group();
-        this.lasers = [];
         this.particles = [];
 
         // Historical blocks (monuments)
         this.monuments = [];
         this.maxMonuments = 10;
 
-        this.createCube();
-        this.createLasers();
+        this.createTronVehicle();
+        this.createEngineGlow();
 
         this.sceneManager.add(this.cubeGroup);
     }
 
-    createCube() {
-        // Wireframe cube
-        const geometry = new THREE.BoxGeometry(this.cubeSize, this.cubeSize, this.cubeSize);
-        const wireframeMaterial = new THREE.MeshBasicMaterial({
-            color: 0xf7931a,
-            wireframe: true,
+    createTronVehicle() {
+        const group = new THREE.Group();
+
+        // Main body - sleek elongated shape
+        const bodyShape = new THREE.Shape();
+        bodyShape.moveTo(0, 0);
+        bodyShape.lineTo(6, 0);
+        bodyShape.lineTo(7, 0.5);
+        bodyShape.lineTo(7, 1.5);
+        bodyShape.lineTo(5, 2);
+        bodyShape.lineTo(1, 2);
+        bodyShape.lineTo(0, 1.5);
+        bodyShape.lineTo(0, 0);
+
+        const extrudeSettings = {
+            steps: 1,
+            depth: 3,
+            bevelEnabled: true,
+            bevelThickness: 0.2,
+            bevelSize: 0.2,
+            bevelSegments: 2
+        };
+
+        const bodyGeometry = new THREE.ExtrudeGeometry(bodyShape, extrudeSettings);
+        const bodyMaterial = new THREE.MeshBasicMaterial({
+            color: 0x001a1a,
             transparent: true,
-            opacity: 0.8
+            opacity: 0.9
         });
 
-        this.wireframeCube = new THREE.Mesh(geometry, wireframeMaterial);
-        this.wireframeCube.position.copy(this.cubePosition);
-        this.cubeGroup.add(this.wireframeCube);
+        const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+        body.rotation.y = Math.PI / 2;
+        body.position.set(1.5, 0, 3.5);
+        group.add(body);
 
-        // Inner fill cube (grows as transactions fill the block)
-        const fillGeometry = new THREE.BoxGeometry(
-            this.cubeSize * 0.95,
-            0.1, // Starts flat
-            this.cubeSize * 0.95
-        );
-        const fillMaterial = new THREE.MeshBasicMaterial({
-            color: 0xf7931a,
-            transparent: true,
-            opacity: 0.3
-        });
-
-        this.fillCube = new THREE.Mesh(fillGeometry, fillMaterial);
-        this.fillCube.position.set(
-            this.cubePosition.x,
-            this.cubePosition.y - this.cubeSize / 2 + 0.05,
-            this.cubePosition.z
-        );
-        this.cubeGroup.add(this.fillCube);
-
-        // Glow effect around cube
-        const glowGeometry = new THREE.BoxGeometry(
-            this.cubeSize + 2,
-            this.cubeSize + 2,
-            this.cubeSize + 2
-        );
-        const glowMaterial = new THREE.MeshBasicMaterial({
-            color: 0xf7931a,
-            transparent: true,
-            opacity: 0.1,
-            side: THREE.BackSide
-        });
-
-        this.glowCube = new THREE.Mesh(glowGeometry, glowMaterial);
-        this.glowCube.position.copy(this.cubePosition);
-        this.cubeGroup.add(this.glowCube);
-    }
-
-    createLasers() {
-        // Laser beams at each corner "welding" the block
-        const corners = [
-            [-1, 1, -1], [1, 1, -1], [-1, 1, 1], [1, 1, 1],
-            [-1, -1, -1], [1, -1, -1], [-1, -1, 1], [1, -1, 1]
-        ];
-
-        const laserMaterial = new THREE.LineBasicMaterial({
+        // Glowing edge lines (Tron style)
+        const edgeMaterial = new THREE.LineBasicMaterial({
             color: 0x00ffff,
             transparent: true,
-            opacity: 0.8
+            opacity: 1
         });
 
-        corners.forEach((corner, index) => {
-            const startPoint = new THREE.Vector3(
-                this.cubePosition.x + corner[0] * (this.cubeSize / 2 + 2),
-                this.cubePosition.y + corner[1] * (this.cubeSize / 2 + 2),
-                this.cubePosition.z + corner[2] * (this.cubeSize / 2 + 2)
-            );
+        // Top edge line
+        const topLinePoints = [
+            new THREE.Vector3(-3.5, 2, -1.5),
+            new THREE.Vector3(-3.5, 2, 1.5),
+            new THREE.Vector3(3.5, 2, 1.5),
+            new THREE.Vector3(3.5, 2, -1.5),
+            new THREE.Vector3(-3.5, 2, -1.5)
+        ];
+        const topLineGeometry = new THREE.BufferGeometry().setFromPoints(topLinePoints);
+        const topLine = new THREE.Line(topLineGeometry, edgeMaterial);
+        group.add(topLine);
 
-            const endPoint = new THREE.Vector3(
-                this.cubePosition.x + corner[0] * (this.cubeSize / 2),
-                this.cubePosition.y + corner[1] * (this.cubeSize / 2),
-                this.cubePosition.z + corner[2] * (this.cubeSize / 2)
-            );
+        // Bottom edge lines
+        const bottomLinePoints = [
+            new THREE.Vector3(-3.5, 0.2, -1.5),
+            new THREE.Vector3(-3.5, 0.2, 1.5),
+            new THREE.Vector3(3.5, 0.2, 1.5),
+            new THREE.Vector3(3.5, 0.2, -1.5),
+            new THREE.Vector3(-3.5, 0.2, -1.5)
+        ];
+        const bottomLineGeometry = new THREE.BufferGeometry().setFromPoints(bottomLinePoints);
+        const bottomLine = new THREE.Line(bottomLineGeometry, edgeMaterial);
+        group.add(bottomLine);
 
-            const geometry = new THREE.BufferGeometry().setFromPoints([startPoint, endPoint]);
-            const laser = new THREE.Line(geometry, laserMaterial.clone());
+        // Side accent lines
+        const sideLines = [
+            [new THREE.Vector3(-3.5, 0.2, -1.5), new THREE.Vector3(-3.5, 2, -1.5)],
+            [new THREE.Vector3(-3.5, 0.2, 1.5), new THREE.Vector3(-3.5, 2, 1.5)],
+            [new THREE.Vector3(3.5, 0.2, -1.5), new THREE.Vector3(3.5, 2, -1.5)],
+            [new THREE.Vector3(3.5, 0.2, 1.5), new THREE.Vector3(3.5, 2, 1.5)]
+        ];
 
-            laser.userData = {
-                baseOpacity: 0.8,
-                phase: index * Math.PI / 4
-            };
-
-            this.lasers.push(laser);
-            this.cubeGroup.add(laser);
+        sideLines.forEach(points => {
+            const geo = new THREE.BufferGeometry().setFromPoints(points);
+            const line = new THREE.Line(geo, edgeMaterial.clone());
+            group.add(line);
         });
+
+        // Center stripe (glowing)
+        const stripeGeometry = new THREE.PlaneGeometry(7, 0.3);
+        const stripeMaterial = new THREE.MeshBasicMaterial({
+            color: 0x00ffff,
+            transparent: true,
+            opacity: 0.8,
+            side: THREE.DoubleSide
+        });
+        const stripe = new THREE.Mesh(stripeGeometry, stripeMaterial);
+        stripe.rotation.x = -Math.PI / 2;
+        stripe.position.set(0, 2.01, 0);
+        group.add(stripe);
+        this.stripe = stripe;
+
+        // Front light bar
+        const frontLightGeometry = new THREE.BoxGeometry(0.3, 0.5, 3);
+        const frontLightMaterial = new THREE.MeshBasicMaterial({
+            color: 0x00ffff,
+            transparent: true,
+            opacity: 0.9
+        });
+        const frontLight = new THREE.Mesh(frontLightGeometry, frontLightMaterial);
+        frontLight.position.set(3.6, 1, 0);
+        group.add(frontLight);
+        this.frontLight = frontLight;
+
+        // Rear thruster
+        const thrusterGeometry = new THREE.BoxGeometry(0.2, 1, 2);
+        const thrusterMaterial = new THREE.MeshBasicMaterial({
+            color: 0x00ffff,
+            transparent: true,
+            opacity: 0.7
+        });
+        const thruster = new THREE.Mesh(thrusterGeometry, thrusterMaterial);
+        thruster.position.set(-3.6, 1, 0);
+        group.add(thruster);
+        this.thruster = thruster;
+
+        // Cockpit (dark tinted)
+        const cockpitGeometry = new THREE.BoxGeometry(3, 0.8, 2);
+        const cockpitMaterial = new THREE.MeshBasicMaterial({
+            color: 0x003333,
+            transparent: true,
+            opacity: 0.7
+        });
+        const cockpit = new THREE.Mesh(cockpitGeometry, cockpitMaterial);
+        cockpit.position.set(1, 1.8, 0);
+        group.add(cockpit);
+
+        // Wheels (light discs)
+        const wheelGeometry = new THREE.CylinderGeometry(0.6, 0.6, 0.2, 16);
+        const wheelMaterial = new THREE.MeshBasicMaterial({
+            color: 0x00ffff,
+            transparent: true,
+            opacity: 0.6
+        });
+
+        const wheelPositions = [
+            [-2, 0.3, 1.7],
+            [-2, 0.3, -1.7],
+            [2, 0.3, 1.7],
+            [2, 0.3, -1.7]
+        ];
+
+        this.wheels = [];
+        wheelPositions.forEach(pos => {
+            const wheel = new THREE.Mesh(wheelGeometry, wheelMaterial.clone());
+            wheel.rotation.x = Math.PI / 2;
+            wheel.position.set(...pos);
+            group.add(wheel);
+            this.wheels.push(wheel);
+        });
+
+        // Glow effect
+        const glowGeometry = new THREE.BoxGeometry(8, 3, 4);
+        const glowMaterial = new THREE.MeshBasicMaterial({
+            color: 0x00ffff,
+            transparent: true,
+            opacity: 0.08,
+            side: THREE.BackSide
+        });
+        const glow = new THREE.Mesh(glowGeometry, glowMaterial);
+        glow.position.set(0, 1, 0);
+        group.add(glow);
+        this.glowMesh = glow;
+
+        group.position.copy(this.vehiclePosition);
+        this.cubeGroup.add(group);
+        this.vehicle = group;
     }
 
-    // Called when a new transaction enters the block
+    createEngineGlow() {
+        // Thruster trail
+        const trailGeometry = new THREE.PlaneGeometry(0.5, 8);
+        const trailMaterial = new THREE.MeshBasicMaterial({
+            color: 0x00ffff,
+            transparent: true,
+            opacity: 0.3,
+            side: THREE.DoubleSide
+        });
+
+        const trail = new THREE.Mesh(trailGeometry, trailMaterial);
+        trail.rotation.x = -Math.PI / 2;
+        trail.position.set(
+            this.vehiclePosition.x - 7.5,
+            0.5,
+            this.vehiclePosition.z
+        );
+        this.cubeGroup.add(trail);
+        this.trail = trail;
+    }
+
     addTransaction(txData) {
         this.transactionCount++;
-
-        // Increase fill level
         this.fillLevel = Math.min(this.fillLevel + 0.01, 1);
 
-        // Update fill cube height
-        const newHeight = this.cubeSize * this.fillLevel * 0.95;
-        this.fillCube.scale.y = Math.max(newHeight / 0.1, 1);
-        this.fillCube.position.y = this.cubePosition.y - this.cubeSize / 2 + newHeight / 2;
-
-        // Create particle effect at cube
+        // Create particle flying into vehicle
         this.createParticle(txData);
+
+        // Pulse the glow
+        if (this.glowMesh) {
+            this.glowMesh.material.opacity = 0.2;
+        }
     }
 
     createParticle(txData) {
-        const particleGeometry = new THREE.SphereGeometry(0.2, 8, 8);
+        const particleGeometry = new THREE.SphereGeometry(0.15, 6, 6);
         const particleMaterial = new THREE.MeshBasicMaterial({
             color: 0x00ffff,
             transparent: true,
@@ -151,28 +247,16 @@ export class MiningCube {
 
         const particle = new THREE.Mesh(particleGeometry, particleMaterial);
 
-        // Start position (random side of cube)
-        const side = Math.floor(Math.random() * 4);
-        const offset = (Math.random() - 0.5) * this.cubeSize;
-
-        switch (side) {
-            case 0:
-                particle.position.set(this.cubePosition.x - this.cubeSize, this.cubePosition.y + offset, this.cubePosition.z);
-                break;
-            case 1:
-                particle.position.set(this.cubePosition.x + this.cubeSize, this.cubePosition.y + offset, this.cubePosition.z);
-                break;
-            case 2:
-                particle.position.set(this.cubePosition.x + offset, this.cubePosition.y, this.cubePosition.z - this.cubeSize);
-                break;
-            case 3:
-                particle.position.set(this.cubePosition.x + offset, this.cubePosition.y, this.cubePosition.z + this.cubeSize);
-                break;
-        }
+        // Start from ahead of vehicle
+        particle.position.set(
+            this.vehiclePosition.x + 15 + Math.random() * 10,
+            this.vehiclePosition.y + (Math.random() - 0.5) * 2,
+            this.vehiclePosition.z + (Math.random() - 0.5) * 4
+        );
 
         particle.userData = {
-            target: this.cubePosition.clone(),
-            speed: 30,
+            target: this.vehiclePosition.clone(),
+            speed: 40,
             life: 1
         };
 
@@ -180,66 +264,62 @@ export class MiningCube {
         this.cubeGroup.add(particle);
     }
 
-    // Called when a block is found
     onBlockFound(blockData) {
         if (!this.isMining) return;
 
         console.log('🔶 Block found!', blockData);
 
-        // Trigger flash effect
         this.effects.flash();
-
-        // Create solid monument
         this.createMonument(blockData);
-
-        // Reset for next block
         this.reset();
     }
 
     createMonument(blockData) {
-        // Create solid block as monument
-        const geometry = new THREE.BoxGeometry(this.cubeSize, this.cubeSize, this.cubeSize);
+        // Create Tron-style block monument
+        const group = new THREE.Group();
+
+        // Main block shape
+        const geometry = new THREE.BoxGeometry(4, 4, 4);
         const material = new THREE.MeshBasicMaterial({
-            color: 0xf7931a,
+            color: 0x001a1a,
             transparent: true,
             opacity: 0.9
         });
 
-        const monument = new THREE.Mesh(geometry, material);
-        monument.position.copy(this.cubePosition);
+        const block = new THREE.Mesh(geometry, material);
+        group.add(block);
 
-        // Edge outline
+        // Edge glow
         const edges = new THREE.EdgesGeometry(geometry);
-        const lineMaterial = new THREE.LineBasicMaterial({ color: 0xffffff });
+        const lineMaterial = new THREE.LineBasicMaterial({
+            color: 0x00ffff,
+            transparent: true,
+            opacity: 0.8
+        });
         const outline = new THREE.LineSegments(edges, lineMaterial);
-        monument.add(outline);
+        group.add(outline);
 
-        // Add block height label (as simple plane for now)
-        monument.userData = {
+        group.position.copy(this.vehiclePosition);
+        group.userData = {
             blockHeight: blockData?.height || 'Unknown',
             timestamp: Date.now()
         };
 
-        this.sceneManager.add(monument);
-        this.monuments.push(monument);
+        this.sceneManager.add(group);
+        this.monuments.push(group);
 
-        // Animate monument falling into place
-        this.animateMonumentFall(monument);
+        this.animateMonumentFall(group);
 
-        // Remove old monuments if too many
         while (this.monuments.length > this.maxMonuments) {
             const oldest = this.monuments.shift();
             this.sceneManager.remove(oldest);
-            oldest.geometry.dispose();
-            oldest.material.dispose();
         }
     }
 
     animateMonumentFall(monument) {
-        // Simple drop animation
-        monument.position.y = this.cubePosition.y + 20;
+        monument.position.y = this.vehiclePosition.y + 15;
 
-        const targetY = this.cubePosition.y - this.cubeSize - 1;
+        const targetY = 2;
         const duration = 0.5;
         let elapsed = 0;
 
@@ -247,17 +327,13 @@ export class MiningCube {
             elapsed += 0.016;
             const t = Math.min(elapsed / duration, 1);
 
-            // Ease out bounce
             const eased = 1 - Math.pow(1 - t, 3);
-            monument.position.y = this.cubePosition.y + 20 - (this.cubePosition.y + 20 - targetY) * eased;
-
-            // Move back in z (into the grid history)
-            monument.position.z = this.cubePosition.z - (t * 50);
+            monument.position.y = this.vehiclePosition.y + 15 - (this.vehiclePosition.y + 15 - targetY) * eased;
+            monument.position.z = this.vehiclePosition.z - (t * 40);
 
             if (t < 1) {
                 requestAnimationFrame(animate);
             } else {
-                // Camera shake on impact
                 this.sceneManager.shake(0.3);
             }
         };
@@ -269,11 +345,6 @@ export class MiningCube {
         this.fillLevel = 0;
         this.transactionCount = 0;
 
-        // Reset fill cube
-        this.fillCube.scale.y = 1;
-        this.fillCube.position.y = this.cubePosition.y - this.cubeSize / 2 + 0.05;
-
-        // Clear particles
         this.particles.forEach(p => {
             this.cubeGroup.remove(p);
             p.geometry.dispose();
@@ -287,17 +358,31 @@ export class MiningCube {
 
         const time = Date.now() * 0.001;
 
-        // Rotate wireframe slowly
-        this.wireframeCube.rotation.y += delta * 0.1;
-        this.glowCube.rotation.y -= delta * 0.05;
+        // Subtle hover animation
+        if (this.vehicle) {
+            this.vehicle.position.y = this.vehiclePosition.y + Math.sin(time * 2) * 0.15;
+        }
 
-        // Pulse glow
-        this.glowCube.material.opacity = 0.1 + Math.sin(time * 2) * 0.05;
+        // Pulse effects
+        if (this.glowMesh) {
+            this.glowMesh.material.opacity = 0.05 + Math.sin(time * 3) * 0.03;
+        }
 
-        // Animate lasers
-        this.lasers.forEach(laser => {
-            const phase = laser.userData.phase;
-            laser.material.opacity = 0.3 + Math.sin(time * 4 + phase) * 0.5;
+        if (this.frontLight) {
+            this.frontLight.material.opacity = 0.7 + Math.sin(time * 5) * 0.3;
+        }
+
+        if (this.thruster) {
+            this.thruster.material.opacity = 0.5 + Math.sin(time * 8) * 0.3;
+        }
+
+        if (this.trail) {
+            this.trail.material.opacity = 0.2 + Math.sin(time * 4) * 0.1;
+        }
+
+        // Rotate wheels
+        this.wheels?.forEach(wheel => {
+            wheel.rotation.z += delta * 5;
         });
 
         // Update particles
@@ -305,14 +390,10 @@ export class MiningCube {
             const particle = this.particles[i];
             const target = particle.userData.target;
 
-            // Move toward cube center
-            particle.position.lerp(target, delta * 5);
-
-            // Fade out
-            particle.userData.life -= delta * 2;
+            particle.position.lerp(target, delta * 3);
+            particle.userData.life -= delta * 1.5;
             particle.material.opacity = particle.userData.life;
 
-            // Remove dead particles
             if (particle.userData.life <= 0) {
                 this.cubeGroup.remove(particle);
                 particle.geometry.dispose();
@@ -322,7 +403,6 @@ export class MiningCube {
         }
     }
 
-    // Get current block stats
     getStats() {
         return {
             fillLevel: this.fillLevel,
