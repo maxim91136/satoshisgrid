@@ -22,6 +22,9 @@ export class SceneManager {
         this.cameraLookAt = new THREE.Vector3(0, 0, -50);
         this.cameraShakeIntensity = 0;
         this.cameraShakeDecay = 0.95;
+
+        // WebGL context state
+        this.contextLost = false;
     }
 
     async init() {
@@ -112,6 +115,20 @@ export class SceneManager {
 
     setupEventListeners() {
         window.addEventListener('resize', () => this.onWindowResize());
+
+        // WebGL context lost/restored handlers
+        this.renderer.domElement.addEventListener('webglcontextlost', (event) => {
+            event.preventDefault();
+            console.error('⚠️ WebGL context lost! Pausing render...');
+            this.contextLost = true;
+        });
+
+        this.renderer.domElement.addEventListener('webglcontextrestored', () => {
+            console.log('✅ WebGL context restored!');
+            this.contextLost = false;
+            // Recreate post-processing pipeline
+            this.createPostProcessing();
+        });
     }
 
     onWindowResize() {
@@ -147,6 +164,9 @@ export class SceneManager {
 
     // Render with post-processing
     render() {
+        // Skip rendering if WebGL context is lost
+        if (this.contextLost) return;
+
         this.updateCameraShake();
         this.composer.render();
     }

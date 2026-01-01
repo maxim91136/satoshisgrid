@@ -254,6 +254,17 @@ export class LightCycle {
         while (this.monuments.length > this.maxMonuments) {
             const oldest = this.monuments.shift();
             this.sceneManager.remove(oldest);
+            // Dispose geometry and materials to prevent memory leak
+            oldest.traverse((child) => {
+                if (child.geometry) child.geometry.dispose();
+                if (child.material) {
+                    if (Array.isArray(child.material)) {
+                        child.material.forEach(m => m.dispose());
+                    } else {
+                        child.material.dispose();
+                    }
+                }
+            });
         }
     }
 

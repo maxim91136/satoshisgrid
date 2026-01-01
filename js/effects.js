@@ -10,6 +10,10 @@ export class Effects {
         // Flash overlay element
         this.flashOverlay = document.getElementById('flash-overlay');
 
+        // Reusable darken overlay (prevent DOM accumulation)
+        this.darkenOverlay = null;
+        this.darkenTimeout = null;
+
         // Screen shake state
         this.isShaking = false;
         this.shakeIntensity = 0;
@@ -94,35 +98,39 @@ export class Effects {
         requestAnimationFrame(animate);
     }
 
-    // Darken screen briefly
+    // Darken screen briefly (reuses single overlay to prevent DOM accumulation)
     darkenScreen(intensity, duration) {
-        const overlay = document.createElement('div');
-        overlay.style.cssText = `
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: black;
-            opacity: 0;
-            pointer-events: none;
-            z-index: 50;
-            transition: opacity ${duration}s ease;
-        `;
+        // Clear any pending timeout
+        if (this.darkenTimeout) {
+            clearTimeout(this.darkenTimeout);
+        }
 
-        document.body.appendChild(overlay);
+        // Create overlay once, reuse it
+        if (!this.darkenOverlay) {
+            this.darkenOverlay = document.createElement('div');
+            this.darkenOverlay.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: black;
+                opacity: 0;
+                pointer-events: none;
+                z-index: 50;
+            `;
+            document.body.appendChild(this.darkenOverlay);
+        }
 
-        // Fade in
+        // Update transition duration and fade in
+        this.darkenOverlay.style.transition = `opacity ${duration}s ease`;
         requestAnimationFrame(() => {
-            overlay.style.opacity = intensity;
+            this.darkenOverlay.style.opacity = intensity;
         });
 
-        // Fade out and remove
-        setTimeout(() => {
-            overlay.style.opacity = 0;
-            setTimeout(() => {
-                overlay.remove();
-            }, duration * 1000);
+        // Fade out
+        this.darkenTimeout = setTimeout(() => {
+            this.darkenOverlay.style.opacity = 0;
         }, duration * 500);
     }
 
