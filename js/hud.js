@@ -37,7 +37,6 @@ export class HUD {
             logoBtn: document.getElementById('logo-btn'),
             sideMenu: document.getElementById('side-menu'),
             menuClose: document.getElementById('menu-close'),
-            menuToggle: document.getElementById('menu-toggle')
         };
 
         this.setupEventListeners();
@@ -49,13 +48,6 @@ export class HUD {
         // Logo click opens side menu
         if (this.elements.logoBtn) {
             this.elements.logoBtn.addEventListener('click', () => {
-                this.toggleMenu();
-            });
-        }
-
-        // Menu toggle button (hamburger)
-        if (this.elements.menuToggle) {
-            this.elements.menuToggle.addEventListener('click', () => {
                 this.toggleMenu();
             });
         }

@@ -9,6 +9,14 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
 const BITCOIN_ORANGE = 0xf7931a;
 
+// SHARED GEOMETRIES for monuments and particles (prevents memory leak!)
+const SHARED_MONUMENT_GEOMETRIES = {
+    block: new THREE.BoxGeometry(4, 4, 4),
+    particle: new THREE.SphereGeometry(0.2, 6, 6)
+};
+// EdgesGeometry for monument outline (computed once)
+const SHARED_MONUMENT_EDGES = new THREE.EdgesGeometry(SHARED_MONUMENT_GEOMETRIES.block);
+
 export class LightCycle {
     constructor(sceneManager, effects) {
         this.sceneManager = sceneManager;
@@ -25,8 +33,8 @@ export class LightCycle {
         this.bike = null;
         this.trail = null;
 
-        // Shared geometry for particles (prevents memory leak!)
-        this.particleGeometry = new THREE.SphereGeometry(0.2, 6, 6);
+        // Use shared geometry for particles
+        this.particleGeometry = SHARED_MONUMENT_GEOMETRIES.particle;
         this.maxParticles = 30; // Limit active particles
 
         this.loadLightCycle();
@@ -301,17 +309,17 @@ export class LightCycle {
     createMonument(blockData) {
         const group = new THREE.Group();
 
-        const geometry = new THREE.BoxGeometry(4, 4, 4);
+        // Use SHARED geometry (prevents memory leak!)
         const material = new THREE.MeshBasicMaterial({
             color: BITCOIN_ORANGE,
             transparent: true,
             opacity: 0.85
         });
-        const block = new THREE.Mesh(geometry, material);
+        const block = new THREE.Mesh(SHARED_MONUMENT_GEOMETRIES.block, material);
         group.add(block);
 
-        const edges = new THREE.EdgesGeometry(geometry);
-        const outline = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: 0xffffff }));
+        // Use SHARED edges geometry
+        const outline = new THREE.LineSegments(SHARED_MONUMENT_EDGES, new THREE.LineBasicMaterial({ color: 0xffffff }));
         group.add(outline);
 
         group.position.set(this.vehiclePosition.x, 2, this.vehiclePosition.z);
@@ -322,9 +330,9 @@ export class LightCycle {
         while (this.monuments.length > this.maxMonuments) {
             const oldest = this.monuments.shift();
             this.sceneManager.remove(oldest);
-            // Dispose geometry and materials to prevent memory leak
+            // DON'T dispose geometries - they are shared!
+            // Only dispose materials
             oldest.traverse((child) => {
-                if (child.geometry) child.geometry.dispose();
                 if (child.material) {
                     if (Array.isArray(child.material)) {
                         child.material.forEach(m => m.dispose());

@@ -2,6 +2,12 @@
 
 All notable changes to SATOSHI'S GRID will be documented in this file.
 
+## [1.0.2] - 2026-01-01
+
+### Fixed
+- **Memory Leak** - Monument geometries now use shared SHARED_MONUMENT_GEOMETRIES
+- **Removed Hamburger Button** - Redundant menu toggle removed (logo opens menu)
+
 ## [1.0.1] - 2026-01-01
 
 ### Added
