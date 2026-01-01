@@ -54,7 +54,7 @@ export class LightCycle {
                             // Emissive Map aktivieren falls vorhanden
                             if (mat.emissiveMap) {
                                 mat.emissive = new THREE.Color(0xffffff);
-                                mat.emissiveIntensity = 1.5;
+                                mat.emissiveIntensity = 0.8;
                             }
 
                             // HSL-basierte Farberkennung
@@ -67,7 +67,7 @@ export class LightCycle {
                                 if ((hsl.h < 0.1 || hsl.h > 0.8) && hsl.s > 0.5 && hsl.l > 0.3) {
                                     mat.color.setHex(BITCOIN_ORANGE);
                                     mat.emissive = new THREE.Color(BITCOIN_ORANGE);
-                                    mat.emissiveIntensity = 1.5;
+                                    mat.emissiveIntensity = 0.8;
                                 }
                             }
 
@@ -79,7 +79,7 @@ export class LightCycle {
                                 name.includes('emission') ||
                                 name.includes('emissive')) {
                                 mat.emissive = new THREE.Color(BITCOIN_ORANGE);
-                                mat.emissiveIntensity = 1.5;
+                                mat.emissiveIntensity = 0.8;
                             }
 
                             mat.needsUpdate = true;
@@ -146,8 +146,8 @@ export class LightCycle {
                     float fade = pow(vUv.x, 0.3);
                     float pulse = 0.85 + 0.15 * sin(time * 4.0 + vUv.x * 20.0);
                     float vertical = 0.7 + 0.3 * (1.0 - abs(vUv.y - 0.5) * 2.0);
-                    float alpha = fade * pulse * vertical * 0.7;
-                    gl_FragColor = vec4(color * 1.5, alpha);
+                    float alpha = fade * pulse * vertical * 0.5;
+                    gl_FragColor = vec4(color, alpha);
                 }
             `,
             transparent: true,

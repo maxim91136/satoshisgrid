@@ -51,7 +51,7 @@ export class Grid {
         const centerLineMaterial = new THREE.MeshBasicMaterial({
             color: 0x00ffff,
             transparent: true,
-            opacity: 0.3,
+            opacity: 0.2,
             side: THREE.DoubleSide
         });
         const centerLine = new THREE.Mesh(centerLineGeometry, centerLineMaterial);
@@ -59,11 +59,11 @@ export class Grid {
         centerLine.position.y = 0.01;
         group.add(centerLine);
 
-        // Side boundary lines (brighter)
+        // Side boundary lines
         const boundaryMaterial = new THREE.LineBasicMaterial({
             color: 0x00ffff,
             transparent: true,
-            opacity: 0.8
+            opacity: 0.5
         });
 
         const leftBoundary = this.createBoundaryLine(-this.gridSize / 2, this.gridSize, boundaryMaterial);

@@ -62,7 +62,7 @@ export class SceneManager {
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
-        this.renderer.toneMappingExposure = 1;
+        this.renderer.toneMappingExposure = 0.7; // Dunkler, augenfreundlicher
 
         container.appendChild(this.renderer.domElement);
     }
@@ -95,12 +95,12 @@ export class SceneManager {
         const renderPass = new RenderPass(this.scene, this.camera);
         this.composer.addPass(renderPass);
 
-        // Bloom pass - niedrigere Werte für bessere Kontrolle
+        // Bloom pass - gedimmt für Augenfreundlichkeit
         const bloomPass = new UnrealBloomPass(
             new THREE.Vector2(window.innerWidth, window.innerHeight),
-            0.8,   // strength - nicht über 1.5!
-            0.4,   // radius
-            0.15   // threshold - niedriger = mehr bloom
+            0.5,   // strength - reduziert
+            0.3,   // radius
+            0.3    // threshold - höher = weniger glow
         );
         this.composer.addPass(bloomPass);
         this.bloomPass = bloomPass;

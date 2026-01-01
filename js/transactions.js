@@ -94,7 +94,7 @@ class Transaction {
         const bodyMaterial = new THREE.MeshBasicMaterial({
             color: COLORS.CYAN,
             transparent: true,
-            opacity: 0.9
+            opacity: 0.6
         });
         const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
         group.add(body);
@@ -124,7 +124,7 @@ class Transaction {
         const bodyMaterial = new THREE.MeshBasicMaterial({
             color: COLORS.CYAN,
             transparent: true,
-            opacity: 0.9
+            opacity: 0.6
         });
         const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
         group.add(body);
@@ -134,7 +134,7 @@ class Transaction {
         const panelMaterial = new THREE.MeshBasicMaterial({
             color: COLORS.WHITE,
             transparent: true,
-            opacity: 0.7
+            opacity: 0.5
         });
 
         const leftPanel = new THREE.Mesh(panelGeometry, panelMaterial);
@@ -173,7 +173,7 @@ class Transaction {
         const armMaterial = new THREE.MeshBasicMaterial({
             color: color,
             transparent: true,
-            opacity: 0.9
+            opacity: 0.6
         });
 
         const leftArm = new THREE.Mesh(armGeometry, armMaterial);
