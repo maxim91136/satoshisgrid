@@ -255,8 +255,8 @@ export class HUD {
             this.quoteContainer.style.opacity = '1';
         }, 2000);
 
-        // Schedule next quote (15-25 seconds)
-        const nextDelay = 15000 + Math.random() * 10000;
+        // Schedule next quote (30-45 seconds - longer display time)
+        const nextDelay = 30000 + Math.random() * 15000;
         setTimeout(() => this.showNextQuote(), nextDelay);
     }
 
