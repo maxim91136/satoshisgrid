@@ -41,27 +41,28 @@ export class LightCycle {
                 // Skalierung
                 this.bike.scale.set(5, 5, 5);
 
-                // Farbe auf Bitcoin Orange ändern
+                // Nur die leuchtenden Neon-Teile auf Bitcoin Orange ändern
                 this.bike.traverse((child) => {
                     if (child.isMesh && child.material) {
                         const mat = child.material;
 
-                        // Emissive Teile (die leuchtenden Linien)
-                        if (mat.emissive) {
-                            mat.emissive.setHex(BITCOIN_ORANGE);
-                            mat.emissiveIntensity = 2.5;
-                        }
+                        // Prüfen ob es ein leuchtendes/emissives Teil ist
+                        const isEmissive = mat.emissive && mat.emissiveIntensity > 0;
+                        const isNeonColor = mat.color && (
+                            (mat.color.r > 0.8 && mat.color.g < 0.3) || // Rot/Pink
+                            (mat.color.r < 0.3 && mat.color.g > 0.8) || // Grün
+                            (mat.color.b > 0.8 && mat.color.r < 0.3)    // Blau/Cyan
+                        );
 
-                        // Falls das Material rot/neon ist, auf Orange ändern
-                        if (mat.color) {
-                            const r = mat.color.r;
-                            const g = mat.color.g;
-                            if (r > 0.5 && g < 0.3) {
+                        if (isEmissive || isNeonColor) {
+                            // Neon-Linien: Orange leuchten lassen
+                            mat.emissive = new THREE.Color(BITCOIN_ORANGE);
+                            mat.emissiveIntensity = 1.0; // Reduziert für weniger Bloom-Überblendung
+                            if (isNeonColor) {
                                 mat.color.setHex(BITCOIN_ORANGE);
-                                mat.emissive = new THREE.Color(BITCOIN_ORANGE);
-                                mat.emissiveIntensity = 2;
                             }
                         }
+                        // Dunkle/schwarze Teile bleiben unverändert
                     }
                 });
 
