@@ -31,15 +31,34 @@ class SatoshisGrid {
         const splash = document.getElementById('splash');
         const enterBtn = document.getElementById('enter-btn');
 
-        enterBtn.addEventListener('click', () => {
+        // Audio bei ERSTEM Klick irgendwo auf Splash starten
+        const startAudioOnce = async () => {
+            if (!this.audioManager) {
+                console.log('🎵 Starting audio on first interaction...');
+                this.audioManager = new AudioManager();
+                await this.audioManager.init();
+            }
+            // Event Listener entfernen nach erstem Klick
+            splash.removeEventListener('click', startAudioOnce);
+            splash.removeEventListener('touchstart', startAudioOnce);
+        };
+
+        // Auf Klick oder Touch irgendwo auf Splash
+        splash.addEventListener('click', startAudioOnce);
+        splash.addEventListener('touchstart', startAudioOnce);
+
+        // Enter Button führt ins Grid
+        enterBtn.addEventListener('click', async () => {
+            await startAudioOnce(); // Falls noch nicht gestartet
             this.init();
             splash.classList.add('hidden');
         });
 
         // Allow keyboard entry
-        document.addEventListener('keydown', (e) => {
+        document.addEventListener('keydown', async (e) => {
             if (e.code === 'Enter' || e.code === 'Space') {
                 if (!this.isInitialized) {
+                    await startAudioOnce();
                     this.init();
                     splash.classList.add('hidden');
                 }
@@ -74,9 +93,11 @@ class SatoshisGrid {
                 this.effects
             );
 
-            // Initialize Audio
-            this.audioManager = new AudioManager();
-            await this.audioManager.init();
+            // Initialize Audio (falls nicht schon auf Splash gestartet)
+            if (!this.audioManager) {
+                this.audioManager = new AudioManager();
+                await this.audioManager.init();
+            }
 
             // Initialize HUD
             this.hud = new HUD();

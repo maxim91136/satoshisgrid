@@ -33,6 +33,9 @@ export class AudioManager {
             // Start ambient drone
             this.startDrone();
 
+            // Try to load external soundtrack (falls back to procedural drone)
+            this.loadSoundtrack();
+
             this.isInitialized = true;
             console.log('🔊 Audio initialized');
 
@@ -69,79 +72,171 @@ export class AudioManager {
         }
     }
 
-    // Ambient drone - low synth pad
+    // Tron-Style Ambient Drone - Deep cinematic synth pad
     startDrone() {
         if (!this.audioContext) return;
 
-        // Create multiple oscillators for rich drone sound
-        const frequencies = [55, 110, 165]; // A1, A2, E3 (power chord)
-
+        // Drone Gain mit Fade-in
         this.droneGain = this.audioContext.createGain();
-        this.droneGain.gain.value = 0.1;
+        this.droneGain.gain.setValueAtTime(0, this.audioContext.currentTime);
+        this.droneGain.gain.linearRampToValueAtTime(0.12, this.audioContext.currentTime + 3);
         this.droneGain.connect(this.masterGain);
 
-        // Low-pass filter for warmth
-        const filter = this.audioContext.createBiquadFilter();
-        filter.type = 'lowpass';
-        filter.frequency.value = 400;
-        filter.Q.value = 1;
-        filter.connect(this.droneGain);
+        // Stereo Panner für Bewegung
+        const panner = this.audioContext.createStereoPanner();
+        panner.connect(this.droneGain);
+
+        // Haupt-Filter mit Sweep
+        this.droneFilter = this.audioContext.createBiquadFilter();
+        this.droneFilter.type = 'lowpass';
+        this.droneFilter.frequency.value = 300;
+        this.droneFilter.Q.value = 2;
+        this.droneFilter.connect(panner);
+
+        // Delay für Tiefe
+        const delay = this.audioContext.createDelay(1);
+        delay.delayTime.value = 0.3;
+        const delayGain = this.audioContext.createGain();
+        delayGain.gain.value = 0.15;
+        delay.connect(delayGain);
+        delayGain.connect(this.droneFilter);
+
+        // Sub-Bass Layer (30Hz) - der tiefe Druck
+        const subOsc = this.audioContext.createOscillator();
+        subOsc.type = 'sine';
+        subOsc.frequency.value = 30;
+        const subGain = this.audioContext.createGain();
+        subGain.gain.value = 0.35;
+        subOsc.connect(subGain);
+        subGain.connect(this.droneFilter);
+        subOsc.start();
+
+        // Tron-Style Pad Frequencies (Moll-Akkord für düstere Atmosphäre)
+        const frequencies = [55, 82.4, 110, 164.8]; // A1, E2, A2, E3
 
         this.droneOscillators = frequencies.map((freq, i) => {
             const osc = this.audioContext.createOscillator();
-            osc.type = i === 0 ? 'sawtooth' : 'sine';
+            osc.type = i < 2 ? 'sawtooth' : 'triangle';
             osc.frequency.value = freq;
+            // Leichtes Detune für Fuller Sound
+            osc.detune.value = (Math.random() - 0.5) * 8;
 
             const oscGain = this.audioContext.createGain();
-            oscGain.gain.value = i === 0 ? 0.3 : 0.2;
+            oscGain.gain.value = 0.12 / (i + 1);
 
             osc.connect(oscGain);
-            oscGain.connect(filter);
+            oscGain.connect(this.droneFilter);
+            oscGain.connect(delay); // Auch zum Delay
             osc.start();
 
             return osc;
         });
 
-        // Subtle LFO for movement
+        // Füge Sub-Oszillator zur Liste hinzu
+        this.droneOscillators.push(subOsc);
+
+        // LFO für Filter-Sweep (atmosphärische Bewegung)
         this.lfo = this.audioContext.createOscillator();
         this.lfo.type = 'sine';
-        this.lfo.frequency.value = 0.1;
-
-        const lfoGain = this.audioContext.createGain();
-        lfoGain.gain.value = 50;
-
-        this.lfo.connect(lfoGain);
-        lfoGain.connect(filter.frequency);
+        this.lfo.frequency.value = 0.05; // Sehr langsam
+        const lfoFilterGain = this.audioContext.createGain();
+        lfoFilterGain.gain.value = 120;
+        this.lfo.connect(lfoFilterGain);
+        lfoFilterGain.connect(this.droneFilter.frequency);
         this.lfo.start();
+
+        // LFO für Stereo-Panning (Raumbewegung)
+        this.panLfo = this.audioContext.createOscillator();
+        this.panLfo.type = 'sine';
+        this.panLfo.frequency.value = 0.07;
+        const panLfoGain = this.audioContext.createGain();
+        panLfoGain.gain.value = 0.25;
+        this.panLfo.connect(panLfoGain);
+        panLfoGain.connect(panner.pan);
+        this.panLfo.start();
+
+        console.log('🎵 Tron-Style Drone started');
     }
 
-    // Transaction pass sound - high-frequency whoosh
+    // Versuche Soundtrack zu laden (falls vorhanden)
+    async loadSoundtrack() {
+        try {
+            const response = await fetch('/audio/soundtrack.mp3');
+            if (!response.ok) return false;
+
+            const arrayBuffer = await response.arrayBuffer();
+            this.soundtrackBuffer = await this.audioContext.decodeAudioData(arrayBuffer);
+            console.log('🎵 Soundtrack loaded');
+            this.playSoundtrack();
+            return true;
+        } catch (e) {
+            console.log('ℹ️ No soundtrack found, using procedural drone');
+            return false;
+        }
+    }
+
+    // Soundtrack abspielen mit Loop
+    playSoundtrack() {
+        if (!this.soundtrackBuffer || !this.audioContext) return;
+
+        this.soundtrackSource = this.audioContext.createBufferSource();
+        this.soundtrackSource.buffer = this.soundtrackBuffer;
+        this.soundtrackSource.loop = true;
+
+        this.soundtrackGain = this.audioContext.createGain();
+        this.soundtrackGain.gain.setValueAtTime(0, this.audioContext.currentTime);
+        this.soundtrackGain.gain.linearRampToValueAtTime(0.4, this.audioContext.currentTime + 3);
+
+        this.soundtrackSource.connect(this.soundtrackGain);
+        this.soundtrackGain.connect(this.masterGain);
+        this.soundtrackSource.start();
+
+        console.log('🎵 Soundtrack playing');
+    }
+
+    // Transaction pass sound - digital whoosh with stereo movement
     playTransactionSound() {
         if (!this.audioContext || this.isMuted) return;
 
         const now = this.audioContext.currentTime;
 
-        // High-pitched sweep
+        // Stereo panner for movement (left to right)
+        const panner = this.audioContext.createStereoPanner();
+        panner.pan.setValueAtTime(-0.5, now);
+        panner.pan.linearRampToValueAtTime(0.5, now + 0.12);
+        panner.connect(this.masterGain);
+
+        // High-pitched digital sweep
         const osc = this.audioContext.createOscillator();
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(2000, now);
-        osc.frequency.exponentialRampToValueAtTime(500, now + 0.1);
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(3000, now);
+        osc.frequency.exponentialRampToValueAtTime(800, now + 0.08);
+
+        // Second oscillator for thickness
+        const osc2 = this.audioContext.createOscillator();
+        osc2.type = 'sine';
+        osc2.frequency.setValueAtTime(2500, now);
+        osc2.frequency.exponentialRampToValueAtTime(600, now + 0.1);
 
         const gain = this.audioContext.createGain();
-        gain.gain.setValueAtTime(0.1, now);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+        gain.gain.setValueAtTime(0.08, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
 
         // High-pass for clarity
         const filter = this.audioContext.createBiquadFilter();
         filter.type = 'highpass';
-        filter.frequency.value = 1000;
+        filter.frequency.value = 800;
+        filter.Q.value = 1;
 
         osc.connect(filter);
+        osc2.connect(filter);
         filter.connect(gain);
-        gain.connect(this.masterGain);
+        gain.connect(panner);
 
         osc.start(now);
-        osc.stop(now + 0.2);
+        osc2.start(now);
+        osc.stop(now + 0.15);
+        osc2.stop(now + 0.15);
     }
 
     // Whale alert - deep sub-bass "BWAAAH" (Inception horn)
@@ -206,11 +301,42 @@ export class AudioManager {
         console.log('🐋 WHALE ALERT!');
     }
 
-    // Block mined - mechanical clunk + gong
+    // Block mined - cinematic impact with reverb
     playBlockSound() {
         if (!this.audioContext || this.isMuted) return;
 
         const now = this.audioContext.currentTime;
+
+        // Create delay for reverb-like effect
+        const delay = this.audioContext.createDelay(1);
+        delay.delayTime.value = 0.15;
+        const delayGain = this.audioContext.createGain();
+        delayGain.gain.value = 0.3;
+        delay.connect(delayGain);
+        delayGain.connect(this.masterGain);
+
+        // Second delay tap
+        const delay2 = this.audioContext.createDelay(1);
+        delay2.delayTime.value = 0.35;
+        const delay2Gain = this.audioContext.createGain();
+        delay2Gain.gain.value = 0.15;
+        delay2.connect(delay2Gain);
+        delay2Gain.connect(this.masterGain);
+
+        // Deep sub impact (cinema style)
+        const subOsc = this.audioContext.createOscillator();
+        subOsc.type = 'sine';
+        subOsc.frequency.setValueAtTime(60, now);
+        subOsc.frequency.exponentialRampToValueAtTime(30, now + 0.5);
+
+        const subGain = this.audioContext.createGain();
+        subGain.gain.setValueAtTime(0.4, now);
+        subGain.gain.exponentialRampToValueAtTime(0.001, now + 1);
+
+        subOsc.connect(subGain);
+        subGain.connect(this.masterGain);
+        subOsc.start(now);
+        subOsc.stop(now + 1.2);
 
         // Metallic impact (gong-like)
         const frequencies = [220, 277, 330, 440, 554];
@@ -224,14 +350,16 @@ export class AudioManager {
             osc.detune.value = (Math.random() - 0.5) * 10;
 
             const gain = this.audioContext.createGain();
-            gain.gain.setValueAtTime(0.3 / (i + 1), now);
-            gain.gain.exponentialRampToValueAtTime(0.001, now + 2);
+            gain.gain.setValueAtTime(0.25 / (i + 1), now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 2.5);
 
             osc.connect(gain);
             gain.connect(this.masterGain);
+            gain.connect(delay);
+            gain.connect(delay2);
 
             osc.start(now);
-            osc.stop(now + 2.5);
+            osc.stop(now + 3);
         });
 
         // Impact noise burst
@@ -247,12 +375,12 @@ export class AudioManager {
         noise.buffer = buffer;
 
         const noiseGain = this.audioContext.createGain();
-        noiseGain.gain.setValueAtTime(0.3, now);
+        noiseGain.gain.setValueAtTime(0.25, now);
         noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
 
         const noiseFilter = this.audioContext.createBiquadFilter();
         noiseFilter.type = 'lowpass';
-        noiseFilter.frequency.value = 500;
+        noiseFilter.frequency.value = 400;
 
         noise.connect(noiseFilter);
         noiseFilter.connect(noiseGain);
@@ -309,6 +437,12 @@ export class AudioManager {
         }
         if (this.lfo) {
             this.lfo.stop();
+        }
+        if (this.panLfo) {
+            this.panLfo.stop();
+        }
+        if (this.soundtrackSource) {
+            this.soundtrackSource.stop();
         }
         if (this.audioContext) {
             this.audioContext.close();
