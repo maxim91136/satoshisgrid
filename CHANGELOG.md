@@ -2,6 +2,12 @@
 
 All notable changes to SATOSHI'S GRID will be documented in this file.
 
+## [1.0.8] - 2026-01-02
+
+### Added
+- **Pushing Block** - New block appears in front of bike for 30s after block event, then falls back as monument
+- **Block Height Sync** - REST API fallback polls every 30s to keep block height accurate
+
 ## [1.0.7] - 2026-01-01
 
 ### Added
