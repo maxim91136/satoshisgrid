@@ -31,17 +31,26 @@ export class Effects {
         // Throttle whale effects
         this.lastWhaleTime = 0;
         this.whaleThrottle = 500; // Min 500ms between whale effects
+
+        // Flash timeout (to prevent stuck white screen)
+        this.flashTimeout = null;
     }
 
     // Screen flash effect (for block found)
     flash(duration = 500, intensity = 1) {
         if (!this.flashOverlay) return;
 
+        // Clear any pending flash timeout
+        if (this.flashTimeout) {
+            clearTimeout(this.flashTimeout);
+        }
+
         this.flashOverlay.style.opacity = intensity;
         this.flashOverlay.classList.add('active');
 
-        setTimeout(() => {
+        this.flashTimeout = setTimeout(() => {
             this.flashOverlay.classList.remove('active');
+            this.flashOverlay.style.opacity = ''; // Reset inline style!
         }, duration);
     }
 
