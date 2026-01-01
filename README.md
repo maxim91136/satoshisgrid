@@ -54,11 +54,29 @@ satoshisgrid/
 └── VERSION
 ```
 
+## Data Sources
+
+| Data | API | Update |
+|------|-----|--------|
+| Transactions | [mempool.space WebSocket](https://mempool.space/docs/api/websocket) | Real-time |
+| Block Events | [mempool.space WebSocket](https://mempool.space/docs/api/websocket) | Real-time |
+| BTC Price | [Binance API](https://binance-docs.github.io/apidocs/) | 30s |
+| BTC Price (Fallback) | [CoinGecko API](https://www.coingecko.com/api/documentation) | 30s |
+| Hashrate | [mempool.space REST](https://mempool.space/docs/api/rest) | 5min |
+
 ## Credits
 
+### Assets
 - **Light Cycle Model:** "TRON: Uprising - ArgonCity Light Cycle" by TheTinDog ([CC BY 4.0](https://skfb.ly/pEW9S))
 - **Soundtrack:** "Cyberpunk Epic Trailer Kit" by cleanmindsounds
-- **Bitcoin Data:** [mempool.space](https://mempool.space)
+
+### Libraries
+- [Three.js](https://threejs.org/) - 3D WebGL rendering
+- [Web Audio API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API) - Procedural audio
+
+### Inspiration
+- TRON: Legacy (2010)
+- Bitcoin Genesis Block (2009)
 
 ## License
 
