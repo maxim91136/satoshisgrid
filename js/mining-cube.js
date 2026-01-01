@@ -1,6 +1,6 @@
 /**
- * SATOSHIS GRID - Mining Cube
- * Wireframe block being mined with laser effects, solidifies on block found
+ * SATOSHIS GRID - Tron Light Cycle
+ * Based on Tron Legacy design - black body with orange neon glow
  */
 
 import * as THREE from 'three';
@@ -10,162 +10,236 @@ export class MiningCube {
         this.sceneManager = sceneManager;
         this.effects = effects;
 
-        // Cube properties
-        this.cubeSize = 8;
-        this.cubePosition = new THREE.Vector3(0, 5, -40);
-
-        // State
+        this.vehiclePosition = new THREE.Vector3(0, 0, -25);
         this.isMining = true;
         this.fillLevel = 0;
         this.transactionCount = 0;
-
-        // Groups
         this.cubeGroup = new THREE.Group();
-        this.lasers = [];
         this.particles = [];
-
-        // Historical blocks (monuments)
         this.monuments = [];
         this.maxMonuments = 10;
 
-        this.createCube();
-        this.createLasers();
-
+        this.createLightCycle();
         this.sceneManager.add(this.cubeGroup);
     }
 
-    createCube() {
-        // Wireframe cube
-        const geometry = new THREE.BoxGeometry(this.cubeSize, this.cubeSize, this.cubeSize);
-        const wireframeMaterial = new THREE.MeshBasicMaterial({
-            color: 0xf7931a,
-            wireframe: true,
-            transparent: true,
-            opacity: 0.8
-        });
+    createLightCycle() {
+        const group = new THREE.Group();
+        const orange = 0xf7931a;
 
-        this.wireframeCube = new THREE.Mesh(geometry, wireframeMaterial);
-        this.wireframeCube.position.copy(this.cubePosition);
-        this.cubeGroup.add(this.wireframeCube);
+        // === MATERIALIEN ===
+        const blackMat = new THREE.MeshBasicMaterial({ color: 0x111111 });
+        const glowMat = new THREE.MeshBasicMaterial({ color: orange });
 
-        // Inner fill cube (grows as transactions fill the block)
-        const fillGeometry = new THREE.BoxGeometry(
-            this.cubeSize * 0.95,
-            0.1,
-            this.cubeSize * 0.95
+        // === RÄDER (das Wichtigste!) ===
+        // Hinterrad - groß und dominant
+        const wheelRadius = 1.2;
+        const rearWheel = new THREE.Mesh(
+            new THREE.TorusGeometry(wheelRadius, 0.15, 8, 32),
+            glowMat
         );
-        const fillMaterial = new THREE.MeshBasicMaterial({
-            color: 0xf7931a,
-            transparent: true,
-            opacity: 0.3
-        });
+        rearWheel.rotation.y = Math.PI / 2;
+        rearWheel.position.set(0, wheelRadius, -1);
+        group.add(rearWheel);
+        this.rearWheel = rearWheel;
 
-        this.fillCube = new THREE.Mesh(fillGeometry, fillMaterial);
-        this.fillCube.position.set(
-            this.cubePosition.x,
-            this.cubePosition.y - this.cubeSize / 2 + 0.05,
-            this.cubePosition.z
+        // Rad-Speichen (innerer Ring)
+        const innerRing = new THREE.Mesh(
+            new THREE.TorusGeometry(wheelRadius * 0.6, 0.05, 8, 32),
+            glowMat.clone()
         );
-        this.cubeGroup.add(this.fillCube);
+        innerRing.rotation.y = Math.PI / 2;
+        innerRing.position.copy(rearWheel.position);
+        group.add(innerRing);
+        this.innerRing = innerRing;
 
-        // Glow effect around cube
-        const glowGeometry = new THREE.BoxGeometry(
-            this.cubeSize + 2,
-            this.cubeSize + 2,
-            this.cubeSize + 2
+        // Hinterrad Disc (schwarze Füllung)
+        const rearDisc = new THREE.Mesh(
+            new THREE.CircleGeometry(wheelRadius * 0.55, 32),
+            new THREE.MeshBasicMaterial({ color: 0x000000, side: THREE.DoubleSide })
         );
-        const glowMaterial = new THREE.MeshBasicMaterial({
-            color: 0xf7931a,
-            transparent: true,
-            opacity: 0.1,
-            side: THREE.BackSide
-        });
+        rearDisc.rotation.y = Math.PI / 2;
+        rearDisc.position.copy(rearWheel.position);
+        group.add(rearDisc);
 
-        this.glowCube = new THREE.Mesh(glowGeometry, glowMaterial);
-        this.glowCube.position.copy(this.cubePosition);
-        this.cubeGroup.add(this.glowCube);
-    }
+        // Vorderrad - etwas kleiner
+        const frontWheel = new THREE.Mesh(
+            new THREE.TorusGeometry(0.7, 0.1, 8, 32),
+            glowMat.clone()
+        );
+        frontWheel.rotation.y = Math.PI / 2;
+        frontWheel.position.set(0, 0.7, 2.5);
+        group.add(frontWheel);
+        this.frontWheel = frontWheel;
 
-    createLasers() {
-        const corners = [
-            [-1, 1, -1], [1, 1, -1], [-1, 1, 1], [1, 1, 1],
-            [-1, -1, -1], [1, -1, -1], [-1, -1, 1], [1, -1, 1]
-        ];
+        // Vorderrad innerer Ring
+        const frontInnerRing = new THREE.Mesh(
+            new THREE.TorusGeometry(0.4, 0.03, 8, 32),
+            glowMat.clone()
+        );
+        frontInnerRing.rotation.y = Math.PI / 2;
+        frontInnerRing.position.copy(frontWheel.position);
+        group.add(frontInnerRing);
+        this.frontInnerRing = frontInnerRing;
 
-        const laserMaterial = new THREE.LineBasicMaterial({
-            color: 0x00ffff,
-            transparent: true,
-            opacity: 0.8
-        });
+        // === BODY ===
+        // Hauptchassis - flache Box
+        const body = new THREE.Mesh(
+            new THREE.BoxGeometry(0.5, 0.3, 4),
+            blackMat
+        );
+        body.position.set(0, 1, 0.5);
+        group.add(body);
 
-        corners.forEach((corner, index) => {
-            const startPoint = new THREE.Vector3(
-                this.cubePosition.x + corner[0] * (this.cubeSize / 2 + 2),
-                this.cubePosition.y + corner[1] * (this.cubeSize / 2 + 2),
-                this.cubePosition.z + corner[2] * (this.cubeSize / 2 + 2)
+        // Neon-Linie auf dem Body (oben)
+        const bodyLine = new THREE.Mesh(
+            new THREE.BoxGeometry(0.52, 0.05, 4),
+            glowMat.clone()
+        );
+        bodyLine.position.set(0, 1.16, 0.5);
+        group.add(bodyLine);
+
+        // Seitenlinien
+        [-1, 1].forEach(side => {
+            const sideLine = new THREE.Mesh(
+                new THREE.BoxGeometry(0.02, 0.1, 3.5),
+                glowMat.clone()
             );
-
-            const endPoint = new THREE.Vector3(
-                this.cubePosition.x + corner[0] * (this.cubeSize / 2),
-                this.cubePosition.y + corner[1] * (this.cubeSize / 2),
-                this.cubePosition.z + corner[2] * (this.cubeSize / 2)
-            );
-
-            const geometry = new THREE.BufferGeometry().setFromPoints([startPoint, endPoint]);
-            const laser = new THREE.Line(geometry, laserMaterial.clone());
-
-            laser.userData = {
-                baseOpacity: 0.8,
-                phase: index * Math.PI / 4
-            };
-
-            this.lasers.push(laser);
-            this.cubeGroup.add(laser);
+            sideLine.position.set(side * 0.26, 1, 0.5);
+            group.add(sideLine);
         });
+
+        // Untere Neon-Linie
+        const bottomLine = new THREE.Mesh(
+            new THREE.BoxGeometry(0.52, 0.03, 4),
+            glowMat.clone()
+        );
+        bottomLine.position.set(0, 0.84, 0.5);
+        group.add(bottomLine);
+
+        // === FAHRER (Satoshi-Silhouette) ===
+        // Torso - flach liegend
+        const torso = new THREE.Mesh(
+            new THREE.BoxGeometry(0.4, 0.25, 1.2),
+            blackMat.clone()
+        );
+        torso.position.set(0, 1.35, 0.8);
+        torso.rotation.x = -0.2;
+        group.add(torso);
+
+        // Torso Neon-Linie
+        const torsoLine = new THREE.Mesh(
+            new THREE.BoxGeometry(0.42, 0.02, 1.2),
+            glowMat.clone()
+        );
+        torsoLine.position.set(0, 1.48, 0.8);
+        torsoLine.rotation.x = -0.2;
+        group.add(torsoLine);
+
+        // Kopf (Helm)
+        const head = new THREE.Mesh(
+            new THREE.SphereGeometry(0.2, 8, 8),
+            blackMat.clone()
+        );
+        head.position.set(0, 1.45, 1.6);
+        group.add(head);
+
+        // Helm-Linie (Visier-Glow)
+        const visor = new THREE.Mesh(
+            new THREE.BoxGeometry(0.42, 0.05, 0.02),
+            glowMat.clone()
+        );
+        visor.position.set(0, 1.45, 1.8);
+        group.add(visor);
+
+        // Arme (angedeutet)
+        [-1, 1].forEach(side => {
+            const arm = new THREE.Mesh(
+                new THREE.BoxGeometry(0.08, 0.08, 0.6),
+                blackMat.clone()
+            );
+            arm.position.set(side * 0.25, 1.3, 1.4);
+            arm.rotation.x = -0.4;
+            group.add(arm);
+        });
+
+        // === LIGHT TRAIL ===
+        const trailMaterial = new THREE.ShaderMaterial({
+            uniforms: {
+                color: { value: new THREE.Color(orange) }
+            },
+            vertexShader: `
+                varying vec2 vUv;
+                void main() {
+                    vUv = uv;
+                    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+                }
+            `,
+            fragmentShader: `
+                uniform vec3 color;
+                varying vec2 vUv;
+                void main() {
+                    float alpha = 1.0 - vUv.y;
+                    gl_FragColor = vec4(color, alpha * 0.7);
+                }
+            `,
+            transparent: true,
+            side: THREE.DoubleSide
+        });
+
+        const trail = new THREE.Mesh(
+            new THREE.PlaneGeometry(0.1, 25),
+            trailMaterial
+        );
+        trail.rotation.x = -Math.PI / 2;
+        trail.rotation.z = Math.PI / 2;
+        trail.position.set(0, 1, -13.5);
+        group.add(trail);
+        this.trail = trail;
+
+        // === GLOW AURA ===
+        const aura = new THREE.Mesh(
+            new THREE.BoxGeometry(2, 3, 6),
+            new THREE.MeshBasicMaterial({
+                color: orange,
+                transparent: true,
+                opacity: 0.08,
+                side: THREE.BackSide
+            })
+        );
+        aura.position.set(0, 1.2, 0.5);
+        group.add(aura);
+        this.aura = aura;
+
+        group.position.copy(this.vehiclePosition);
+        this.cubeGroup.add(group);
+        this.vehicle = group;
     }
 
     addTransaction(txData) {
         this.transactionCount++;
         this.fillLevel = Math.min(this.fillLevel + 0.01, 1);
-
-        const newHeight = this.cubeSize * this.fillLevel * 0.95;
-        this.fillCube.scale.y = Math.max(newHeight / 0.1, 1);
-        this.fillCube.position.y = this.cubePosition.y - this.cubeSize / 2 + newHeight / 2;
-
         this.createParticle(txData);
     }
 
     createParticle(txData) {
-        const particleGeometry = new THREE.SphereGeometry(0.2, 8, 8);
-        const particleMaterial = new THREE.MeshBasicMaterial({
-            color: 0x00ffff,
-            transparent: true,
-            opacity: 1
-        });
+        const particle = new THREE.Mesh(
+            new THREE.SphereGeometry(0.2, 6, 6),
+            new THREE.MeshBasicMaterial({
+                color: 0xf7931a,
+                transparent: true,
+                opacity: 1
+            })
+        );
 
-        const particle = new THREE.Mesh(particleGeometry, particleMaterial);
-
-        const side = Math.floor(Math.random() * 4);
-        const offset = (Math.random() - 0.5) * this.cubeSize;
-
-        switch (side) {
-            case 0:
-                particle.position.set(this.cubePosition.x - this.cubeSize, this.cubePosition.y + offset, this.cubePosition.z);
-                break;
-            case 1:
-                particle.position.set(this.cubePosition.x + this.cubeSize, this.cubePosition.y + offset, this.cubePosition.z);
-                break;
-            case 2:
-                particle.position.set(this.cubePosition.x + offset, this.cubePosition.y, this.cubePosition.z - this.cubeSize);
-                break;
-            case 3:
-                particle.position.set(this.cubePosition.x + offset, this.cubePosition.y, this.cubePosition.z + this.cubeSize);
-                break;
-        }
+        particle.position.set(
+            this.vehiclePosition.x + 20 + Math.random() * 15,
+            1 + (Math.random() - 0.5) * 2,
+            this.vehiclePosition.z + (Math.random() - 0.5) * 8
+        );
 
         particle.userData = {
-            target: this.cubePosition.clone(),
-            speed: 30,
+            target: new THREE.Vector3(this.vehiclePosition.x, 1.2, this.vehiclePosition.z),
             life: 1
         };
 
@@ -175,80 +249,59 @@ export class MiningCube {
 
     onBlockFound(blockData) {
         if (!this.isMining) return;
-
         console.log('🔶 Block found!', blockData);
-
         this.effects.flash();
         this.createMonument(blockData);
         this.reset();
     }
 
     createMonument(blockData) {
-        const geometry = new THREE.BoxGeometry(this.cubeSize, this.cubeSize, this.cubeSize);
+        const group = new THREE.Group();
+
+        const geometry = new THREE.BoxGeometry(4, 4, 4);
         const material = new THREE.MeshBasicMaterial({
             color: 0xf7931a,
             transparent: true,
-            opacity: 0.9
+            opacity: 0.85
         });
-
-        const monument = new THREE.Mesh(geometry, material);
-        monument.position.copy(this.cubePosition);
+        const block = new THREE.Mesh(geometry, material);
+        group.add(block);
 
         const edges = new THREE.EdgesGeometry(geometry);
-        const lineMaterial = new THREE.LineBasicMaterial({ color: 0xffffff });
-        const outline = new THREE.LineSegments(edges, lineMaterial);
-        monument.add(outline);
+        const outline = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: 0xffffff }));
+        group.add(outline);
 
-        monument.userData = {
-            blockHeight: blockData?.height || 'Unknown',
-            timestamp: Date.now()
-        };
-
-        this.sceneManager.add(monument);
-        this.monuments.push(monument);
-
-        this.animateMonumentFall(monument);
+        group.position.set(this.vehiclePosition.x, 2, this.vehiclePosition.z);
+        this.sceneManager.add(group);
+        this.monuments.push(group);
+        this.animateMonumentFall(group);
 
         while (this.monuments.length > this.maxMonuments) {
             const oldest = this.monuments.shift();
             this.sceneManager.remove(oldest);
-            oldest.geometry.dispose();
-            oldest.material.dispose();
         }
     }
 
     animateMonumentFall(monument) {
-        monument.position.y = this.cubePosition.y + 20;
-
-        const targetY = this.cubePosition.y - this.cubeSize - 1;
+        monument.position.y = 15;
         const duration = 0.5;
         let elapsed = 0;
 
         const animate = () => {
             elapsed += 0.016;
             const t = Math.min(elapsed / duration, 1);
-
             const eased = 1 - Math.pow(1 - t, 3);
-            monument.position.y = this.cubePosition.y + 20 - (this.cubePosition.y + 20 - targetY) * eased;
-            monument.position.z = this.cubePosition.z - (t * 50);
-
-            if (t < 1) {
-                requestAnimationFrame(animate);
-            } else {
-                this.sceneManager.shake(0.3);
-            }
+            monument.position.y = 15 - (15 - 2) * eased;
+            monument.position.z = this.vehiclePosition.z - (t * 30);
+            if (t < 1) requestAnimationFrame(animate);
+            else this.sceneManager.shake(0.3);
         };
-
         requestAnimationFrame(animate);
     }
 
     reset() {
         this.fillLevel = 0;
         this.transactionCount = 0;
-
-        this.fillCube.scale.y = 1;
-        this.fillCube.position.y = this.cubePosition.y - this.cubeSize / 2 + 0.05;
-
         this.particles.forEach(p => {
             this.cubeGroup.remove(p);
             p.geometry.dispose();
@@ -259,42 +312,40 @@ export class MiningCube {
 
     update(delta) {
         if (!this.isMining) return;
-
         const time = Date.now() * 0.001;
 
-        this.wireframeCube.rotation.y += delta * 0.1;
-        this.glowCube.rotation.y -= delta * 0.05;
+        // Hover
+        if (this.vehicle) {
+            this.vehicle.position.y = this.vehiclePosition.y + Math.sin(time * 3) * 0.05;
+        }
 
-        this.glowCube.material.opacity = 0.1 + Math.sin(time * 2) * 0.05;
+        // Pulse aura
+        if (this.aura) {
+            this.aura.material.opacity = 0.06 + Math.sin(time * 2) * 0.03;
+        }
 
-        this.lasers.forEach(laser => {
-            const phase = laser.userData.phase;
-            laser.material.opacity = 0.3 + Math.sin(time * 4 + phase) * 0.5;
-        });
+        // Spin wheels
+        if (this.rearWheel) this.rearWheel.rotation.x += delta * 8;
+        if (this.innerRing) this.innerRing.rotation.x += delta * 8;
+        if (this.frontWheel) this.frontWheel.rotation.x += delta * 12;
+        if (this.frontInnerRing) this.frontInnerRing.rotation.x += delta * 12;
 
+        // Particles
         for (let i = this.particles.length - 1; i >= 0; i--) {
-            const particle = this.particles[i];
-            const target = particle.userData.target;
-
-            particle.position.lerp(target, delta * 5);
-
-            particle.userData.life -= delta * 2;
-            particle.material.opacity = particle.userData.life;
-
-            if (particle.userData.life <= 0) {
-                this.cubeGroup.remove(particle);
-                particle.geometry.dispose();
-                particle.material.dispose();
+            const p = this.particles[i];
+            p.position.lerp(p.userData.target, delta * 5);
+            p.userData.life -= delta * 2;
+            p.material.opacity = p.userData.life;
+            if (p.userData.life <= 0) {
+                this.cubeGroup.remove(p);
+                p.geometry.dispose();
+                p.material.dispose();
                 this.particles.splice(i, 1);
             }
         }
     }
 
     getStats() {
-        return {
-            fillLevel: this.fillLevel,
-            transactionCount: this.transactionCount,
-            monumentCount: this.monuments.length
-        };
+        return { fillLevel: this.fillLevel, transactionCount: this.transactionCount, monumentCount: this.monuments.length };
     }
 }
