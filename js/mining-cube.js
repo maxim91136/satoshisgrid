@@ -152,6 +152,61 @@ export class MiningCube {
         visor.position.set(0, 1.45, 1.8);
         group.add(visor);
 
+        // ₿ Symbol auf dem Helm
+        const btcGroup = new THREE.Group();
+        const btcMat = glowMat.clone();
+
+        // Vertikale Linie (Hauptstrich)
+        const vLine = new THREE.Mesh(
+            new THREE.BoxGeometry(0.02, 0.15, 0.02),
+            btcMat
+        );
+        btcGroup.add(vLine);
+
+        // Obere horizontale Linie
+        const hLine1 = new THREE.Mesh(
+            new THREE.BoxGeometry(0.08, 0.02, 0.02),
+            btcMat.clone()
+        );
+        hLine1.position.set(0.02, 0.05, 0);
+        btcGroup.add(hLine1);
+
+        // Mittlere horizontale Linie
+        const hLine2 = new THREE.Mesh(
+            new THREE.BoxGeometry(0.08, 0.02, 0.02),
+            btcMat.clone()
+        );
+        hLine2.position.set(0.02, 0, 0);
+        btcGroup.add(hLine2);
+
+        // Untere horizontale Linie
+        const hLine3 = new THREE.Mesh(
+            new THREE.BoxGeometry(0.08, 0.02, 0.02),
+            btcMat.clone()
+        );
+        hLine3.position.set(0.02, -0.05, 0);
+        btcGroup.add(hLine3);
+
+        // Oberer Überstrich
+        const topStroke = new THREE.Mesh(
+            new THREE.BoxGeometry(0.02, 0.04, 0.02),
+            btcMat.clone()
+        );
+        topStroke.position.set(0, 0.09, 0);
+        btcGroup.add(topStroke);
+
+        // Unterer Überstrich
+        const bottomStroke = new THREE.Mesh(
+            new THREE.BoxGeometry(0.02, 0.04, 0.02),
+            btcMat.clone()
+        );
+        bottomStroke.position.set(0, -0.09, 0);
+        btcGroup.add(bottomStroke);
+
+        btcGroup.position.set(0, 1.65, 1.55);
+        btcGroup.rotation.x = -0.3;
+        group.add(btcGroup);
+
         // Arme (angedeutet)
         [-1, 1].forEach(side => {
             const arm = new THREE.Mesh(
