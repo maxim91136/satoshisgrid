@@ -120,11 +120,12 @@ export class LightCycle {
     }
 
     createLightTrail() {
-        const trailLength = 60;
-        const trailHeight = 10;
+        const trailLength = 50;
+        const trailHeight = 8;
 
-        // Vertikale Wand - Länge auf X, Höhe auf Y
-        const geometry = new THREE.PlaneGeometry(trailLength, trailHeight);
+        // Plane für horizontalen Trail am Boden (wie klassischer Tron Light Cycle Trail)
+        // PlaneGeometry(width, depth) - width entlang X, depth entlang Y
+        const geometry = new THREE.PlaneGeometry(2, trailLength);
 
         this.trailMaterial = new THREE.ShaderMaterial({
             uniforms: {
@@ -144,23 +145,19 @@ export class LightCycle {
                 varying vec2 vUv;
 
                 void main() {
-                    // UV ist nach Rotation invertiert: vUv.x=0 ist am Bike, vUv.x=1 ist hinten
-                    // Invertieren: Am Bike (vUv.x=0) volle Opacity, hinten (vUv.x=1) fade out
-                    float fade = pow(1.0 - vUv.x, 0.5);
+                    // vUv.y = 0 am Bike (vorne), vUv.y = 1 hinten (fade out)
+                    float fade = pow(1.0 - vUv.y, 0.7);
 
-                    // Subtiler Puls-Effekt
-                    float pulse = 0.9 + 0.1 * sin(time * 3.0 + vUv.x * 15.0);
+                    // Puls-Effekt
+                    float pulse = 0.85 + 0.15 * sin(time * 4.0 + vUv.y * 20.0);
 
-                    // Vertikaler Gradient - heller in der Mitte
-                    float vertical = 1.0 - pow(abs(vUv.y - 0.5) * 2.0, 2.0);
+                    // Horizontaler Gradient - heller in der Mitte
+                    float horizontal = 1.0 - pow(abs(vUv.x - 0.5) * 2.0, 2.0);
 
-                    // Scharfe Kante am Boden
-                    float groundFade = smoothstep(0.0, 0.1, vUv.y);
+                    float alpha = fade * pulse * horizontal * 0.9;
 
-                    float alpha = fade * pulse * vertical * groundFade * 0.8;
-
-                    // Hellerer Kern mit Orange-Glow
-                    vec3 finalColor = mix(color, vec3(1.0, 0.7, 0.3), vertical * 0.4);
+                    // Hellerer Kern
+                    vec3 finalColor = mix(color, vec3(1.0, 0.6, 0.2), horizontal * 0.5);
 
                     gl_FragColor = vec4(finalColor, alpha);
                 }
@@ -173,23 +170,85 @@ export class LightCycle {
 
         this.trail = new THREE.Mesh(geometry, this.trailMaterial);
 
-        // Trail als vertikale Wand hinter dem Bike
-        // Rotation: Plane von XY-Ebene in YZ-Ebene drehen
-        this.trail.rotation.y = Math.PI / 2;
+        // Trail horizontal auf dem Boden, hinter dem Bike
+        this.trail.rotation.x = -Math.PI / 2;  // Flach auf den Boden
 
-        // Position: Trail startet direkt am Bike und geht nach HINTEN (Richtung Kamera)
-        // Bike ist bei z=-30, fährt in -Z Richtung, Trail geht nach +Z
+        // Position: Direkt hinter dem Bike
         this.trail.position.set(
             this.vehiclePosition.x,
-            trailHeight / 2,  // Halb-Höhe (Boden bei y=0)
-            this.vehiclePosition.z + trailLength / 2 + 2  // Trail hinter Bike (Richtung Kamera)
+            0.05,  // Knapp über dem Grid
+            this.vehiclePosition.z + trailLength / 2 + 4
         );
 
         this.cubeGroup.add(this.trail);
 
-        // Trail-Länge für Update speichern
+        // Zusätzlich: Vertikale Glow-Wand für mehr Präsenz
+        this.createVerticalGlow(trailLength, trailHeight);
+
         this.trailLength = trailLength;
         this.trailHeight = trailHeight;
+    }
+
+    createVerticalGlow(length, height) {
+        // Vertikale Lichtwand - dünn, aber sichtbar
+        const glowGeo = new THREE.PlaneGeometry(0.5, height);
+
+        const glowMat = new THREE.ShaderMaterial({
+            uniforms: {
+                color: { value: new THREE.Color(BITCOIN_ORANGE) },
+                time: { value: 0 }
+            },
+            vertexShader: `
+                varying vec2 vUv;
+                varying float vZ;
+                void main() {
+                    vUv = uv;
+                    vZ = position.z;
+                    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+                }
+            `,
+            fragmentShader: `
+                uniform vec3 color;
+                uniform float time;
+                varying vec2 vUv;
+
+                void main() {
+                    // Vertikal: heller in der Mitte
+                    float vertical = 1.0 - pow(abs(vUv.y - 0.5) * 2.0, 1.5);
+                    float pulse = 0.8 + 0.2 * sin(time * 3.0);
+                    float alpha = vertical * pulse * 0.6;
+
+                    vec3 finalColor = mix(color, vec3(1.0, 0.8, 0.4), vertical * 0.3);
+                    gl_FragColor = vec4(finalColor, alpha);
+                }
+            `,
+            transparent: true,
+            side: THREE.DoubleSide,
+            depthWrite: false,
+            blending: THREE.AdditiveBlending
+        });
+
+        // Erstelle mehrere vertikale Glow-Panels entlang der Trail-Länge
+        this.verticalGlows = [];
+        const panelCount = 8;
+        const spacing = length / panelCount;
+
+        for (let i = 0; i < panelCount; i++) {
+            const glow = new THREE.Mesh(glowGeo, glowMat.clone());
+            glow.position.set(
+                this.vehiclePosition.x,
+                height / 2,
+                this.vehiclePosition.z + 4 + i * spacing
+            );
+            // Leichte Fade basierend auf Entfernung
+            const fadeAmount = 1 - (i / panelCount) * 0.8;
+            glow.material.uniforms.color.value = new THREE.Color(BITCOIN_ORANGE).multiplyScalar(fadeAmount);
+
+            this.cubeGroup.add(glow);
+            this.verticalGlows.push(glow);
+        }
+
+        this.glowMaterial = glowMat;
     }
 
     addTransaction(txData) {
@@ -309,6 +368,15 @@ export class LightCycle {
         // Trail Animation
         if (this.trailMaterial && this.trailMaterial.uniforms) {
             this.trailMaterial.uniforms.time.value = time;
+        }
+
+        // Vertical Glow Animation
+        if (this.verticalGlows) {
+            this.verticalGlows.forEach((glow, i) => {
+                if (glow.material.uniforms) {
+                    glow.material.uniforms.time.value = time + i * 0.5;
+                }
+            });
         }
 
         // Trail folgt Bike X-Position (falls Bike sich bewegt)
