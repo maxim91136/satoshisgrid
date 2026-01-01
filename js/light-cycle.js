@@ -264,38 +264,7 @@ export class LightCycle {
     addTransaction(txData) {
         this.transactionCount++;
         this.fillLevel = Math.min(this.fillLevel + 0.01, 1);
-        this.createParticle(txData);
-    }
-
-    createParticle(txData) {
-        // Limit particles to prevent memory issues
-        if (this.particles.length >= this.maxParticles) {
-            return; // Skip if too many particles
-        }
-
-        // Reuse shared geometry, only create new material
-        const particle = new THREE.Mesh(
-            this.particleGeometry, // Shared geometry!
-            new THREE.MeshBasicMaterial({
-                color: BITCOIN_ORANGE,
-                transparent: true,
-                opacity: 1
-            })
-        );
-
-        particle.position.set(
-            this.vehiclePosition.x + 20 + Math.random() * 15,
-            1 + (Math.random() - 0.5) * 2,
-            this.vehiclePosition.z + (Math.random() - 0.5) * 8
-        );
-
-        particle.userData = {
-            target: new THREE.Vector3(this.vehiclePosition.x, 1.5, this.vehiclePosition.z),
-            life: 1
-        };
-
-        this.particles.push(particle);
-        this.cubeGroup.add(particle);
+        // Particles removed for stability
     }
 
     onBlockFound(blockData) {
