@@ -24,8 +24,8 @@ class SatoshisGrid {
         this.hud = null;
         this.effects = null;
 
-        // Check if user has entered before (skip splash on refresh)
-        const hasEntered = localStorage.getItem('satoshisgrid_entered');
+        // Check if user has entered before in this session (skip splash on refresh)
+        const hasEntered = sessionStorage.getItem('satoshisgrid_entered');
         if (hasEntered) {
             this.skipSplash();
         } else {
@@ -39,7 +39,7 @@ class SatoshisGrid {
 
         // Enter Button führt ins Grid (Audio startet erst hier durch User-Klick)
         enterBtn.addEventListener('click', async () => {
-            localStorage.setItem('satoshisgrid_entered', 'true');
+            sessionStorage.setItem('satoshisgrid_entered', 'true');
             splash.classList.add('hidden');
             await this.init();
             // Start audio now (user click enables AudioContext)
@@ -50,7 +50,7 @@ class SatoshisGrid {
         document.addEventListener('keydown', async (e) => {
             if (e.code === 'Enter' || e.code === 'Space') {
                 if (!this.isInitialized) {
-                    localStorage.setItem('satoshisgrid_entered', 'true');
+                    sessionStorage.setItem('satoshisgrid_entered', 'true');
                     splash.classList.add('hidden');
                     await this.init();
                     await this.audioManager.init();

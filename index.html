@@ -163,9 +163,9 @@
     }
     </script>
 
-    <!-- Hide splash immediately if returning user (prevents flicker) -->
+    <!-- Hide splash immediately if returning user in same tab (prevents flicker) -->
     <script>
-        if (localStorage.getItem('satoshisgrid_entered')) {
+        if (sessionStorage.getItem('satoshisgrid_entered')) {
             document.getElementById('splash').classList.add('hidden');
         }
     </script>
