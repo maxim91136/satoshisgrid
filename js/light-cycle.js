@@ -41,28 +41,49 @@ export class LightCycle {
                 // Skalierung
                 this.bike.scale.set(5, 5, 5);
 
-                // Nur die leuchtenden Neon-Teile auf Bitcoin Orange ändern
+                // Materialien verarbeiten
                 this.bike.traverse((child) => {
-                    if (child.isMesh && child.material) {
-                        const mat = child.material;
+                    if (child.isMesh) {
+                        const materials = Array.isArray(child.material)
+                            ? child.material
+                            : [child.material];
 
-                        // Prüfen ob es ein leuchtendes/emissives Teil ist
-                        const isEmissive = mat.emissive && mat.emissiveIntensity > 0;
-                        const isNeonColor = mat.color && (
-                            (mat.color.r > 0.8 && mat.color.g < 0.3) || // Rot/Pink
-                            (mat.color.r < 0.3 && mat.color.g > 0.8) || // Grün
-                            (mat.color.b > 0.8 && mat.color.r < 0.3)    // Blau/Cyan
-                        );
+                        materials.forEach((mat) => {
+                            if (!mat) return;
 
-                        if (isEmissive || isNeonColor) {
-                            // Neon-Linien: Orange leuchten lassen
-                            mat.emissive = new THREE.Color(BITCOIN_ORANGE);
-                            mat.emissiveIntensity = 1.0; // Reduziert für weniger Bloom-Überblendung
-                            if (isNeonColor) {
-                                mat.color.setHex(BITCOIN_ORANGE);
+                            // Emissive Map aktivieren falls vorhanden
+                            if (mat.emissiveMap) {
+                                mat.emissive = new THREE.Color(0xffffff);
+                                mat.emissiveIntensity = 1.5;
                             }
-                        }
-                        // Dunkle/schwarze Teile bleiben unverändert
+
+                            // HSL-basierte Farberkennung
+                            if (mat.color) {
+                                const hsl = {};
+                                mat.color.getHSL(hsl);
+
+                                // Rot/Magenta Bereich (Hue 0-0.1 oder 0.8-1.0)
+                                // = leuchtende Teile -> Bitcoin Orange
+                                if ((hsl.h < 0.1 || hsl.h > 0.8) && hsl.s > 0.5 && hsl.l > 0.3) {
+                                    mat.color.setHex(BITCOIN_ORANGE);
+                                    mat.emissive = new THREE.Color(BITCOIN_ORANGE);
+                                    mat.emissiveIntensity = 1.5;
+                                }
+                            }
+
+                            // Namen-basierte Erkennung
+                            const name = (mat.name || child.name || '').toLowerCase();
+                            if (name.includes('light') ||
+                                name.includes('glow') ||
+                                name.includes('neon') ||
+                                name.includes('emission') ||
+                                name.includes('emissive')) {
+                                mat.emissive = new THREE.Color(BITCOIN_ORANGE);
+                                mat.emissiveIntensity = 1.5;
+                            }
+
+                            mat.needsUpdate = true;
+                        });
                     }
                 });
 

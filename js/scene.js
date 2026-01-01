@@ -7,6 +7,7 @@ import * as THREE from 'three';
 import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 
 export class SceneManager {
     constructor() {
@@ -84,21 +85,29 @@ export class SceneManager {
     }
 
     createPostProcessing() {
+        // Wichtig für korrektes Rendering
+        this.renderer.autoClear = true;
+        this.renderer.setClearColor(0x000000, 1);
+
         this.composer = new EffectComposer(this.renderer);
 
         // Render pass
         const renderPass = new RenderPass(this.scene, this.camera);
         this.composer.addPass(renderPass);
 
-        // Bloom pass for glow effects
+        // Bloom pass - niedrigere Werte für bessere Kontrolle
         const bloomPass = new UnrealBloomPass(
             new THREE.Vector2(window.innerWidth, window.innerHeight),
-            0.8,   // strength
+            0.8,   // strength - nicht über 1.5!
             0.4,   // radius
-            0.85   // threshold
+            0.15   // threshold - niedriger = mehr bloom
         );
         this.composer.addPass(bloomPass);
         this.bloomPass = bloomPass;
+
+        // OutputPass für korrektes Tone Mapping
+        const outputPass = new OutputPass();
+        this.composer.addPass(outputPass);
     }
 
     setupEventListeners() {
