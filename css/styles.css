@@ -107,12 +107,12 @@ html, body {
 }
 
 .beta-badge {
+    display: inline-block;
     font-size: 10px;
     font-weight: 400;
     letter-spacing: 3px;
-    padding: 4px 10px;
-    margin-left: 12px;
-    vertical-align: middle;
+    padding: 4px 12px;
+    margin-top: 16px;
     border: 1px solid var(--electric-cyan);
     color: var(--electric-cyan);
     background: transparent;
