@@ -685,17 +685,21 @@ html, body {
         max-width: 48%;
     }
 
-    /* Stacked layout for bottom on mobile */
+    /* Stacked layout for bottom on mobile - 3 rows */
     .hud-bottom-left {
-        bottom: 50px;
-        max-width: 100%;
-        width: calc(100% - 16px);
+        bottom: 90px; /* Top row: Logo */
+        left: var(--hud-padding);
+        right: auto;
+        max-width: none;
+        width: auto;
     }
 
     .hud-bottom-right {
-        bottom: var(--hud-padding);
-        max-width: 100%;
-        width: calc(100% - 16px);
+        bottom: 50px; /* Middle row: Mempool/Fee */
+        left: var(--hud-padding);
+        right: var(--hud-padding);
+        max-width: none;
+        width: auto;
         text-align: left;
         display: flex;
         justify-content: space-between;
@@ -704,6 +708,13 @@ html, body {
 
     .hud-bottom-right .hud-item {
         margin-bottom: 0;
+    }
+
+    /* Audio toggle: Bottom row */
+    .audio-toggle {
+        bottom: var(--hud-padding);
+        left: var(--hud-padding);
+        transform: none;
     }
 
     .hud-item {
