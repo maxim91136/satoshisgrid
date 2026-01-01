@@ -176,12 +176,12 @@ export class LightCycle {
         // Rotation: Plane von XY-Ebene in YZ-Ebene drehen
         this.trail.rotation.y = Math.PI / 2;
 
-        // Position: Trail startet direkt am Bike
-        // trailLength/2 offset weil Plane-Center in der Mitte ist
+        // Position: Trail startet direkt am Bike und geht nach HINTEN (Richtung Kamera)
+        // Bike ist bei z=-30, fährt in -Z Richtung, Trail geht nach +Z
         this.trail.position.set(
             this.vehiclePosition.x,
             trailHeight / 2,  // Halb-Höhe (Boden bei y=0)
-            this.vehiclePosition.z - trailLength / 2 - 2  // 2 units hinter Bike
+            this.vehiclePosition.z + trailLength / 2 + 2  // Trail hinter Bike (Richtung Kamera)
         );
 
         this.cubeGroup.add(this.trail);
