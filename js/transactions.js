@@ -323,7 +323,7 @@ export class TransactionManager {
         this.lightCycle = lightCycle;
         this.effects = effects;
         this.transactions = [];
-        this.maxTransactions = 100; // Reduced from 200 to prevent memory issues
+        this.maxTransactions = 50; // Aggressive limit for stability
 
         // For click detection
         this.raycaster = new THREE.Raycaster();

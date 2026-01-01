@@ -35,7 +35,7 @@ export class LightCycle {
 
         // Use shared geometry for particles
         this.particleGeometry = SHARED_MONUMENT_GEOMETRIES.particle;
-        this.maxParticles = 30; // Limit active particles
+        this.maxParticles = 15; // Strict limit for stability
 
         this.loadLightCycle();
         this.createLightTrail();

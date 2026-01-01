@@ -268,10 +268,10 @@ export class WebSocketManager {
         this.hud.updateFeeRate(15);
         this.hud.updateHashRate(700e18); // ~700 EH/s demo value
 
-        // Generate random transactions
+        // Generate random transactions (slower rate for stability)
         this.demoInterval = setInterval(() => {
             this.generateDemoTransaction();
-        }, 200 + Math.random() * 800);
+        }, 800 + Math.random() * 1200);
 
         // Occasional block (every 1-2 minutes in demo) - STORE THE INTERVAL!
         this.demoBlockInterval = setInterval(() => {

@@ -141,9 +141,9 @@ class SatoshisGrid {
         // Render scene
         this.sceneManager.render();
 
-        // Periodic memory check (every 5 minutes - reduced from 30s to avoid console spam)
+        // Periodic memory check (every 30 seconds for debugging)
         this.frameCount = (this.frameCount || 0) + 1;
-        if (this.frameCount % 18000 === 0) { // ~5 minutes at 60fps
+        if (this.frameCount % 1800 === 0) { // ~30 seconds at 60fps
             const info = this.sceneManager.renderer.info;
             console.log(`📊 Memory: ${info.memory.geometries} geo, ${info.memory.textures} tex | Scene: ${this.sceneManager.scene.children.length} | TX: ${this.transactionManager.transactions.length}`);
         }
