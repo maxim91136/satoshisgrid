@@ -140,4 +140,30 @@ export class Grid {
     setScrollSpeed(speed) {
         this.scrollSpeed = speed;
     }
+
+    dispose() {
+        if (this.gridGroup) {
+            this.sceneManager.remove(this.gridGroup);
+
+            this.gridGroup.traverse((obj) => {
+                if (obj.geometry) {
+                    try { obj.geometry.dispose(); } catch (_) { /* ignore */ }
+                }
+                if (obj.material) {
+                    if (Array.isArray(obj.material)) {
+                        obj.material.forEach((m) => {
+                            try { m.dispose(); } catch (_) { /* ignore */ }
+                        });
+                    } else {
+                        try { obj.material.dispose(); } catch (_) { /* ignore */ }
+                    }
+                }
+            });
+
+            this.gridGroup.clear();
+            this.gridGroup = null;
+        }
+
+        this.grids = [];
+    }
 }

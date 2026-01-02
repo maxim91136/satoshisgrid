@@ -22,6 +22,8 @@ export class LightCycle {
         this.sceneManager = sceneManager;
         this.effects = effects;
 
+        this.isDisposed = false;
+
         this.vehiclePosition = new THREE.Vector3(0, 0, -15);
         this.isMining = true;
         this.fillLevel = 0;
@@ -434,6 +436,7 @@ export class LightCycle {
     }
 
     update(delta) {
+        if (this.isDisposed) return;
         if (!this.isMining) return;
         const time = Date.now() * 0.001;
 
@@ -478,5 +481,107 @@ export class LightCycle {
 
     getStats() {
         return { fillLevel: this.fillLevel, transactionCount: this.transactionCount, monumentCount: this.monuments.length };
+    }
+
+    dispose() {
+        this.isDisposed = true;
+
+        if (this.pushingBlockTimeout) {
+            clearTimeout(this.pushingBlockTimeout);
+            this.pushingBlockTimeout = null;
+        }
+
+        if (this.pushingBlock) {
+            this.releasePushingBlock();
+        }
+
+        // Remove any particles (materials only, geometry is shared)
+        this.particles.forEach((p) => {
+            try { this.cubeGroup.remove(p); } catch (_) { /* ignore */ }
+            if (p.material) {
+                try { p.material.dispose(); } catch (_) { /* ignore */ }
+            }
+        });
+        this.particles = [];
+
+        // Dispose vertical glows (materials are cloned; geometry is shared)
+        if (this.verticalGlows) {
+            this.verticalGlows.forEach((glow) => {
+                try { this.cubeGroup.remove(glow); } catch (_) { /* ignore */ }
+                if (glow.material) {
+                    try { glow.material.dispose(); } catch (_) { /* ignore */ }
+                }
+            });
+            this.verticalGlows = null;
+        }
+        this.glowMaterial = null;
+
+        // Dispose trail (geometry/material are owned)
+        if (this.trail) {
+            try { this.cubeGroup.remove(this.trail); } catch (_) { /* ignore */ }
+            if (this.trail.geometry) {
+                try { this.trail.geometry.dispose(); } catch (_) { /* ignore */ }
+            }
+            if (this.trail.material) {
+                try { this.trail.material.dispose(); } catch (_) { /* ignore */ }
+            }
+            this.trail = null;
+        }
+        if (this.trailMaterial) {
+            try { this.trailMaterial.dispose(); } catch (_) { /* ignore */ }
+            this.trailMaterial = null;
+        }
+
+        // Dispose bike materials; if fallback bike, also dispose its geometry
+        if (this.bike) {
+            try { this.cubeGroup.remove(this.bike); } catch (_) { /* ignore */ }
+            const isFallbackBike = this.bike.isMesh === true;
+
+            this.bike.traverse?.((child) => {
+                if (!child) return;
+                if (child.material) {
+                    if (Array.isArray(child.material)) {
+                        child.material.forEach((m) => {
+                            try { m.dispose(); } catch (_) { /* ignore */ }
+                        });
+                    } else {
+                        try { child.material.dispose(); } catch (_) { /* ignore */ }
+                    }
+                }
+            });
+
+            if (isFallbackBike && this.bike.geometry) {
+                try { this.bike.geometry.dispose(); } catch (_) { /* ignore */ }
+            }
+            this.bike = null;
+        }
+
+        // Remove monuments (materials only; geometries are shared)
+        this.monuments.forEach((mon) => {
+            mon.userData.disposed = true;
+            try { this.sceneManager.remove(mon); } catch (_) { /* ignore */ }
+            mon.traverse((child) => {
+                if (child.material) {
+                    if (Array.isArray(child.material)) {
+                        child.material.forEach((m) => {
+                            try { m.dispose(); } catch (_) { /* ignore */ }
+                        });
+                    } else {
+                        try { child.material.dispose(); } catch (_) { /* ignore */ }
+                    }
+                }
+            });
+        });
+        this.monuments = [];
+
+        // Remove from scene
+        if (this.cubeGroup) {
+            try { this.sceneManager.remove(this.cubeGroup); } catch (_) { /* ignore */ }
+            this.cubeGroup.clear();
+            this.cubeGroup = null;
+        }
+
+        this.sceneManager = null;
+        this.effects = null;
     }
 }

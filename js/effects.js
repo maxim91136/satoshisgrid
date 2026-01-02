@@ -7,6 +7,8 @@ export class Effects {
     constructor(sceneManager) {
         this.sceneManager = sceneManager;
 
+        this.isDisposed = false;
+
         // Flash overlay element
         this.flashOverlay = document.getElementById('flash-overlay');
 
@@ -34,6 +36,9 @@ export class Effects {
 
         // Flash timeout (to prevent stuck white screen)
         this.flashTimeout = null;
+
+        this.shakeTimeout = null;
+        this.bloomRafId = null;
     }
 
     // Screen flash effect (for block found)
@@ -60,7 +65,11 @@ export class Effects {
 
         // Also shake the HTML body for extra effect
         document.body.classList.add('shake');
-        setTimeout(() => {
+
+        if (this.shakeTimeout) {
+            clearTimeout(this.shakeTimeout);
+        }
+        this.shakeTimeout = setTimeout(() => {
             document.body.classList.remove('shake');
         }, duration * 1000);
     }
@@ -98,6 +107,10 @@ export class Effects {
         const startTime = performance.now();
 
         const animate = () => {
+            if (this.isDisposed) {
+                this.isBloomAnimating = false;
+                return;
+            }
             const elapsed = (performance.now() - startTime) / 1000;
             const t = Math.min(elapsed / duration, 1);
 
@@ -115,14 +128,15 @@ export class Effects {
             }
 
             if (t < 1) {
-                requestAnimationFrame(animate);
+                this.bloomRafId = requestAnimationFrame(animate);
             } else {
                 this.sceneManager.bloomPass.strength = this.baseBloomStrength;
                 this.isBloomAnimating = false;
+                this.bloomRafId = null;
             }
         };
 
-        requestAnimationFrame(animate);
+        this.bloomRafId = requestAnimationFrame(animate);
     }
 
     // Darken screen briefly (reuses single overlay to prevent DOM accumulation)
@@ -218,6 +232,46 @@ export class Effects {
 
         // Bloom surge
         this.pulseBloom(2, 0.8);
+    }
+
+    dispose() {
+        this.isDisposed = true;
+
+        if (this.flashTimeout) {
+            clearTimeout(this.flashTimeout);
+            this.flashTimeout = null;
+        }
+        if (this.darkenTimeout) {
+            clearTimeout(this.darkenTimeout);
+            this.darkenTimeout = null;
+        }
+        if (this.whaleTimeout) {
+            clearTimeout(this.whaleTimeout);
+            this.whaleTimeout = null;
+        }
+        if (this.shakeTimeout) {
+            clearTimeout(this.shakeTimeout);
+            this.shakeTimeout = null;
+        }
+        if (this.bloomRafId) {
+            cancelAnimationFrame(this.bloomRafId);
+            this.bloomRafId = null;
+        }
+
+        document.body.classList.remove('shake');
+
+        if (this.darkenOverlay && this.darkenOverlay.parentNode) {
+            this.darkenOverlay.parentNode.removeChild(this.darkenOverlay);
+        }
+        this.darkenOverlay = null;
+
+        if (this.whaleIndicator && this.whaleIndicator.parentNode) {
+            this.whaleIndicator.parentNode.removeChild(this.whaleIndicator);
+        }
+        this.whaleIndicator = null;
+
+        this.flashOverlay = null;
+        this.sceneManager = null;
     }
 
 }

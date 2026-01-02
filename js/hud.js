@@ -40,6 +40,16 @@ export class HUD {
             menuClose: document.getElementById('menu-close'),
         };
 
+        this._logoClickHandler = null;
+        this._menuCloseClickHandler = null;
+        this._docClickHandler = null;
+        this._docKeydownHandler = null;
+
+        this._quoteStartTimeout = null;
+        this._quoteFadeTimeout = null;
+        this._quoteNextTimeout = null;
+        this._priceColorTimeout = null;
+
         this.setupEventListeners();
         this.startClock();
         this.initQuoteSystem();
@@ -48,34 +58,38 @@ export class HUD {
     setupEventListeners() {
         // Logo click opens side menu
         if (this.elements.logoBtn) {
-            this.elements.logoBtn.addEventListener('click', () => {
+            this._logoClickHandler = () => {
                 this.toggleMenu();
-            });
+            };
+            this.elements.logoBtn.addEventListener('click', this._logoClickHandler);
         }
 
         // Menu close button
         if (this.elements.menuClose) {
-            this.elements.menuClose.addEventListener('click', () => {
+            this._menuCloseClickHandler = () => {
                 this.closeMenu();
-            });
+            };
+            this.elements.menuClose.addEventListener('click', this._menuCloseClickHandler);
         }
 
         // Close menu on outside click
-        document.addEventListener('click', (e) => {
+        this._docClickHandler = (e) => {
             if (this.elements.sideMenu &&
                 !this.elements.sideMenu.classList.contains('hidden') &&
                 !this.elements.sideMenu.contains(e.target) &&
                 !this.elements.logoBtn.contains(e.target)) {
                 this.closeMenu();
             }
-        });
+        };
+        document.addEventListener('click', this._docClickHandler);
 
         // Keyboard shortcut (Escape to close menu)
-        document.addEventListener('keydown', (e) => {
+        this._docKeydownHandler = (e) => {
             if (e.key === 'Escape') {
                 this.closeMenu();
             }
-        });
+        };
+        document.addEventListener('keydown', this._docKeydownHandler);
     }
 
     toggleMenu() {
@@ -129,7 +143,10 @@ export class HUD {
                 } else if (price < prev) {
                     this.elements.btcPrice.style.color = '#ff0000';
                 }
-                setTimeout(() => {
+                if (this._priceColorTimeout) {
+                    clearTimeout(this._priceColorTimeout);
+                }
+                this._priceColorTimeout = setTimeout(() => {
                     this.elements.btcPrice.style.color = '';
                 }, 1000);
             }
@@ -226,7 +243,7 @@ export class HUD {
         this.currentQuoteIndex = -1;
 
         // Start rotation after a delay
-        setTimeout(() => this.showNextQuote(), 3000);
+        this._quoteStartTimeout = setTimeout(() => this.showNextQuote(), 3000);
     }
 
     showNextQuote() {
@@ -248,7 +265,10 @@ export class HUD {
         this.quoteContainer.style.opacity = '0';
 
         // Change quote after fade out
-        setTimeout(() => {
+        if (this._quoteFadeTimeout) {
+            clearTimeout(this._quoteFadeTimeout);
+        }
+        this._quoteFadeTimeout = setTimeout(() => {
             this.quoteText.textContent = `"${quote.text}"`;
             this.quoteAuthor.textContent = `— ${quote.author}`;
 
@@ -258,7 +278,47 @@ export class HUD {
 
         // Schedule next quote (30-45 seconds - longer display time)
         const nextDelay = 30000 + Math.random() * 15000;
-        setTimeout(() => this.showNextQuote(), nextDelay);
+        if (this._quoteNextTimeout) {
+            clearTimeout(this._quoteNextTimeout);
+        }
+        this._quoteNextTimeout = setTimeout(() => this.showNextQuote(), nextDelay);
+    }
+
+    dispose() {
+        if (this.elements.logoBtn && this._logoClickHandler) {
+            this.elements.logoBtn.removeEventListener('click', this._logoClickHandler);
+        }
+        if (this.elements.menuClose && this._menuCloseClickHandler) {
+            this.elements.menuClose.removeEventListener('click', this._menuCloseClickHandler);
+        }
+        if (this._docClickHandler) {
+            document.removeEventListener('click', this._docClickHandler);
+        }
+        if (this._docKeydownHandler) {
+            document.removeEventListener('keydown', this._docKeydownHandler);
+        }
+
+        this._logoClickHandler = null;
+        this._menuCloseClickHandler = null;
+        this._docClickHandler = null;
+        this._docKeydownHandler = null;
+
+        if (this._quoteStartTimeout) clearTimeout(this._quoteStartTimeout);
+        if (this._quoteFadeTimeout) clearTimeout(this._quoteFadeTimeout);
+        if (this._quoteNextTimeout) clearTimeout(this._quoteNextTimeout);
+        if (this._priceColorTimeout) clearTimeout(this._priceColorTimeout);
+
+        this._quoteStartTimeout = null;
+        this._quoteFadeTimeout = null;
+        this._quoteNextTimeout = null;
+        this._priceColorTimeout = null;
+
+        if (this.quoteContainer && this.quoteContainer.parentNode) {
+            this.quoteContainer.parentNode.removeChild(this.quoteContainer);
+        }
+        this.quoteContainer = null;
+        this.quoteText = null;
+        this.quoteAuthor = null;
     }
 
     // Format large numbers
@@ -305,9 +365,12 @@ export class HUD {
     }
 }
 
-// Add notification animation to document
-const style = document.createElement('style');
-style.textContent = `
+// Add notification animation to document (guard to avoid duplicates)
+const existingStyle = document.getElementById('notification-style');
+if (!existingStyle) {
+    const style = document.createElement('style');
+    style.id = 'notification-style';
+    style.textContent = `
     @keyframes notification-fade {
         0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
         20% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
@@ -315,4 +378,5 @@ style.textContent = `
         100% { opacity: 0; transform: translate(-50%, -50%) scale(0.9); }
     }
 `;
-document.head.appendChild(style);
+    document.head.appendChild(style);
+}

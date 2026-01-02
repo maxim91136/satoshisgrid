@@ -17,6 +17,9 @@ export class AudioManager {
         // Sound buffers (for loaded audio files)
         this.buffers = {};
 
+        this._muteBtn = null;
+        this._muteClickHandler = null;
+
         this.setupMuteButton();
     }
 
@@ -45,11 +48,12 @@ export class AudioManager {
     }
 
     setupMuteButton() {
-        const muteBtn = document.getElementById('audio-toggle');
-        if (muteBtn) {
-            muteBtn.addEventListener('click', () => {
+        this._muteBtn = document.getElementById('audio-toggle');
+        if (this._muteBtn) {
+            this._muteClickHandler = () => {
                 this.toggleMute();
-            });
+            };
+            this._muteBtn.addEventListener('click', this._muteClickHandler);
         }
     }
 
@@ -432,20 +436,28 @@ export class AudioManager {
 
     // Cleanup
     dispose() {
+        if (this._muteBtn && this._muteClickHandler) {
+            this._muteBtn.removeEventListener('click', this._muteClickHandler);
+        }
+        this._muteBtn = null;
+        this._muteClickHandler = null;
+
         if (this.droneOscillators) {
-            this.droneOscillators.forEach(osc => osc.stop());
+            this.droneOscillators.forEach(osc => {
+                try { osc.stop(); } catch (_) { /* ignore */ }
+            });
         }
         if (this.lfo) {
-            this.lfo.stop();
+            try { this.lfo.stop(); } catch (_) { /* ignore */ }
         }
         if (this.panLfo) {
-            this.panLfo.stop();
+            try { this.panLfo.stop(); } catch (_) { /* ignore */ }
         }
         if (this.soundtrackSource) {
-            this.soundtrackSource.stop();
+            try { this.soundtrackSource.stop(); } catch (_) { /* ignore */ }
         }
         if (this.audioContext) {
-            this.audioContext.close();
+            try { this.audioContext.close(); } catch (_) { /* ignore */ }
         }
     }
 }

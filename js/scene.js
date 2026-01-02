@@ -25,6 +25,10 @@ export class SceneManager {
 
         // WebGL context state
         this.contextLost = false;
+
+        this._onResize = null;
+        this._onContextLost = null;
+        this._onContextRestored = null;
     }
 
     async init() {
@@ -120,21 +124,25 @@ export class SceneManager {
     }
 
     setupEventListeners() {
-        window.addEventListener('resize', () => this.onWindowResize());
+        this._onResize = () => this.onWindowResize();
+        window.addEventListener('resize', this._onResize);
 
         // WebGL context lost/restored handlers
-        this.renderer.domElement.addEventListener('webglcontextlost', (event) => {
+        this._onContextLost = (event) => {
             event.preventDefault();
             console.error('⚠️ WebGL context lost! Pausing render...');
             this.contextLost = true;
-        });
+        };
 
-        this.renderer.domElement.addEventListener('webglcontextrestored', () => {
+        this._onContextRestored = () => {
             console.log('✅ WebGL context restored!');
             this.contextLost = false;
             // Recreate post-processing pipeline
             this.createPostProcessing();
-        });
+        };
+
+        this.renderer.domElement.addEventListener('webglcontextlost', this._onContextLost);
+        this.renderer.domElement.addEventListener('webglcontextrestored', this._onContextRestored);
     }
 
     onWindowResize() {
@@ -192,5 +200,39 @@ export class SceneManager {
 
     remove(object) {
         this.scene.remove(object);
+    }
+
+    dispose() {
+        if (this._onResize) {
+            window.removeEventListener('resize', this._onResize);
+            this._onResize = null;
+        }
+
+        if (this.renderer && this.renderer.domElement) {
+            if (this._onContextLost) {
+                this.renderer.domElement.removeEventListener('webglcontextlost', this._onContextLost);
+                this._onContextLost = null;
+            }
+            if (this._onContextRestored) {
+                this.renderer.domElement.removeEventListener('webglcontextrestored', this._onContextRestored);
+                this._onContextRestored = null;
+            }
+        }
+
+        if (this.composer) {
+            this.composer.dispose();
+            this.composer = null;
+        }
+
+        if (this.renderer) {
+            try { this.renderer.dispose(); } catch (_) { /* ignore */ }
+            if (this.renderer.domElement && this.renderer.domElement.parentNode) {
+                this.renderer.domElement.parentNode.removeChild(this.renderer.domElement);
+            }
+            this.renderer = null;
+        }
+
+        this.scene = null;
+        this.camera = null;
     }
 }

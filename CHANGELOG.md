@@ -2,6 +2,17 @@
 
 All notable changes to SATOSHI'S GRID will be documented in this file.
 
+## [1.0.11] - 2026-01-02
+
+### Fixed
+- **Memory Leak Fixes** - Comprehensive cleanup across all modules
+  - Proper `dispose()` methods for all classes
+  - Event listener tracking and removal
+  - Timeout/interval cleanup
+  - WebSocket manual close handling
+  - Three.js geometry/material disposal
+  - DOM element cleanup
+
 ## [1.0.10] - 2026-01-02
 
 ### Added

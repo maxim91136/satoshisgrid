@@ -15,6 +15,7 @@ import { Effects } from './effects.js';
 class SatoshisGrid {
     constructor() {
         this.isInitialized = false;
+        this.isDestroyed = false;
         this.sceneManager = null;
         this.grid = null;
         this.transactionManager = null;
@@ -23,6 +24,12 @@ class SatoshisGrid {
         this.audioManager = null;
         this.hud = null;
         this.effects = null;
+        this._rafId = null;
+
+        this._onBeforeUnload = () => this.destroy();
+        this._onPageHide = () => this.destroy();
+        window.addEventListener('beforeunload', this._onBeforeUnload);
+        window.addEventListener('pagehide', this._onPageHide);
 
         // Check if user has entered before in this session (skip splash on refresh)
         const hasEntered = sessionStorage.getItem('satoshisgrid_entered');
@@ -143,7 +150,8 @@ class SatoshisGrid {
     }
 
     animate() {
-        requestAnimationFrame(() => this.animate());
+        if (this.isDestroyed) return;
+        this._rafId = requestAnimationFrame(() => this.animate());
 
         const delta = this.sceneManager.clock.getDelta();
 
@@ -162,6 +170,66 @@ class SatoshisGrid {
             const info = this.sceneManager.renderer.info;
             console.log(`📊 Memory: ${info.memory.geometries} geo, ${info.memory.textures} tex | Scene: ${this.sceneManager.scene.children.length} | TX: ${this.transactionManager.transactions.length}`);
         }
+    }
+
+    destroy() {
+        if (this.isDestroyed) return;
+        this.isDestroyed = true;
+
+        if (this._rafId) {
+            cancelAnimationFrame(this._rafId);
+            this._rafId = null;
+        }
+
+        // Network first (stops intervals/reconnects)
+        if (this.wsManager) {
+            this.wsManager.disconnect();
+            this.wsManager = null;
+        }
+
+        // Effects (DOM overlays + timeouts)
+        if (this.effects && typeof this.effects.dispose === 'function') {
+            this.effects.dispose();
+        }
+        this.effects = null;
+
+        // UI handlers
+        if (this.hud && typeof this.hud.dispose === 'function') {
+            this.hud.dispose();
+        }
+        this.hud = null;
+
+        if (this.transactionManager && typeof this.transactionManager.dispose === 'function') {
+            this.transactionManager.dispose();
+        }
+        this.transactionManager = null;
+
+        if (this.lightCycle && typeof this.lightCycle.dispose === 'function') {
+            this.lightCycle.dispose();
+        }
+        this.lightCycle = null;
+
+        if (this.grid && typeof this.grid.dispose === 'function') {
+            this.grid.dispose();
+        }
+        this.grid = null;
+
+        // Audio
+        if (this.audioManager && typeof this.audioManager.dispose === 'function') {
+            this.audioManager.dispose();
+        }
+        this.audioManager = null;
+
+        // Three.js
+        if (this.sceneManager && typeof this.sceneManager.dispose === 'function') {
+            this.sceneManager.dispose();
+        }
+        this.sceneManager = null;
+
+        window.removeEventListener('beforeunload', this._onBeforeUnload);
+        window.removeEventListener('pagehide', this._onPageHide);
+        this._onBeforeUnload = null;
+        this._onPageHide = null;
     }
 }
 

@@ -16,6 +16,9 @@ export class WebSocketManager {
         this.maxReconnectAttempts = 10;
         this.reconnectDelay = 2000;
 
+        this.reconnectTimeout = null;
+        this._manualClose = false;
+
         this.isConnected = false;
         this.lastBlockHeight = null;
 
@@ -23,15 +26,41 @@ export class WebSocketManager {
         this.priceInterval = null;
         this.currentPrice = null;
 
+        // Block height polling
+        this.blockHeightInterval = null;
+
         // Demo mode (simulated data when WS unavailable)
         this.demoMode = false;
         this.demoInterval = null;
+        this.demoBlockInterval = null;
     }
 
     connect() {
         const wsUrl = 'wss://mempool.space/api/v1/ws';
 
         console.log('🔌 Connecting to mempool.space...');
+
+        // Prevent interval/timer leaks across reconnects
+        this.stopDemoMode();
+        this.clearIntervals();
+        this.clearReconnectTimeout();
+
+        // If a previous socket exists, close it without triggering reconnect logic
+        if (this.ws && this.ws.readyState !== WebSocket.CLOSED) {
+            try {
+                this._manualClose = true;
+                this.ws.onopen = null;
+                this.ws.onmessage = null;
+                this.ws.onerror = null;
+                this.ws.onclose = null;
+                this.ws.close();
+            } catch (_) {
+                // ignore
+            } finally {
+                this._manualClose = false;
+                this.ws = null;
+            }
+        }
 
         try {
             this.ws = new WebSocket(wsUrl);
@@ -60,6 +89,9 @@ export class WebSocketManager {
         console.log('✅ Connected to mempool.space');
         this.isConnected = true;
         this.reconnectAttempts = 0;
+
+        this.clearReconnectTimeout();
+        this.stopDemoMode();
 
         // Subscribe to data streams
         this.subscribe();
@@ -202,12 +234,19 @@ export class WebSocketManager {
         console.log('🔌 WebSocket disconnected');
         this.isConnected = false;
 
+        // If we closed intentionally (cleanup/restart), do nothing
+        if (this._manualClose) return;
+
         // Attempt reconnection
         if (this.reconnectAttempts < this.maxReconnectAttempts) {
             this.reconnectAttempts++;
             console.log(`🔄 Reconnecting (${this.reconnectAttempts}/${this.maxReconnectAttempts})...`);
 
-            setTimeout(() => this.connect(), this.reconnectDelay * this.reconnectAttempts);
+            this.clearReconnectTimeout();
+            this.reconnectTimeout = setTimeout(
+                () => this.connect(),
+                this.reconnectDelay * this.reconnectAttempts
+            );
         } else {
             console.log('⚠️ Max reconnection attempts reached. Starting demo mode.');
             this.startDemoMode();
@@ -216,6 +255,12 @@ export class WebSocketManager {
 
     // Price polling (Binance primary, CoinGecko fallback)
     async startPricePolling() {
+        // Prevent duplicate intervals on reconnect
+        if (this.priceInterval) {
+            clearInterval(this.priceInterval);
+            this.priceInterval = null;
+        }
+
         const fetchPrice = async () => {
             // Try Binance first (more reliable)
             try {
@@ -274,6 +319,12 @@ export class WebSocketManager {
 
     // Start block height polling (fallback for missed WS events)
     startBlockHeightPolling() {
+        // Prevent duplicate intervals on reconnect
+        if (this.blockHeightInterval) {
+            clearInterval(this.blockHeightInterval);
+            this.blockHeightInterval = null;
+        }
+
         // Initial fetch
         this.fetchBlockHeight();
 
@@ -332,6 +383,38 @@ export class WebSocketManager {
         }, 1000);
     }
 
+    stopDemoMode() {
+        if (!this.demoMode) return;
+
+        this.demoMode = false;
+        if (this.demoInterval) {
+            clearInterval(this.demoInterval);
+            this.demoInterval = null;
+        }
+        if (this.demoBlockInterval) {
+            clearInterval(this.demoBlockInterval);
+            this.demoBlockInterval = null;
+        }
+    }
+
+    clearReconnectTimeout() {
+        if (this.reconnectTimeout) {
+            clearTimeout(this.reconnectTimeout);
+            this.reconnectTimeout = null;
+        }
+    }
+
+    clearIntervals() {
+        if (this.priceInterval) {
+            clearInterval(this.priceInterval);
+            this.priceInterval = null;
+        }
+        if (this.blockHeightInterval) {
+            clearInterval(this.blockHeightInterval);
+            this.blockHeightInterval = null;
+        }
+    }
+
     generateDemoTransaction() {
         // Random transaction size distribution
         const rand = Math.random();
@@ -373,20 +456,24 @@ export class WebSocketManager {
     }
 
     disconnect() {
+        this.clearReconnectTimeout();
+        this.stopDemoMode();
+        this.clearIntervals();
+
         if (this.ws) {
-            this.ws.close();
-        }
-        if (this.priceInterval) {
-            clearInterval(this.priceInterval);
-        }
-        if (this.blockHeightInterval) {
-            clearInterval(this.blockHeightInterval);
-        }
-        if (this.demoInterval) {
-            clearInterval(this.demoInterval);
-        }
-        if (this.demoBlockInterval) {
-            clearInterval(this.demoBlockInterval);
+            try {
+                this._manualClose = true;
+                this.ws.onopen = null;
+                this.ws.onmessage = null;
+                this.ws.onerror = null;
+                this.ws.onclose = null;
+                this.ws.close();
+            } catch (_) {
+                // ignore
+            } finally {
+                this._manualClose = false;
+                this.ws = null;
+            }
         }
     }
 }

@@ -351,22 +351,28 @@ export class TransactionManager {
         this.raycaster = new THREE.Raycaster();
         this.mouse = new THREE.Vector2();
 
+        this._windowClickHandler = null;
+        this._closeClickHandler = null;
+        this._closeBtn = null;
+        this._panel = null;
+
         this.setupClickHandler();
     }
 
     setupClickHandler() {
         // Setup close button handler once
-        const closeBtn = document.getElementById('tx-panel-close');
-        const panel = document.getElementById('tx-panel');
-        if (closeBtn && panel) {
-            closeBtn.addEventListener('click', (event) => {
+        this._closeBtn = document.getElementById('tx-panel-close');
+        this._panel = document.getElementById('tx-panel');
+        if (this._closeBtn && this._panel) {
+            this._closeClickHandler = (event) => {
                 event.stopPropagation(); // Prevent raycast interference
-                panel.classList.add('hidden');
-            });
+                this._panel.classList.add('hidden');
+            };
+            this._closeBtn.addEventListener('click', this._closeClickHandler);
         }
 
         // Raycast click handler - ignore UI elements
-        window.addEventListener('click', (event) => {
+        this._windowClickHandler = (event) => {
             // Ignore clicks on UI elements
             if (event.target.closest('.tx-panel') ||
                 event.target.closest('.hud') ||
@@ -395,7 +401,8 @@ export class TransactionManager {
                     this.showTransactionInfo(obj.userData.txData);
                 }
             }
-        });
+        };
+        window.addEventListener('click', this._windowClickHandler);
     }
 
     showTransactionInfo(data) {
@@ -466,5 +473,24 @@ export class TransactionManager {
         });
 
         return stats;
+    }
+
+    dispose() {
+        if (this._windowClickHandler) {
+            window.removeEventListener('click', this._windowClickHandler);
+            this._windowClickHandler = null;
+        }
+
+        if (this._closeBtn && this._closeClickHandler) {
+            this._closeBtn.removeEventListener('click', this._closeClickHandler);
+        }
+        this._closeClickHandler = null;
+        this._closeBtn = null;
+        this._panel = null;
+
+        for (const tx of this.transactions) {
+            tx.dispose();
+        }
+        this.transactions = [];
     }
 }
