@@ -202,6 +202,7 @@ export class WebSocketManager {
     }
 
     handleMempoolBlocks(blocks) {
+        console.log('📊 mempool-blocks:', blocks[0]);
         if (blocks.length > 0) {
             const nextBlock = blocks[0];
             this.hud.updateFeeRate(nextBlock.medianFee);
