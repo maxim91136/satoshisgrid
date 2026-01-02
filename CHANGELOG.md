@@ -2,6 +2,14 @@
 
 All notable changes to SATOSHI'S GRID will be documented in this file.
 
+## [1.0.10] - 2026-01-02
+
+### Added
+- **"Tick Tock, Next Block"** - Added to rotating quotes
+
+### Fixed
+- **Horizon Flicker** - Fixed z-fighting on horizon glow line
+
 ## [1.0.9] - 2026-01-02
 
 ### Fixed
