@@ -113,9 +113,7 @@ export class WebSocketManager {
 
     subscribe() {
         // Request blocks, stats, and mempool info
-        const subscription = { action: 'want', data: ['blocks', 'stats', 'mempool-blocks'] };
-        console.log('📤 Subscribing:', JSON.stringify(subscription));
-        this.send(subscription);
+        this.send({ action: 'want', data: ['blocks', 'stats', 'mempool-blocks'] });
 
         // Track the next block's transactions
         this.send({ 'track-mempool-block': 0 });
@@ -130,9 +128,6 @@ export class WebSocketManager {
     onMessage(event) {
         try {
             const data = JSON.parse(event.data);
-
-            // Debug: log all incoming WebSocket messages
-            console.log('📨 WS message:', Object.keys(data));
 
             // Handle different message types
             if (data.block) {
@@ -193,7 +188,6 @@ export class WebSocketManager {
     }
 
     handleMempoolInfo(info) {
-        console.log('📊 mempoolInfo:', info);
         // mempool.space uses 'size' for tx count in WebSocket
         const txCount = info.size || info.count;
         if (txCount) {
@@ -202,7 +196,6 @@ export class WebSocketManager {
     }
 
     handleMempoolBlocks(blocks) {
-        console.log('📊 mempool-blocks:', blocks[0]);
         if (blocks.length > 0) {
             const nextBlock = blocks[0];
             this.hud.updateFeeRate(nextBlock.medianFee);
