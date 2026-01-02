@@ -73,6 +73,11 @@ export class AudioManager {
         }
     }
 
+    // Alias for keyboard shortcut
+    toggle() {
+        this.toggleMute();
+    }
+
     toggleMute() {
         this.isMuted = !this.isMuted;
 

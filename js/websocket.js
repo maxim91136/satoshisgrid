@@ -29,6 +29,9 @@ export class WebSocketManager {
         // Block height polling
         this.blockHeightInterval = null;
 
+        // Difficulty adjustment polling
+        this.difficultyInterval = null;
+
         // Demo mode (simulated data when WS unavailable)
         this.demoMode = false;
         this.demoInterval = null;
@@ -83,6 +86,10 @@ export class WebSocketManager {
 
         // Fetch initial hashrate
         this.fetchHashrate();
+
+        // Fetch difficulty adjustment data
+        this.fetchDifficultyAdjustment();
+        this.startDifficultyPolling();
     }
 
     onOpen() {
@@ -356,6 +363,33 @@ export class WebSocketManager {
         }
     }
 
+    // Fetch difficulty adjustment data
+    async fetchDifficultyAdjustment() {
+        try {
+            const response = await fetch('https://mempool.space/api/v1/difficulty-adjustment');
+            const data = await response.json();
+            if (data) {
+                this.hud.updateDifficultyAdjustment(data);
+            }
+        } catch (error) {
+            // Silent fail
+        }
+    }
+
+    // Start difficulty adjustment polling
+    startDifficultyPolling() {
+        // Prevent duplicate intervals on reconnect
+        if (this.difficultyInterval) {
+            clearInterval(this.difficultyInterval);
+            this.difficultyInterval = null;
+        }
+
+        // Poll every 60 seconds (difficulty data doesn't change often)
+        this.difficultyInterval = setInterval(() => {
+            this.fetchDifficultyAdjustment();
+        }, 60000);
+    }
+
     // Demo mode - simulated transactions when WS unavailable
     startDemoMode() {
         if (this.demoMode) return;
@@ -412,6 +446,10 @@ export class WebSocketManager {
         if (this.blockHeightInterval) {
             clearInterval(this.blockHeightInterval);
             this.blockHeightInterval = null;
+        }
+        if (this.difficultyInterval) {
+            clearInterval(this.difficultyInterval);
+            this.difficultyInterval = null;
         }
     }
 

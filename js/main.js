@@ -124,6 +124,9 @@ class SatoshisGrid {
             // Initialize HUD
             this.hud = new HUD();
 
+            // Connect audio manager to HUD for keyboard shortcuts
+            this.hud.setAudioManager(this.audioManager);
+
             // Initialize WebSocket Connection
             this.wsManager = new WebSocketManager(
                 this.transactionManager,

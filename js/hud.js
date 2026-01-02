@@ -26,11 +26,16 @@ const QUOTES = [
     { text: "Tick Tock, Next Block.", author: "Bitcoin Proverb" },
 ];
 
+// Halving schedule constant
+const NEXT_HALVING_BLOCK = 1050000; // Block 1,050,000 (5th halving)
+
 export class HUD {
     constructor() {
         // Cache DOM elements
         this.elements = {
             blockHeight: document.getElementById('block-height'),
+            halvingCountdown: document.getElementById('halving-countdown'),
+            difficultyAdj: document.getElementById('difficulty-adj'),
             hashRate: document.getElementById('hash-rate'),
             btcPrice: document.getElementById('btc-price'),
             mempoolSize: document.getElementById('mempool-size'),
@@ -38,21 +43,35 @@ export class HUD {
             logoBtn: document.getElementById('logo-btn'),
             sideMenu: document.getElementById('side-menu'),
             menuClose: document.getElementById('menu-close'),
+            audioToggle: document.getElementById('audio-toggle'),
+            fullscreenToggle: document.getElementById('fullscreen-toggle'),
+            txPanel: document.getElementById('tx-panel'),
         };
 
         this._logoClickHandler = null;
         this._menuCloseClickHandler = null;
         this._docClickHandler = null;
         this._docKeydownHandler = null;
+        this._fullscreenClickHandler = null;
 
         this._quoteStartTimeout = null;
         this._quoteFadeTimeout = null;
         this._quoteNextTimeout = null;
         this._priceColorTimeout = null;
 
+        this.audioManager = null; // Will be set from main.js
+        this.currentBlockHeight = null;
+
         this.setupEventListeners();
+        this.setupKeyboardShortcuts();
+        this.setupFullscreenToggle();
         this.startClock();
         this.initQuoteSystem();
+    }
+
+    // Set audio manager reference for keyboard shortcuts
+    setAudioManager(audioManager) {
+        this.audioManager = audioManager;
     }
 
     setupEventListeners() {
@@ -83,13 +102,72 @@ export class HUD {
         };
         document.addEventListener('click', this._docClickHandler);
 
-        // Keyboard shortcut (Escape to close menu)
+    }
+
+    setupKeyboardShortcuts() {
         this._docKeydownHandler = (e) => {
-            if (e.key === 'Escape') {
-                this.closeMenu();
+            // Don't trigger shortcuts if typing in an input
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+
+            switch (e.key.toLowerCase()) {
+                case 'escape':
+                    // Close any open panel/menu
+                    this.closeMenu();
+                    if (this.elements.txPanel) {
+                        this.elements.txPanel.classList.add('hidden');
+                    }
+                    break;
+                case 'm':
+                    // Toggle menu
+                    this.toggleMenu();
+                    break;
+                case ' ':
+                    // Toggle audio (Space)
+                    e.preventDefault();
+                    if (this.audioManager) {
+                        this.audioManager.toggle();
+                    }
+                    break;
+                case 'f':
+                    // Toggle fullscreen
+                    this.toggleFullscreen();
+                    break;
             }
         };
         document.addEventListener('keydown', this._docKeydownHandler);
+    }
+
+    setupFullscreenToggle() {
+        if (this.elements.fullscreenToggle) {
+            this._fullscreenClickHandler = () => {
+                this.toggleFullscreen();
+            };
+            this.elements.fullscreenToggle.addEventListener('click', this._fullscreenClickHandler);
+        }
+
+        // Update icon on fullscreen change
+        document.addEventListener('fullscreenchange', () => {
+            this.updateFullscreenIcon();
+        });
+    }
+
+    toggleFullscreen() {
+        if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen().catch(err => {
+                console.log('Fullscreen not available:', err.message);
+            });
+        } else {
+            document.exitFullscreen();
+        }
+    }
+
+    updateFullscreenIcon() {
+        if (this.elements.fullscreenToggle) {
+            const icon = this.elements.fullscreenToggle.querySelector('.fullscreen-icon');
+            if (icon) {
+                icon.textContent = document.fullscreenElement ? '⛶' : '⛶';
+            }
+        }
     }
 
     toggleMenu() {
@@ -112,6 +190,58 @@ export class HUD {
 
             // Flash effect on new block
             this.flashElement(this.elements.blockHeight);
+
+            // Update halving countdown
+            this.currentBlockHeight = height;
+            this.updateHalvingCountdown(height);
+        }
+    }
+
+    // Update halving countdown display
+    updateHalvingCountdown(currentBlock) {
+        if (this.elements.halvingCountdown && currentBlock) {
+            const blocksRemaining = NEXT_HALVING_BLOCK - currentBlock;
+
+            if (blocksRemaining <= 0) {
+                this.elements.halvingCountdown.textContent = 'HALVED!';
+                this.elements.halvingCountdown.style.color = '#f7931a';
+            } else {
+                const formatted = blocksRemaining.toLocaleString();
+                this.elements.halvingCountdown.textContent = `${formatted} blocks`;
+
+                // Color code based on proximity
+                if (blocksRemaining < 1000) {
+                    this.elements.halvingCountdown.style.color = '#f7931a';
+                } else if (blocksRemaining < 10000) {
+                    this.elements.halvingCountdown.style.color = '#ffff00';
+                } else {
+                    this.elements.halvingCountdown.style.color = '';
+                }
+            }
+        }
+    }
+
+    // Update difficulty adjustment display
+    updateDifficultyAdjustment(data) {
+        if (this.elements.difficultyAdj && data) {
+            const progress = data.progressPercent || 0;
+            const change = data.difficultyChange || 0;
+
+            // Show progress and expected change
+            const changeSign = change >= 0 ? '+' : '';
+            const progressStr = progress.toFixed(1);
+            const changeStr = change.toFixed(1);
+
+            this.elements.difficultyAdj.textContent = `${progressStr}% (${changeSign}${changeStr}%)`;
+
+            // Color code based on difficulty change
+            if (change > 5) {
+                this.elements.difficultyAdj.style.color = '#00ff00'; // Green = hashrate up
+            } else if (change < -5) {
+                this.elements.difficultyAdj.style.color = '#ff0000'; // Red = hashrate down
+            } else {
+                this.elements.difficultyAdj.style.color = ''; // Neutral
+            }
         }
     }
 
@@ -291,6 +421,9 @@ export class HUD {
         if (this.elements.menuClose && this._menuCloseClickHandler) {
             this.elements.menuClose.removeEventListener('click', this._menuCloseClickHandler);
         }
+        if (this.elements.fullscreenToggle && this._fullscreenClickHandler) {
+            this.elements.fullscreenToggle.removeEventListener('click', this._fullscreenClickHandler);
+        }
         if (this._docClickHandler) {
             document.removeEventListener('click', this._docClickHandler);
         }
@@ -300,6 +433,7 @@ export class HUD {
 
         this._logoClickHandler = null;
         this._menuCloseClickHandler = null;
+        this._fullscreenClickHandler = null;
         this._docClickHandler = null;
         this._docKeydownHandler = null;
 

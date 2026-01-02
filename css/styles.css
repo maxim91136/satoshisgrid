@@ -378,6 +378,39 @@ html, body {
     font-size: 18px;
 }
 
+/* Fullscreen Toggle */
+.fullscreen-toggle {
+    position: fixed;
+    bottom: var(--hud-padding);
+    right: var(--hud-padding);
+    background: transparent;
+    border: 1px solid var(--text-dim);
+    color: var(--text-dim);
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    cursor: pointer;
+    pointer-events: auto;
+    transition: all var(--transition-fast);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.fullscreen-toggle:hover {
+    border-color: var(--electric-cyan);
+    color: var(--electric-cyan);
+}
+
+.fullscreen-icon {
+    font-size: 18px;
+}
+
+/* Smaller HUD values */
+.hud-value-small {
+    font-size: 14px;
+}
+
 
 /* ============================================
    TRANSACTION INFO PANEL
@@ -452,6 +485,19 @@ html, body {
     font-size: 11px;
     word-break: break-all;
     color: var(--electric-cyan);
+}
+
+.tx-link {
+    text-decoration: none;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    display: block;
+}
+
+.tx-link:hover {
+    color: var(--core-orange);
+    text-shadow: 0 0 10px var(--core-orange-glow);
+    text-decoration: underline;
 }
 
 /* ============================================
@@ -792,6 +838,21 @@ html, body {
 
     .audio-icon {
         font-size: 14px;
+    }
+
+    .fullscreen-toggle {
+        width: 36px;
+        height: 36px;
+        bottom: var(--hud-padding);
+        right: var(--hud-padding);
+    }
+
+    .fullscreen-icon {
+        font-size: 14px;
+    }
+
+    .hud-value-small {
+        font-size: 10px;
     }
 
 }

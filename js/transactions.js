@@ -409,7 +409,17 @@ export class TransactionManager {
         const panel = document.getElementById('tx-panel');
         const btcValue = (data.value / 100000000).toFixed(8);
 
-        document.getElementById('tx-id').textContent = data.txid || 'Unknown';
+        const txIdElement = document.getElementById('tx-id');
+        const txid = data.txid || 'Unknown';
+
+        // Make TXID a clickable link to mempool.space
+        txIdElement.textContent = txid;
+        if (txid !== 'Unknown') {
+            txIdElement.href = `https://mempool.space/tx/${txid}`;
+        } else {
+            txIdElement.href = '#';
+        }
+
         document.getElementById('tx-value').textContent = `${btcValue} BTC`;
         document.getElementById('tx-fee').textContent = `${data.feeRate || '--'} sat/vB`;
         document.getElementById('tx-size').textContent = `${data.vsize || '--'} vB`;

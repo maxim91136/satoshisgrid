@@ -64,8 +64,12 @@
                 <span id="block-height" class="hud-value">---,---</span>
             </div>
             <div class="hud-item">
-                <span class="hud-label">HASH</span>
-                <span id="hash-rate" class="hud-value">--- EH/s</span>
+                <span class="hud-label">HALVING</span>
+                <span id="halving-countdown" class="hud-value hud-value-small">--- blocks</span>
+            </div>
+            <div class="hud-item">
+                <span class="hud-label">DIFFICULTY ADJ</span>
+                <span id="difficulty-adj" class="hud-value hud-value-small">---%</span>
             </div>
         </div>
 
@@ -74,6 +78,10 @@
             <div class="hud-item">
                 <span class="hud-label">BTC/USD</span>
                 <span id="btc-price" class="hud-value">$---,---</span>
+            </div>
+            <div class="hud-item">
+                <span class="hud-label">HASH</span>
+                <span id="hash-rate" class="hud-value hud-value-small">--- EH/s</span>
             </div>
         </div>
 
@@ -98,8 +106,13 @@
         </div>
 
         <!-- Audio Toggle -->
-        <button id="audio-toggle" class="audio-toggle" title="Toggle Audio">
+        <button id="audio-toggle" class="audio-toggle" title="Toggle Audio (Space)">
             <span class="audio-icon">🔊</span>
+        </button>
+
+        <!-- Fullscreen Toggle -->
+        <button id="fullscreen-toggle" class="fullscreen-toggle" title="Toggle Fullscreen (F)">
+            <span class="fullscreen-icon">⛶</span>
         </button>
 
     </div>
@@ -113,7 +126,7 @@
         <div class="tx-panel-content">
             <div class="tx-item">
                 <span class="tx-label">TXID</span>
-                <span id="tx-id" class="tx-value tx-hash">---</span>
+                <a id="tx-id" href="#" target="_blank" class="tx-value tx-hash tx-link">---</a>
             </div>
             <div class="tx-item">
                 <span class="tx-label">VALUE</span>
@@ -146,7 +159,7 @@
                 Light Cycle: <a href="https://skfb.ly/pEW9S" target="_blank">"TRON: Uprising - ArgonCity Light Cycle"</a> by TheTinDog<br>
                 <small>Licensed under <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank">CC BY 4.0</a></small>
             </p>
-            <p class="menu-version">v1.0.12</p>
+            <p class="menu-version">v1.0.13</p>
         </div>
     </div>
 
