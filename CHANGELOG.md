@@ -2,6 +2,14 @@
 
 All notable changes to SATOSHI'S GRID will be documented in this file.
 
+## [1.0.12] - 2026-01-02
+
+### Fixed
+- **iOS Audio Compatibility** - Better support for iOS Safari
+  - Handle suspended AudioContext state
+  - HTMLAudioElement fallback for soundtrack decoding
+  - Improved error handling
+
 ## [1.0.11] - 2026-01-02
 
 ### Fixed
