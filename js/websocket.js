@@ -193,7 +193,12 @@ export class WebSocketManager {
     }
 
     handleMempoolInfo(info) {
-        this.hud.updateMempoolSize(info.size);
+        console.log('📊 mempoolInfo:', info);
+        // mempool.space uses 'size' for tx count in WebSocket
+        const txCount = info.size || info.count;
+        if (txCount) {
+            this.hud.updateMempoolSize(txCount);
+        }
     }
 
     handleMempoolBlocks(blocks) {
