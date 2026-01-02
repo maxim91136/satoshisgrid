@@ -17,6 +17,13 @@ export class AudioManager {
         // Sound buffers (for loaded audio files)
         this.buffers = {};
 
+        // Soundtrack playback (buffer source or media element fallback)
+        this.soundtrackBuffer = null;
+        this.soundtrackSource = null;
+        this.soundtrackGain = null;
+        this.soundtrackElement = null;
+        this.soundtrackElementSource = null;
+
         this._muteBtn = null;
         this._muteClickHandler = null;
 
@@ -27,6 +34,15 @@ export class AudioManager {
         try {
             // Create audio context (requires user interaction)
             this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+            // iOS Safari can create contexts in suspended state
+            if (this.audioContext.state === 'suspended') {
+                try {
+                    await this.audioContext.resume();
+                } catch (_) {
+                    // Will try again on next user gesture
+                }
+            }
 
             // Master gain
             this.masterGain = this.audioContext.createGain();
@@ -169,10 +185,16 @@ export class AudioManager {
             if (!response.ok) return false;
 
             const arrayBuffer = await response.arrayBuffer();
-            this.soundtrackBuffer = await this.audioContext.decodeAudioData(arrayBuffer);
-            console.log('🎵 Soundtrack loaded');
-            this.playSoundtrack();
-            return true;
+            try {
+                this.soundtrackBuffer = await this.audioContext.decodeAudioData(arrayBuffer);
+                console.log('🎵 Soundtrack loaded');
+                this.playSoundtrack();
+                return true;
+            } catch (decodeError) {
+                // Some iOS versions/devices can fail decoding certain MP3 encodings
+                console.warn('⚠️ Soundtrack decode failed, falling back to HTMLAudioElement:', decodeError);
+                return await this.playSoundtrackViaElement();
+            }
         } catch (e) {
             console.log('ℹ️ No soundtrack found, using procedural drone');
             return false;
@@ -182,6 +204,17 @@ export class AudioManager {
     // Soundtrack abspielen mit Loop
     playSoundtrack() {
         if (!this.soundtrackBuffer || !this.audioContext) return;
+
+        // Stop any previous soundtrack
+        if (this.soundtrackSource) {
+            try { this.soundtrackSource.stop(); } catch (_) { /* ignore */ }
+            this.soundtrackSource = null;
+        }
+        if (this.soundtrackElement) {
+            try { this.soundtrackElement.pause(); } catch (_) { /* ignore */ }
+            this.soundtrackElement = null;
+            this.soundtrackElementSource = null;
+        }
 
         this.soundtrackSource = this.audioContext.createBufferSource();
         this.soundtrackSource.buffer = this.soundtrackBuffer;
@@ -196,6 +229,55 @@ export class AudioManager {
         this.soundtrackSource.start();
 
         console.log('🎵 Soundtrack playing');
+    }
+
+    // Fallback soundtrack playback via <audio> element (more compatible on some iOS setups)
+    async playSoundtrackViaElement() {
+        try {
+            if (!this.audioContext || !this.masterGain) return false;
+
+            // Stop any previous soundtrack
+            if (this.soundtrackSource) {
+                try { this.soundtrackSource.stop(); } catch (_) { /* ignore */ }
+                this.soundtrackSource = null;
+            }
+            if (this.soundtrackElement) {
+                try { this.soundtrackElement.pause(); } catch (_) { /* ignore */ }
+                this.soundtrackElement = null;
+                this.soundtrackElementSource = null;
+            }
+
+            const el = new Audio('/audio/soundtrack.mp3');
+            el.loop = true;
+            el.preload = 'auto';
+            el.crossOrigin = 'anonymous';
+            this.soundtrackElement = el;
+
+            // Route through WebAudio so mute/master gain still works
+            try {
+                this.soundtrackElementSource = this.audioContext.createMediaElementSource(el);
+                this.soundtrackGain = this.audioContext.createGain();
+                this.soundtrackGain.gain.setValueAtTime(0, this.audioContext.currentTime);
+                this.soundtrackGain.gain.linearRampToValueAtTime(0.4, this.audioContext.currentTime + 3);
+                this.soundtrackElementSource.connect(this.soundtrackGain);
+                this.soundtrackGain.connect(this.masterGain);
+            } catch (routingError) {
+                // If routing fails, still attempt direct element playback
+                console.warn('⚠️ Could not route soundtrack element through AudioContext:', routingError);
+            }
+
+            // Ensure context is running (must be from a user gesture on iOS)
+            if (this.audioContext.state === 'suspended') {
+                try { await this.audioContext.resume(); } catch (_) { /* ignore */ }
+            }
+
+            await el.play();
+            console.log('🎵 Soundtrack playing (HTMLAudioElement fallback)');
+            return true;
+        } catch (playError) {
+            console.warn('❌ Soundtrack element playback failed:', playError);
+            return false;
+        }
     }
 
     // Transaction pass sound - digital whoosh with stereo movement
@@ -456,6 +538,17 @@ export class AudioManager {
         if (this.soundtrackSource) {
             try { this.soundtrackSource.stop(); } catch (_) { /* ignore */ }
         }
+
+        if (this.soundtrackElement) {
+            try { this.soundtrackElement.pause(); } catch (_) { /* ignore */ }
+            this.soundtrackElement = null;
+            this.soundtrackElementSource = null;
+        }
+        if (this.soundtrackGain) {
+            try { this.soundtrackGain.disconnect(); } catch (_) { /* ignore */ }
+            this.soundtrackGain = null;
+        }
+
         if (this.audioContext) {
             try { this.audioContext.close(); } catch (_) { /* ignore */ }
         }
