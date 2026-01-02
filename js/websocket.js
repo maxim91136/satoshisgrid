@@ -113,7 +113,9 @@ export class WebSocketManager {
 
     subscribe() {
         // Request blocks, stats, and mempool info
-        this.send({ action: 'want', data: ['blocks', 'stats', 'mempool-blocks'] });
+        const subscription = { action: 'want', data: ['blocks', 'stats', 'mempool-blocks'] };
+        console.log('📤 Subscribing:', JSON.stringify(subscription));
+        this.send(subscription);
 
         // Track the next block's transactions
         this.send({ 'track-mempool-block': 0 });
@@ -128,6 +130,9 @@ export class WebSocketManager {
     onMessage(event) {
         try {
             const data = JSON.parse(event.data);
+
+            // Debug: log all incoming WebSocket messages
+            console.log('📨 WS message:', Object.keys(data));
 
             // Handle different message types
             if (data.block) {
