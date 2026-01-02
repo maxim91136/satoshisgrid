@@ -32,6 +32,9 @@ export class WebSocketManager {
         // Difficulty adjustment polling
         this.difficultyInterval = null;
 
+        // Mempool stats polling (REST fallback)
+        this.mempoolInterval = null;
+
         // Demo mode (simulated data when WS unavailable)
         this.demoMode = false;
         this.demoInterval = null;
@@ -90,6 +93,10 @@ export class WebSocketManager {
         // Fetch difficulty adjustment data
         this.fetchDifficultyAdjustment();
         this.startDifficultyPolling();
+
+        // Fetch mempool stats (REST fallback for WebSocket)
+        this.fetchMempoolStats();
+        this.startMempoolPolling();
     }
 
     onOpen() {
@@ -390,6 +397,41 @@ export class WebSocketManager {
         }, 60000);
     }
 
+    // Fetch mempool stats (size + fees) via REST
+    async fetchMempoolStats() {
+        try {
+            // Fetch mempool size
+            const mempoolRes = await fetch('https://mempool.space/api/mempool');
+            const mempoolData = await mempoolRes.json();
+            if (mempoolData.count) {
+                this.hud.updateMempoolSize(mempoolData.count);
+            }
+
+            // Fetch fee rates from projected blocks
+            const blocksRes = await fetch('https://mempool.space/api/v1/fees/mempool-blocks');
+            const blocksData = await blocksRes.json();
+            if (blocksData.length > 0 && blocksData[0].medianFee) {
+                this.hud.updateFeeRate(blocksData[0].medianFee);
+            }
+        } catch (error) {
+            // Silent fail - keep existing values
+        }
+    }
+
+    // Start mempool stats polling
+    startMempoolPolling() {
+        // Prevent duplicate intervals on reconnect
+        if (this.mempoolInterval) {
+            clearInterval(this.mempoolInterval);
+            this.mempoolInterval = null;
+        }
+
+        // Poll every 30 seconds
+        this.mempoolInterval = setInterval(() => {
+            this.fetchMempoolStats();
+        }, 30000);
+    }
+
     // Demo mode - simulated transactions when WS unavailable
     startDemoMode() {
         if (this.demoMode) return;
@@ -450,6 +492,10 @@ export class WebSocketManager {
         if (this.difficultyInterval) {
             clearInterval(this.difficultyInterval);
             this.difficultyInterval = null;
+        }
+        if (this.mempoolInterval) {
+            clearInterval(this.mempoolInterval);
+            this.mempoolInterval = null;
         }
     }
 
