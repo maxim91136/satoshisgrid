@@ -92,14 +92,15 @@ export class LightCycle {
     ensureRoadLoopMesh(radius) {
         if (this.roadLoopMesh) return;
 
-        // Build a loop "road" ribbon (wide band) instead of an orange torus
-        // Curve is in local space around origin, in YZ plane, with direction chosen
-        // so the entry tangent points toward -Z (matches bike forward direction).
-        const segments = 140;
+        // Build a loop "road" ribbon using Frenet frames for proper orientation
+        const segments = 100;
+        const roadWidth = 8;
+
+        // Curve in YZ plane, entry tangent points toward -Z
         const points = [];
         for (let i = 0; i <= segments; i++) {
             const t = i / segments;
-            const theta = (-Math.PI / 2) - (t * Math.PI * 2); // decreasing = forward into -Z at entry
+            const theta = (-Math.PI / 2) - (t * Math.PI * 2);
             points.push(new THREE.Vector3(
                 0,
                 Math.sin(theta) * radius,
@@ -109,21 +110,47 @@ export class LightCycle {
 
         this.roadLoopCurve = new THREE.CatmullRomCurve3(points, true, 'centripetal');
 
-        // Road cross-section (width like the "highway")
-        const roadWidth = 8;
-        const roadThickness = 0.22;
-        const shape = new THREE.Shape();
-        shape.moveTo(-roadWidth / 2, -roadThickness / 2);
-        shape.lineTo(roadWidth / 2, -roadThickness / 2);
-        shape.lineTo(roadWidth / 2, roadThickness / 2);
-        shape.lineTo(-roadWidth / 2, roadThickness / 2);
-        shape.closePath();
+        // Compute Frenet frames for proper ribbon orientation
+        const frames = this.roadLoopCurve.computeFrenetFrames(segments, true);
 
-        const geo = new THREE.ExtrudeGeometry(shape, {
-            steps: 220,
-            bevelEnabled: false,
-            extrudePath: this.roadLoopCurve
-        });
+        // Build ribbon geometry manually
+        const vertices = [];
+        const indices = [];
+        const uvs = [];
+
+        for (let i = 0; i <= segments; i++) {
+            const t = i / segments;
+            const pos = this.roadLoopCurve.getPointAt(t);
+            const binormal = frames.binormals[i];
+
+            // Road extends in binormal direction (perpendicular to path)
+            const halfWidth = roadWidth / 2;
+            const left = pos.clone().add(binormal.clone().multiplyScalar(-halfWidth));
+            const right = pos.clone().add(binormal.clone().multiplyScalar(halfWidth));
+
+            vertices.push(left.x, left.y, left.z);
+            vertices.push(right.x, right.y, right.z);
+
+            uvs.push(0, t);
+            uvs.push(1, t);
+        }
+
+        // Build triangle indices
+        for (let i = 0; i < segments; i++) {
+            const a = i * 2;
+            const b = i * 2 + 1;
+            const c = (i + 1) * 2;
+            const d = (i + 1) * 2 + 1;
+
+            indices.push(a, b, c);
+            indices.push(b, d, c);
+        }
+
+        const geo = new THREE.BufferGeometry();
+        geo.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+        geo.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2));
+        geo.setIndex(indices);
+        geo.computeVertexNormals();
 
         const mat = new THREE.MeshBasicMaterial({
             color: ROAD_CYAN,
