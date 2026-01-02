@@ -114,7 +114,7 @@ export class Grid {
 
         const horizonGlow = new THREE.Mesh(glowGeometry, glowMaterial);
         horizonGlow.rotation.x = -Math.PI / 2;
-        horizonGlow.position.y = 0;
+        horizonGlow.position.y = 0.1;  // Raised to prevent z-fighting
         horizonGlow.position.z = -this.gridSize;
 
         this.gridGroup.add(horizonGlow);
