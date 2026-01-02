@@ -378,11 +378,11 @@ html, body {
     font-size: 18px;
 }
 
-/* Fullscreen Toggle */
+/* Fullscreen Toggle - next to audio button */
 .fullscreen-toggle {
     position: fixed;
     bottom: var(--hud-padding);
-    right: var(--hud-padding);
+    left: calc(50% + 30px);
     background: transparent;
     border: 1px solid var(--text-dim);
     color: var(--text-dim);
@@ -844,7 +844,7 @@ html, body {
         width: 36px;
         height: 36px;
         bottom: var(--hud-padding);
-        right: var(--hud-padding);
+        left: calc(50% + 24px);
     }
 
     .fullscreen-icon {
