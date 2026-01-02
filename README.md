@@ -14,7 +14,8 @@ A cinematic 3D visualization of the Bitcoin blockchain, inspired by TRON: Legacy
 - **Halving Countdown** - Blocks remaining until next halving
 - **Difficulty Adjustment** - Epoch progress and expected change
 - **Fullscreen Mode** - Immersive fullscreen toggle (press F)
-- **Keyboard Shortcuts** - M (menu), Space (audio), Esc (close), F (fullscreen)
+- **Share Moment** - Capture branded 1200x630 screenshot with HUD overlay (press S)
+- **Keyboard Shortcuts** - M (menu), Space (audio), S (share), Esc (close), F (fullscreen)
 - **Clickable TXIDs** - Transaction IDs link to mempool.space
 
 ## Tech Stack
@@ -51,7 +52,8 @@ satoshisgrid/
 │   ├── websocket.js    # mempool.space connection
 │   ├── audio.js        # Web Audio system
 │   ├── hud.js          # UI overlay
-│   └── effects.js      # Camera shake, flash
+│   ├── effects.js      # Camera shake, flash
+│   └── share.js        # Screenshot capture & sharing
 ├── audio/
 │   └── soundtrack.mp3  # Background music
 ├── models/

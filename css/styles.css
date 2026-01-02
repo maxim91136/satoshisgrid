@@ -699,6 +699,42 @@ html, body {
     color: var(--electric-cyan);
 }
 
+.menu-about {
+    padding: 20px 24px;
+    border-top: 1px solid rgba(102, 102, 102, 0.3);
+}
+
+.menu-about-title {
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--electric-cyan);
+    margin-bottom: 8px;
+    margin-top: 16px;
+}
+
+.menu-about-title:first-child {
+    margin-top: 0;
+}
+
+.menu-about-text {
+    font-size: 11px;
+    color: var(--text-dim);
+    line-height: 1.6;
+}
+
+.menu-about-text .key {
+    display: inline-block;
+    background: rgba(0, 255, 255, 0.1);
+    border: 1px solid var(--electric-cyan);
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 10px;
+    color: var(--electric-cyan);
+    margin-right: 8px;
+    min-width: 50px;
+    text-align: center;
+}
+
 .menu-footer {
     padding: 24px;
     border-top: 1px solid var(--text-dim);
