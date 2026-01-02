@@ -43,6 +43,25 @@ export class LightCycle {
         this.baseRotation = { x: 0, y: Math.PI, z: 0 };
         this.curveDirection = 1;
 
+        // Road loop (visual + bike follows it) - every few minutes
+        this.roadLoop = {
+            enabled: true,
+            active: false,
+            phase: 'idle', // idle | pre | loop | post
+            time: 0,
+            duration: 4.5, // seconds
+            preDuration: 2.0,
+            postDuration: 2.0,
+            radius: 10, // world units
+            nextIn: 150 + Math.random() * 120, // 2.5-4.5 minutes
+            startPos: null, // THREE.Vector3
+            startYaw: Math.PI,
+            center: null // THREE.Vector3
+        };
+
+        this.roadLoopMesh = null;
+        this.roadLoopMaterial = null;
+
         // Use shared geometry for particles
         this.particleGeometry = SHARED_MONUMENT_GEOMETRIES.particle;
         this.maxParticles = 15; // Strict limit for stability
@@ -54,6 +73,161 @@ export class LightCycle {
         this.loadLightCycle();
         // Trail created after bike loads (see loadLightCycle callback)
         this.sceneManager.add(this.cubeGroup);
+
+        // Console command for testing
+        window.doLoop = () => this.startRoadLoop();
+    }
+
+    ensureRoadLoopMesh(radius) {
+        if (this.roadLoopMesh) return;
+
+        // Simple glowing loop track (torus rotated into YZ plane)
+        const geo = new THREE.TorusGeometry(radius, 0.25, 10, 64);
+        geo.rotateY(Math.PI / 2); // make it stand vertical (YZ plane)
+
+        const mat = new THREE.MeshBasicMaterial({
+            color: BITCOIN_ORANGE,
+            transparent: true,
+            opacity: 0,
+            blending: THREE.AdditiveBlending,
+            depthWrite: false
+        });
+
+        const mesh = new THREE.Mesh(geo, mat);
+        mesh.renderOrder = 5;
+        mesh.visible = false;
+
+        this.roadLoopMesh = mesh;
+        this.roadLoopMaterial = mat;
+        this.cubeGroup.add(mesh);
+    }
+
+    startRoadLoop() {
+        if (!this.bike) return;
+        if (!this.roadLoop.enabled || this.roadLoop.phase !== 'idle') return;
+
+        // Don’t overlap with other tricks for simplicity
+        if (this.trickState !== 'cruise') return;
+
+        this.roadLoop.active = true;
+        this.roadLoop.phase = 'pre';
+        this.roadLoop.time = 0;
+        this.roadLoop.startPos = this.bike.position.clone();
+        this.roadLoop.startYaw = Math.PI;
+        this.roadLoop.center = new THREE.Vector3(
+            this.roadLoop.startPos.x,
+            1 + this.roadLoop.radius,
+            this.roadLoop.startPos.z
+        );
+
+        this.ensureRoadLoopMesh(this.roadLoop.radius);
+        if (this.roadLoopMesh) {
+            this.roadLoopMesh.position.copy(this.roadLoop.center);
+            this.roadLoopMesh.visible = true;
+            if (this.roadLoopMaterial) this.roadLoopMaterial.opacity = 0;
+        }
+    }
+
+    updateRoadLoop(delta, time) {
+        if (!this.roadLoop.active || !this.bike) return false;
+
+        // PRE: fade in the road loop mesh for a couple seconds
+        if (this.roadLoop.phase === 'pre') {
+            this.roadLoop.time += delta;
+            const p = Math.min(this.roadLoop.time / this.roadLoop.preDuration, 1);
+
+            if (this.roadLoopMaterial) {
+                this.roadLoopMaterial.opacity = 0.85 * p;
+            }
+
+            // Keep bike in a stable cruise pose during pre-roll
+            const hover = Math.sin(time * 2) * 0.15;
+            this.bike.position.y = 1 + hover;
+            this.bike.rotation.x = 0;
+            this.bike.rotation.y = Math.PI;
+            this.bike.rotation.z = 0;
+
+            if (p >= 1) {
+                this.roadLoop.phase = 'loop';
+                this.roadLoop.time = 0;
+            }
+            return true;
+        }
+
+        // POST: fade out after loop
+        if (this.roadLoop.phase === 'post') {
+            this.roadLoop.time += delta;
+            const p = Math.min(this.roadLoop.time / this.roadLoop.postDuration, 1);
+
+            if (this.roadLoopMaterial) {
+                this.roadLoopMaterial.opacity = 0.85 * (1 - p);
+            }
+
+            // Back to normal cruise pose while fading out
+            const hover = Math.sin(time * 2) * 0.15;
+            this.bike.position.y = 1 + hover;
+            this.bike.rotation.x = 0;
+            this.bike.rotation.y = Math.PI;
+            this.bike.rotation.z = 0;
+
+            if (p >= 1) {
+                if (this.roadLoopMesh) this.roadLoopMesh.visible = false;
+                if (this.roadLoopMaterial) this.roadLoopMaterial.opacity = 0;
+
+                this.roadLoop.active = false;
+                this.roadLoop.phase = 'idle';
+                this.roadLoop.time = 0;
+
+                // Schedule next loop
+                this.roadLoop.nextIn = 150 + Math.random() * 120;
+            }
+            return true;
+        }
+
+        // LOOP: bike follows the visible loop
+        this.roadLoop.time += delta;
+        const p = Math.min(this.roadLoop.time / this.roadLoop.duration, 1);
+
+        // Keep loop fully visible during the maneuver
+        if (this.roadLoopMaterial) this.roadLoopMaterial.opacity = 0.85;
+
+        // Vertical 360° loop in YZ plane
+        const theta = (-Math.PI / 2) + (p * Math.PI * 2);
+        const R = this.roadLoop.radius;
+
+        const center = this.roadLoop.center;
+        const x = this.roadLoop.startPos.x;
+        const y = center.y + Math.sin(theta) * R;
+        const z = center.z + Math.cos(theta) * R;
+
+        this.bike.position.set(x, y, z);
+
+        // Orientation: keep yaw facing forward, pitch along tangent
+        const dy = Math.cos(theta) * R;
+        const dz = -Math.sin(theta) * R;
+        const pitch = -Math.atan2(dy, dz);
+
+        this.bike.rotation.y = Math.PI;
+        this.bike.rotation.x = pitch;
+        this.bike.rotation.z = 0;
+
+        // Keep trail/vertical glows following X during loop
+        if (this.trail) this.trail.position.x = this.bike.position.x;
+        if (this.verticalGlows) {
+            this.verticalGlows.forEach((glow) => {
+                glow.position.x = this.bike.position.x;
+            });
+        }
+
+        if (p >= 1) {
+            // Transition to post-fade
+            this.roadLoop.phase = 'post';
+            this.roadLoop.time = 0;
+            this.roadLoop.startPos = null;
+            this.roadLoop.center = null;
+        }
+
+        return true;
     }
 
     loadLightCycle() {
@@ -525,6 +699,19 @@ export class LightCycle {
         if (!this.isMining) return;
         const time = Date.now() * 0.001;
 
+        // Road loop has priority (bike follows visible road loop)
+        if (this.updateRoadLoop(delta, time)) {
+            return;
+        }
+
+        // Trigger road loop every few minutes (simple)
+        if (this.roadLoop.enabled && this.trickState === 'cruise') {
+            this.roadLoop.nextIn -= delta;
+            if (this.roadLoop.nextIn <= 0) {
+                this.startRoadLoop();
+            }
+        }
+
         // Trick timing
         this.nextTrickIn -= delta;
         if (this.trickState === 'cruise' && this.nextTrickIn <= 0) {
@@ -592,6 +779,25 @@ export class LightCycle {
 
     dispose() {
         this.isDisposed = true;
+
+        // Stop road loop
+        if (this.roadLoop) {
+            this.roadLoop.active = false;
+            this.roadLoop.startPos = null;
+            this.roadLoop.center = null;
+        }
+
+        if (this.roadLoopMesh) {
+            try { this.cubeGroup.remove(this.roadLoopMesh); } catch (_) { /* ignore */ }
+            if (this.roadLoopMesh.geometry) {
+                try { this.roadLoopMesh.geometry.dispose(); } catch (_) { /* ignore */ }
+            }
+            if (this.roadLoopMesh.material) {
+                try { this.roadLoopMesh.material.dispose(); } catch (_) { /* ignore */ }
+            }
+            this.roadLoopMesh = null;
+        }
+        this.roadLoopMaterial = null;
 
         if (this.pushingBlockTimeout) {
             clearTimeout(this.pushingBlockTimeout);
