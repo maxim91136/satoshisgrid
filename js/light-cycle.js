@@ -35,6 +35,14 @@ export class LightCycle {
         this.bike = null;
         this.trail = null;
 
+        // Trick animation system
+        this.trickState = 'cruise';  // cruise, curve, barrelRoll, loop
+        this.trickTime = 0;
+        this.trickDuration = 0;
+        this.nextTrickIn = 5 + Math.random() * 10; // 5-15s before first trick
+        this.baseRotation = { x: 0, y: Math.PI, z: 0 };
+        this.curveDirection = 1;
+
         // Use shared geometry for particles
         this.particleGeometry = SHARED_MONUMENT_GEOMETRIES.particle;
         this.maxParticles = 15; // Strict limit for stability
@@ -435,14 +443,112 @@ export class LightCycle {
         this.particles = [];
     }
 
+    startRandomTrick() {
+        const tricks = ['curve', 'barrelRoll', 'wiggle'];
+        const trick = tricks[Math.floor(Math.random() * tricks.length)];
+
+        this.trickState = trick;
+        this.trickTime = 0;
+        this.curveDirection = Math.random() > 0.5 ? 1 : -1;
+
+        switch (trick) {
+            case 'curve':
+                this.trickDuration = 3; // 3s S-curve
+                break;
+            case 'barrelRoll':
+                this.trickDuration = 2; // 2s gentle roll
+                break;
+            case 'wiggle':
+                this.trickDuration = 2; // 2s wiggle
+                break;
+        }
+
+        // Next trick in 8-20s
+        this.nextTrickIn = 8 + Math.random() * 12;
+    }
+
+    updateTrick(delta, time) {
+        if (!this.bike) return;
+
+        const t = this.trickTime / this.trickDuration;
+        const hover = Math.sin(time * 2) * 0.15;
+
+        if (t >= 1) {
+            // Trick complete - return to cruise
+            this.trickState = 'cruise';
+            return;
+        }
+
+        // Smooth ease in/out
+        const ease = Math.sin(t * Math.PI);
+
+        switch (this.trickState) {
+            case 'curve':
+                // Gentle S-curve: move X, bank Z
+                const curveX = Math.sin(t * Math.PI * 2) * 3 * this.curveDirection;
+                const banking = Math.cos(t * Math.PI * 2) * 0.15 * this.curveDirection;
+
+                this.bike.position.x = this.vehiclePosition.x + curveX;
+                this.bike.position.y = 1 + hover;
+                this.bike.rotation.x = 0;
+                this.bike.rotation.y = Math.PI;
+                this.bike.rotation.z = banking;
+                break;
+
+            case 'barrelRoll':
+                // Gentle 360° roll around Z axis
+                const rollAngle = t * Math.PI * 2 * this.curveDirection;
+
+                this.bike.position.x = this.vehiclePosition.x;
+                this.bike.position.y = 1 + hover + ease * 0.5; // Slight lift during roll
+                this.bike.rotation.x = 0;
+                this.bike.rotation.y = Math.PI;
+                this.bike.rotation.z = rollAngle;
+                break;
+
+            case 'wiggle':
+                // Quick side-to-side wiggle
+                const wiggleX = Math.sin(t * Math.PI * 6) * 1.5 * ease;
+                const wiggleZ = Math.cos(t * Math.PI * 6) * 0.1;
+
+                this.bike.position.x = this.vehiclePosition.x + wiggleX;
+                this.bike.position.y = 1 + hover;
+                this.bike.rotation.x = 0;
+                this.bike.rotation.y = Math.PI;
+                this.bike.rotation.z = wiggleZ;
+                break;
+        }
+    }
+
     update(delta) {
         if (this.isDisposed) return;
         if (!this.isMining) return;
         const time = Date.now() * 0.001;
 
-        // Bike schweben
+        // Trick timing
+        this.nextTrickIn -= delta;
+        if (this.trickState === 'cruise' && this.nextTrickIn <= 0) {
+            this.startRandomTrick();
+        }
+
+        // Update trick animation
+        if (this.trickState !== 'cruise') {
+            this.trickTime += delta;
+            this.updateTrick(delta, time);
+        }
+
+        // Bike schweben + trick position
         if (this.bike) {
-            this.bike.position.y = 1 + Math.sin(time * 2) * 0.2;
+            const hover = Math.sin(time * 2) * 0.15;
+
+            if (this.trickState === 'cruise') {
+                // Gentle idle sway
+                this.bike.position.x = this.vehiclePosition.x + Math.sin(time * 0.3) * 0.5;
+                this.bike.position.y = 1 + hover;
+                this.bike.rotation.x = 0;
+                this.bike.rotation.y = Math.PI;
+                this.bike.rotation.z = Math.sin(time * 0.3) * 0.02; // Tiny banking
+            }
         }
 
         // Trail Animation
@@ -450,12 +556,13 @@ export class LightCycle {
             this.trailMaterial.uniforms.time.value = time;
         }
 
-        // Vertical Glow Animation
-        if (this.verticalGlows) {
+        // Vertical Glow Animation + follow bike X
+        if (this.verticalGlows && this.bike) {
             this.verticalGlows.forEach((glow, i) => {
                 if (glow.material.uniforms) {
                     glow.material.uniforms.time.value = time + i * 0.5;
                 }
+                glow.position.x = this.bike.position.x;
             });
         }
 
