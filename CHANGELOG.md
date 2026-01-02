@@ -2,6 +2,21 @@
 
 All notable changes to SATOSHI'S GRID will be documented in this file.
 
+## [1.0.19] - 2026-01-02
+
+### Fixed
+- **Mempool HUD Data** - Fixed mempool size and fee rate not displaying
+- **REST Fallback** - Added REST API backup for mempool stats when WebSocket delays
+
+### Added
+- **Menu About Section** - Added "What You See" and "Controls" info to side menu
+
+## [1.0.18] - 2026-01-02
+
+### Added
+- **Share Moment** - Capture branded 1200x630 screenshot (press S)
+- **REST Fallback** - Mempool stats polling every 30s as WebSocket backup
+
 ## [1.0.17] - 2026-01-02
 
 ### Added
