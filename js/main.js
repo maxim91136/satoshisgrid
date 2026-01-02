@@ -11,6 +11,7 @@ import { WebSocketManager } from './websocket.js';
 import { AudioManager } from './audio.js';
 import { HUD } from './hud.js';
 import { Effects } from './effects.js';
+import { ShareManager } from './share.js';
 
 class SatoshisGrid {
     constructor() {
@@ -24,6 +25,7 @@ class SatoshisGrid {
         this.audioManager = null;
         this.hud = null;
         this.effects = null;
+        this.shareManager = null;
         this._rafId = null;
 
         this._onBeforeUnload = () => this.destroy();
@@ -127,6 +129,10 @@ class SatoshisGrid {
             // Connect audio manager to HUD for keyboard shortcuts
             this.hud.setAudioManager(this.audioManager);
 
+            // Initialize Share (captures WebGL + HUD metrics)
+            this.shareManager = new ShareManager(this.sceneManager);
+            this.shareManager.init();
+
             // Initialize WebSocket Connection
             this.wsManager = new WebSocketManager(
                 this.transactionManager,
@@ -195,6 +201,12 @@ class SatoshisGrid {
             this.effects.dispose();
         }
         this.effects = null;
+
+        // Share (modal + listeners)
+        if (this.shareManager && typeof this.shareManager.dispose === 'function') {
+            this.shareManager.dispose();
+        }
+        this.shareManager = null;
 
         // UI handlers
         if (this.hud && typeof this.hud.dispose === 'function') {

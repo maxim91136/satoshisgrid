@@ -411,6 +411,37 @@ html, body {
     font-size: 20px;
 }
 
+/* Share Toggle - Center */
+.share-toggle {
+    position: fixed;
+    bottom: var(--hud-padding);
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.7);
+    border: 2px solid var(--electric-cyan);
+    color: var(--electric-cyan);
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    cursor: pointer;
+    pointer-events: auto;
+    transition: all var(--transition-fast);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.share-toggle:hover {
+    background: rgba(0, 0, 0, 0.9);
+    border-color: var(--core-orange);
+    color: var(--core-orange);
+    box-shadow: 0 0 20px var(--core-orange-glow);
+}
+
+.share-icon {
+    font-size: 20px;
+}
+
 /* Smaller HUD values */
 .hud-value-small {
     font-size: 14px;
@@ -503,6 +534,99 @@ html, body {
     color: var(--core-orange);
     text-shadow: 0 0 10px var(--core-orange-glow);
     text-decoration: underline;
+}
+
+/* ============================================
+   SHARE MODAL
+   ============================================ */
+
+.share-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.75);
+    z-index: 400;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: auto;
+}
+
+.share-modal.hidden {
+    display: none;
+}
+
+.share-modal-panel {
+    width: min(92vw, 860px);
+    background: rgba(10, 10, 10, 0.97);
+    border: 1px solid var(--electric-cyan);
+    box-shadow: 0 0 30px var(--electric-cyan-glow);
+}
+
+.share-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 18px 20px;
+    border-bottom: 1px solid var(--text-dim);
+}
+
+.share-modal-title {
+    font-size: 12px;
+    letter-spacing: 3px;
+    color: var(--electric-cyan);
+}
+
+.share-modal-close {
+    background: transparent;
+    border: none;
+    color: var(--text-dim);
+    font-size: 24px;
+    cursor: pointer;
+    transition: color var(--transition-fast);
+}
+
+.share-modal-close:hover {
+    color: var(--pure-white);
+}
+
+.share-modal-content {
+    padding: 18px 20px 22px;
+}
+
+.share-preview {
+    width: 100%;
+    height: auto;
+    display: block;
+    border: 1px solid rgba(102, 102, 102, 0.35);
+    margin-bottom: 16px;
+}
+
+.share-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.share-action {
+    background: transparent;
+    border: 1px solid var(--electric-cyan);
+    color: var(--electric-cyan);
+    padding: 10px 14px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.share-action:hover {
+    border-color: var(--core-orange);
+    color: var(--core-orange);
+    box-shadow: 0 0 18px var(--core-orange-glow);
 }
 
 /* ============================================
@@ -784,6 +908,20 @@ html, body {
         transform: none;
         width: 40px;
         height: 40px;
+    }
+
+    /* Share toggle: Bottom right on mobile */
+    .share-toggle {
+        bottom: var(--hud-padding);
+        right: var(--hud-padding);
+        left: auto;
+        transform: none;
+        width: 40px;
+        height: 40px;
+    }
+
+    .share-icon {
+        font-size: 16px;
     }
 
     .audio-icon {

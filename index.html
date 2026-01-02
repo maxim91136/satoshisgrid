@@ -110,11 +110,34 @@
             <span class="audio-icon">🔊</span>
         </button>
 
+        <!-- Share Moment -->
+        <button id="share-toggle" class="share-toggle" title="Share Moment (S)">
+            <span class="share-icon">⤴︎</span>
+        </button>
+
         <!-- Fullscreen Toggle -->
         <button id="fullscreen-toggle" class="fullscreen-toggle" title="Toggle Fullscreen (F)">
             <span class="fullscreen-icon">⛶</span>
         </button>
 
+    </div>
+
+    <!-- Share Moment Modal -->
+    <div id="share-modal" class="share-modal hidden">
+        <div class="share-modal-panel" role="dialog" aria-modal="true" aria-label="Share Moment">
+            <div class="share-modal-header">
+                <span class="share-modal-title">SHARE MOMENT</span>
+                <button id="share-close" class="share-modal-close" aria-label="Close">×</button>
+            </div>
+            <div class="share-modal-content">
+                <img id="share-preview" class="share-preview" alt="Share preview" />
+                <div class="share-actions">
+                    <button id="share-download" class="share-action">DOWNLOAD PNG</button>
+                    <button id="share-copy" class="share-action">COPY TEXT</button>
+                    <button id="share-x" class="share-action">POST TO X</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Transaction Info Panel -->
@@ -163,7 +186,7 @@
                 Soundtrack: <a href="https://www.pond5.com/de/royalty-free-music/item/94791064-80s-synth-futuristic-cyberpunk-fashion-film-music-ads-youtub" target="_blank">"80's Synth Futuristic Cyberpunk"</a> by Roman Forster<br>
                 <small>Licensed from <a href="https://www.pond5.com" target="_blank">Pond5</a></small>
             </p>
-            <p class="menu-version">v1.0.16</p>
+            <p class="menu-version">v1.0.17</p>
         </div>
     </div>
 
