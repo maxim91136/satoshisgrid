@@ -2,6 +2,14 @@
 
 All notable changes to SATOSHI'S GRID will be documented in this file.
 
+## [1.0.16] - 2026-01-02
+
+### Changed
+- **New Soundtrack** - "80's Synth Futuristic Cyberpunk" by Roman Forster (Pond5)
+- **Crossfade Loop** - Smooth 4-second crossfade when track repeats
+- **Toggle Button Layout** - Audio on left lane (38%), Fullscreen on right lane (62%)
+- **Better Contrast** - Dark background (rgba 0,0,0,0.7), thicker border, larger size
+
 ## [1.0.15] - 2026-01-02
 
 ### Fixed
