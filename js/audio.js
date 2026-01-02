@@ -24,6 +24,16 @@ export class AudioManager {
         this.soundtrackElement = null;
         this.soundtrackElementSource = null;
 
+        // Crossfade loop system
+        this.crossfadeDuration = 4; // seconds
+        this.soundtrackSourceA = null;
+        this.soundtrackSourceB = null;
+        this.soundtrackGainA = null;
+        this.soundtrackGainB = null;
+        this.currentSource = 'A';
+        this.loopScheduled = false;
+        this.loopTimeout = null;
+
         this._muteBtn = null;
         this._muteClickHandler = null;
 
@@ -206,11 +216,118 @@ export class AudioManager {
         }
     }
 
-    // Soundtrack abspielen mit Loop
+    // Soundtrack abspielen mit Crossfade-Loop
     playSoundtrack() {
         if (!this.soundtrackBuffer || !this.audioContext) return;
 
         // Stop any previous soundtrack
+        this.stopSoundtrack();
+
+        // Start first source with fade-in
+        this.playSoundtrackSource('A', true);
+
+        // Schedule crossfade loop
+        this.scheduleNextLoop();
+
+        console.log('🎵 Soundtrack playing with crossfade loop');
+    }
+
+    // Play a soundtrack source (A or B)
+    playSoundtrackSource(which, fadeIn = false) {
+        if (!this.soundtrackBuffer || !this.audioContext) return;
+
+        const source = this.audioContext.createBufferSource();
+        source.buffer = this.soundtrackBuffer;
+
+        const gain = this.audioContext.createGain();
+        const now = this.audioContext.currentTime;
+
+        if (fadeIn) {
+            // Initial fade-in
+            gain.gain.setValueAtTime(0, now);
+            gain.gain.linearRampToValueAtTime(0.4, now + 3);
+        } else {
+            // Crossfade in
+            gain.gain.setValueAtTime(0, now);
+            gain.gain.linearRampToValueAtTime(0.4, now + this.crossfadeDuration);
+        }
+
+        source.connect(gain);
+        gain.connect(this.masterGain);
+        source.start();
+
+        if (which === 'A') {
+            this.soundtrackSourceA = source;
+            this.soundtrackGainA = gain;
+        } else {
+            this.soundtrackSourceB = source;
+            this.soundtrackGainB = gain;
+        }
+
+        this.currentSource = which;
+    }
+
+    // Schedule the next crossfade loop
+    scheduleNextLoop() {
+        if (!this.soundtrackBuffer) return;
+
+        const trackDuration = this.soundtrackBuffer.duration;
+        const crossfadeStart = (trackDuration - this.crossfadeDuration) * 1000; // ms
+
+        // Clear any existing timeout
+        if (this.loopTimeout) {
+            clearTimeout(this.loopTimeout);
+        }
+
+        // Schedule crossfade before track ends
+        this.loopTimeout = setTimeout(() => {
+            this.performCrossfade();
+        }, crossfadeStart);
+    }
+
+    // Perform the crossfade between sources
+    performCrossfade() {
+        if (!this.audioContext || !this.soundtrackBuffer) return;
+
+        const now = this.audioContext.currentTime;
+        const nextSource = this.currentSource === 'A' ? 'B' : 'A';
+
+        // Fade out current source
+        const currentGain = this.currentSource === 'A' ? this.soundtrackGainA : this.soundtrackGainB;
+        if (currentGain) {
+            currentGain.gain.setValueAtTime(currentGain.gain.value, now);
+            currentGain.gain.linearRampToValueAtTime(0, now + this.crossfadeDuration);
+        }
+
+        // Stop old source after fade completes
+        const oldSource = this.currentSource === 'A' ? this.soundtrackSourceA : this.soundtrackSourceB;
+        setTimeout(() => {
+            if (oldSource) {
+                try { oldSource.stop(); } catch (_) { /* ignore */ }
+            }
+        }, this.crossfadeDuration * 1000 + 100);
+
+        // Start new source with crossfade in
+        this.playSoundtrackSource(nextSource, false);
+
+        // Schedule next loop
+        this.scheduleNextLoop();
+    }
+
+    // Stop all soundtrack playback
+    stopSoundtrack() {
+        if (this.loopTimeout) {
+            clearTimeout(this.loopTimeout);
+            this.loopTimeout = null;
+        }
+        if (this.soundtrackSourceA) {
+            try { this.soundtrackSourceA.stop(); } catch (_) { /* ignore */ }
+            this.soundtrackSourceA = null;
+        }
+        if (this.soundtrackSourceB) {
+            try { this.soundtrackSourceB.stop(); } catch (_) { /* ignore */ }
+            this.soundtrackSourceB = null;
+        }
         if (this.soundtrackSource) {
             try { this.soundtrackSource.stop(); } catch (_) { /* ignore */ }
             this.soundtrackSource = null;
@@ -220,20 +337,6 @@ export class AudioManager {
             this.soundtrackElement = null;
             this.soundtrackElementSource = null;
         }
-
-        this.soundtrackSource = this.audioContext.createBufferSource();
-        this.soundtrackSource.buffer = this.soundtrackBuffer;
-        this.soundtrackSource.loop = true;
-
-        this.soundtrackGain = this.audioContext.createGain();
-        this.soundtrackGain.gain.setValueAtTime(0, this.audioContext.currentTime);
-        this.soundtrackGain.gain.linearRampToValueAtTime(0.4, this.audioContext.currentTime + 3);
-
-        this.soundtrackSource.connect(this.soundtrackGain);
-        this.soundtrackGain.connect(this.masterGain);
-        this.soundtrackSource.start();
-
-        console.log('🎵 Soundtrack playing');
     }
 
     // Fallback soundtrack playback via <audio> element (more compatible on some iOS setups)
@@ -544,14 +647,20 @@ export class AudioManager {
             try { this.soundtrackSource.stop(); } catch (_) { /* ignore */ }
         }
 
-        if (this.soundtrackElement) {
-            try { this.soundtrackElement.pause(); } catch (_) { /* ignore */ }
-            this.soundtrackElement = null;
-            this.soundtrackElementSource = null;
-        }
+        // Stop crossfade loop
+        this.stopSoundtrack();
+
         if (this.soundtrackGain) {
             try { this.soundtrackGain.disconnect(); } catch (_) { /* ignore */ }
             this.soundtrackGain = null;
+        }
+        if (this.soundtrackGainA) {
+            try { this.soundtrackGainA.disconnect(); } catch (_) { /* ignore */ }
+            this.soundtrackGainA = null;
+        }
+        if (this.soundtrackGainB) {
+            try { this.soundtrackGainB.disconnect(); } catch (_) { /* ignore */ }
+            this.soundtrackGainB = null;
         }
 
         if (this.audioContext) {
