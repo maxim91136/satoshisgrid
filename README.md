@@ -74,7 +74,7 @@ satoshisgrid/
 
 ### Assets
 - **Light Cycle Model:** "TRON: Uprising - ArgonCity Light Cycle" by TheTinDog ([CC BY 4.0](https://skfb.ly/pEW9S))
-- **Soundtrack:** "80's Synth Futuristic Cyberpunk" by Roman Forster ([Pond5](https://www.pond5.com/stock-music/item/94791064))
+- **Soundtrack:** "80's Synth Futuristic Cyberpunk" by Roman Forster ([Pond5](https://www.pond5.com/de/royalty-free-music/item/94791064-80s-synth-futuristic-cyberpunk-fashion-film-music-ads-youtub))
 
 ### Libraries
 - [Three.js](https://threejs.org/) - 3D WebGL rendering
