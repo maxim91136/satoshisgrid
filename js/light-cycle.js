@@ -8,6 +8,7 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
 const BITCOIN_ORANGE = 0xf7931a;
+const ROAD_CYAN = 0x00ffff;
 
 // SHARED GEOMETRIES for monuments and particles (prevents memory leak!)
 const SHARED_MONUMENT_GEOMETRIES = {
@@ -61,6 +62,16 @@ export class LightCycle {
 
         this.roadLoopMesh = null;
         this.roadLoopMaterial = null;
+        this.roadLoopCurve = null;
+
+        // Reusable math objects (avoid per-frame allocations)
+        this._tmpPos = new THREE.Vector3();
+        this._tmpPos2 = new THREE.Vector3();
+        this._tmpTan = new THREE.Vector3();
+        this._tmpUp = new THREE.Vector3(0, 1, 0);
+        this._tmpMatrix = new THREE.Matrix4();
+        this._tmpQuat = new THREE.Quaternion();
+        this._modelForwardFixQuat = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI);
 
         // Use shared geometry for particles
         this.particleGeometry = SHARED_MONUMENT_GEOMETRIES.particle;
@@ -81,15 +92,44 @@ export class LightCycle {
     ensureRoadLoopMesh(radius) {
         if (this.roadLoopMesh) return;
 
-        // Simple glowing loop track (torus rotated into YZ plane)
-        const geo = new THREE.TorusGeometry(radius, 0.25, 10, 64);
-        geo.rotateY(Math.PI / 2); // make it stand vertical (YZ plane)
+        // Build a loop "road" ribbon (wide band) instead of an orange torus
+        // Curve is in local space around origin, in YZ plane, with direction chosen
+        // so the entry tangent points toward -Z (matches bike forward direction).
+        const segments = 140;
+        const points = [];
+        for (let i = 0; i <= segments; i++) {
+            const t = i / segments;
+            const theta = (-Math.PI / 2) - (t * Math.PI * 2); // decreasing = forward into -Z at entry
+            points.push(new THREE.Vector3(
+                0,
+                Math.sin(theta) * radius,
+                Math.cos(theta) * radius
+            ));
+        }
+
+        this.roadLoopCurve = new THREE.CatmullRomCurve3(points, true, 'centripetal');
+
+        // Road cross-section (width like the "highway")
+        const roadWidth = 8;
+        const roadThickness = 0.22;
+        const shape = new THREE.Shape();
+        shape.moveTo(-roadWidth / 2, -roadThickness / 2);
+        shape.lineTo(roadWidth / 2, -roadThickness / 2);
+        shape.lineTo(roadWidth / 2, roadThickness / 2);
+        shape.lineTo(-roadWidth / 2, roadThickness / 2);
+        shape.closePath();
+
+        const geo = new THREE.ExtrudeGeometry(shape, {
+            steps: 220,
+            bevelEnabled: false,
+            extrudePath: this.roadLoopCurve
+        });
 
         const mat = new THREE.MeshBasicMaterial({
-            color: BITCOIN_ORANGE,
+            color: ROAD_CYAN,
             transparent: true,
             opacity: 0,
-            blending: THREE.AdditiveBlending,
+            side: THREE.DoubleSide,
             depthWrite: false
         });
 
@@ -116,13 +156,14 @@ export class LightCycle {
         this.roadLoop.startYaw = Math.PI;
         this.roadLoop.center = new THREE.Vector3(
             this.roadLoop.startPos.x,
-            1 + this.roadLoop.radius,
+            0.15 + this.roadLoop.radius,
             this.roadLoop.startPos.z
         );
 
         this.ensureRoadLoopMesh(this.roadLoop.radius);
         if (this.roadLoopMesh) {
             this.roadLoopMesh.position.copy(this.roadLoop.center);
+            this.roadLoopMesh.rotation.set(0, 0, 0);
             this.roadLoopMesh.visible = true;
             if (this.roadLoopMaterial) this.roadLoopMaterial.opacity = 0;
         }
@@ -191,25 +232,30 @@ export class LightCycle {
         // Keep loop fully visible during the maneuver
         if (this.roadLoopMaterial) this.roadLoopMaterial.opacity = 0.85;
 
-        // Vertical 360° loop in YZ plane
-        const theta = (-Math.PI / 2) + (p * Math.PI * 2);
-        const R = this.roadLoop.radius;
+        // Sample the road loop curve for both road + bike
+        if (!this.roadLoopMesh || !this.roadLoopCurve) return false;
 
-        const center = this.roadLoop.center;
-        const x = this.roadLoop.startPos.x;
-        const y = center.y + Math.sin(theta) * R;
-        const z = center.z + Math.cos(theta) * R;
+        // Ensure world matrix is up-to-date before transforming points
+        this.roadLoopMesh.updateMatrixWorld(true);
 
-        this.bike.position.set(x, y, z);
+        // Local point/tangent from curve
+        this.roadLoopCurve.getPointAt(p, this._tmpPos);
+        this.roadLoopCurve.getTangentAt(p, this._tmpTan);
 
-        // Orientation: keep yaw facing forward, pitch along tangent
-        const dy = Math.cos(theta) * R;
-        const dz = -Math.sin(theta) * R;
-        const pitch = -Math.atan2(dy, dz);
+        // Transform to world space
+        this._tmpPos.applyMatrix4(this.roadLoopMesh.matrixWorld);
+        this._tmpTan.transformDirection(this.roadLoopMesh.matrixWorld).normalize();
 
-        this.bike.rotation.y = Math.PI;
-        this.bike.rotation.x = pitch;
-        this.bike.rotation.z = 0;
+        // Bike rides on the road: road y is ~0.15, bike baseline is ~1.0
+        const bikeYOffset = 1 - 0.15;
+        this.bike.position.copy(this._tmpPos);
+        this.bike.position.y += bikeYOffset;
+
+        // Orientation from tangent (fixes inverted direction)
+        // Matrix lookAt makes -Z point to target, so we apply model-forward fix (Y=PI)
+        this._tmpMatrix.lookAt(new THREE.Vector3(0, 0, 0), this._tmpTan, this._tmpUp);
+        this._tmpQuat.setFromRotationMatrix(this._tmpMatrix);
+        this.bike.quaternion.copy(this._tmpQuat).multiply(this._modelForwardFixQuat);
 
         // Keep trail/vertical glows following X during loop
         if (this.trail) this.trail.position.x = this.bike.position.x;
