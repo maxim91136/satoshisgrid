@@ -779,6 +779,17 @@ html, body {
         bottom: var(--hud-padding);
         left: var(--hud-padding);
         transform: none;
+        width: 36px;
+        height: 36px;
+    }
+
+    .audio-icon {
+        font-size: 14px;
+    }
+
+    /* Hide fullscreen on mobile - doesn't make sense on small screens */
+    .fullscreen-toggle {
+        display: none;
     }
 
     .hud-item {
@@ -831,26 +842,6 @@ html, body {
 
     .whale-alert {
         font-size: 12px !important;
-    }
-
-    .audio-toggle {
-        width: 36px;
-        height: 36px;
-    }
-
-    .audio-icon {
-        font-size: 14px;
-    }
-
-    .fullscreen-toggle {
-        width: 36px;
-        height: 36px;
-        bottom: var(--hud-padding);
-        left: calc(50% + 24px);
-    }
-
-    .fullscreen-icon {
-        font-size: 14px;
     }
 
     .hud-value-small {

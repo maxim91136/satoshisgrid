@@ -2,6 +2,13 @@
 
 All notable changes to SATOSHI'S GRID will be documented in this file.
 
+## [1.0.15] - 2026-01-02
+
+### Fixed
+- **Mobile Layout** - Audio toggle properly positioned bottom-left on mobile
+- **Fullscreen Hidden on Mobile** - Fullscreen button hidden on screens <500px (not useful on mobile)
+- **Duplicate CSS Removed** - Cleaned up redundant mobile button styles
+
 ## [1.0.14] - 2026-01-02
 
 ### Fixed
