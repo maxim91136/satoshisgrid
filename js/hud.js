@@ -23,6 +23,7 @@ const QUOTES = [
     { text: "Every informed person needs to know about Bitcoin because it might be one of the world's most important developments.", author: "Leon Luow" },
     { text: "The blockchain is an incorruptible digital ledger.", author: "Don Tapscott" },
     { text: "21 million. Forever.", author: "The Protocol" },
+    { text: "Tick Tock, Next Block.", author: "Bitcoin Proverb" },
 ];
 
 export class HUD {
