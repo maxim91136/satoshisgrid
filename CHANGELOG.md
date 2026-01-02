@@ -2,6 +2,18 @@
 
 All notable changes to SATOSHI'S GRID will be documented in this file.
 
+## [1.0.13] - 2026-01-02
+
+### Added
+- **Halving Countdown** - Shows blocks remaining until next halving (1,050,000)
+- **Difficulty Adjustment** - Shows epoch progress % and expected difficulty change
+- **Fullscreen Toggle** - Button in bottom-right corner (or press F)
+- **Keyboard Shortcuts** - M (menu), Space (audio), Esc (close), F (fullscreen)
+- **Clickable TXID** - Transaction IDs now link to mempool.space
+
+### Changed
+- HUD layout reorganized: Halving & Difficulty on left, Hashrate moved to right
+
 ## [1.0.12] - 2026-01-02
 
 ### Fixed
