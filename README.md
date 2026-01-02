@@ -11,6 +11,11 @@ A cinematic 3D visualization of the Bitcoin blockchain, inspired by TRON: Legacy
 - **Cyberpunk Soundtrack** - Epic ambient music with procedural fallback
 - **Block Events** - Visual and audio effects when new blocks are mined
 - **Whale Alerts** - Inception-style horn for large transactions (>10 BTC)
+- **Halving Countdown** - Blocks remaining until next halving
+- **Difficulty Adjustment** - Epoch progress and expected change
+- **Fullscreen Mode** - Immersive fullscreen toggle (press F)
+- **Keyboard Shortcuts** - M (menu), Space (audio), Esc (close), F (fullscreen)
+- **Clickable TXIDs** - Transaction IDs link to mempool.space
 
 ## Tech Stack
 
@@ -63,6 +68,7 @@ satoshisgrid/
 | BTC Price | [Binance API](https://binance-docs.github.io/apidocs/) | 30s |
 | BTC Price (Fallback) | [CoinGecko API](https://www.coingecko.com/api/documentation) | 30s |
 | Hashrate | [mempool.space REST](https://mempool.space/docs/api/rest) | 5min |
+| Difficulty Adjustment | [mempool.space REST](https://mempool.space/docs/api/rest) | 60s |
 
 ## Credits
 

@@ -356,8 +356,8 @@ html, body {
     left: 50%;
     transform: translateX(-50%);
     background: transparent;
-    border: 1px solid var(--text-dim);
-    color: var(--text-dim);
+    border: 1px solid var(--electric-cyan);
+    color: var(--electric-cyan);
     width: 44px;
     height: 44px;
     border-radius: 50%;
@@ -370,8 +370,9 @@ html, body {
 }
 
 .audio-toggle:hover {
-    border-color: var(--electric-cyan);
-    color: var(--electric-cyan);
+    border-color: var(--core-orange);
+    color: var(--core-orange);
+    box-shadow: 0 0 15px var(--core-orange-glow);
 }
 
 .audio-icon {
@@ -384,8 +385,8 @@ html, body {
     bottom: var(--hud-padding);
     left: calc(50% + 30px);
     background: transparent;
-    border: 1px solid var(--text-dim);
-    color: var(--text-dim);
+    border: 1px solid var(--electric-cyan);
+    color: var(--electric-cyan);
     width: 44px;
     height: 44px;
     border-radius: 50%;
@@ -398,8 +399,9 @@ html, body {
 }
 
 .fullscreen-toggle:hover {
-    border-color: var(--electric-cyan);
-    color: var(--electric-cyan);
+    border-color: var(--core-orange);
+    color: var(--core-orange);
+    box-shadow: 0 0 15px var(--core-orange-glow);
 }
 
 .fullscreen-icon {

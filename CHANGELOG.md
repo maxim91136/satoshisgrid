@@ -2,12 +2,21 @@
 
 All notable changes to SATOSHI'S GRID will be documented in this file.
 
+## [1.0.14] - 2026-01-02
+
+### Fixed
+- **Button Contrast** - Audio and Fullscreen buttons now use cyan color for better visibility
+- **Button Hover** - Orange glow effect on hover for both control buttons
+
+### Changed
+- Updated README with new features and keyboard shortcuts
+
 ## [1.0.13] - 2026-01-02
 
 ### Added
 - **Halving Countdown** - Shows blocks remaining until next halving (1,050,000)
 - **Difficulty Adjustment** - Shows epoch progress % and expected difficulty change
-- **Fullscreen Toggle** - Button in bottom-right corner (or press F)
+- **Fullscreen Toggle** - Button in center bottom (or press F)
 - **Keyboard Shortcuts** - M (menu), Space (audio), Esc (close), F (fullscreen)
 - **Clickable TXID** - Transaction IDs now link to mempool.space
 
