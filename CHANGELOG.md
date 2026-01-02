@@ -2,6 +2,21 @@
 
 All notable changes to SATOSHI'S GRID will be documented in this file.
 
+## [1.0.20] - 2026-01-02
+
+### Fixed
+- **Share Modal Click-Through** - Prevented UI clicks from interacting with the 3D scene behind the modal
+- **Fullscreen Listener Cleanup** - Ensured fullscreen state listeners are removable/disposed correctly
+- **BFCache Safety** - Avoided tearing down the app when Safari uses back-forward cache
+- **Fee Parsing Hardening** - Guarded against NaN/undefined fee data from WebSocket payloads
+
+### Changed
+- **Mobile Performance** - Capped pixel ratio on small screens to reduce GPU load
+- **Mobile Menu Placement** - Moved the menu trigger to left-middle on small screens
+
+### Added
+- **Social Preview Card** - Added OG/Twitter preview image support via `social-card.png`
+
 ## [1.0.19] - 2026-01-02
 
 ### Fixed

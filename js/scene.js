@@ -67,7 +67,9 @@ export class SceneManager {
         });
 
         this.renderer.setSize(window.innerWidth, window.innerHeight);
-        this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        const isSmallScreen = window.matchMedia && window.matchMedia('(max-width: 768px)').matches;
+        const pixelRatioCap = isSmallScreen ? 1.25 : 2;
+        this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, pixelRatioCap));
         this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
         this.renderer.toneMappingExposure = 0.7; // Dunkler, augenfreundlicher
 
@@ -148,6 +150,10 @@ export class SceneManager {
     onWindowResize() {
         const width = window.innerWidth;
         const height = window.innerHeight;
+
+        const isSmallScreen = window.matchMedia && window.matchMedia('(max-width: 768px)').matches;
+        const pixelRatioCap = isSmallScreen ? 1.25 : 2;
+        this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, pixelRatioCap));
 
         this.camera.aspect = width / height;
         this.camera.updateProjectionMatrix();

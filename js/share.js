@@ -43,6 +43,7 @@ export class ShareManager {
         this._toggleClickHandler = null;
         this._closeClickHandler = null;
         this._modalClickHandler = null;
+        this._panelClickHandler = null;
         this._docKeydownHandler = null;
         this._downloadClickHandler = null;
         this._copyClickHandler = null;
@@ -65,12 +66,20 @@ export class ShareManager {
 
         // Click outside panel closes
         this._modalClickHandler = (e) => {
+            // Prevent clicks from reaching the scene/window click handler.
+            e.stopPropagation();
             if (!this.elements.panel) return;
             if (e.target === this.elements.modal) {
                 this.close();
             }
         };
         this.elements.modal.addEventListener('click', this._modalClickHandler);
+
+        // Prevent clicks inside the panel from bubbling to window
+        this._panelClickHandler = (e) => {
+            e.stopPropagation();
+        };
+        this.elements.panel?.addEventListener('click', this._panelClickHandler);
 
         this._docKeydownHandler = async (e) => {
             if (isTypingTarget(e.target)) return;
@@ -117,7 +126,7 @@ export class ShareManager {
 
         this._postXClickHandler = () => {
             const text = this._currentShareText || this.buildShareText();
-            const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`;
+            const url = `https://x.com/intent/post?text=${encodeURIComponent(text)}`;
             window.open(url, '_blank', 'noopener,noreferrer');
         };
         this.elements.postX?.addEventListener('click', this._postXClickHandler);
@@ -303,6 +312,9 @@ export class ShareManager {
         if (this.elements.modal && this._modalClickHandler) {
             this.elements.modal.removeEventListener('click', this._modalClickHandler);
         }
+        if (this.elements.panel && this._panelClickHandler) {
+            this.elements.panel.removeEventListener('click', this._panelClickHandler);
+        }
         if (this._docKeydownHandler) {
             document.removeEventListener('keydown', this._docKeydownHandler);
         }
@@ -324,6 +336,7 @@ export class ShareManager {
         this._toggleClickHandler = null;
         this._closeClickHandler = null;
         this._modalClickHandler = null;
+        this._panelClickHandler = null;
         this._docKeydownHandler = null;
         this._downloadClickHandler = null;
         this._copyClickHandler = null;

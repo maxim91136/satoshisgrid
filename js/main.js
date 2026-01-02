@@ -29,7 +29,11 @@ class SatoshisGrid {
         this._rafId = null;
 
         this._onBeforeUnload = () => this.destroy();
-        this._onPageHide = () => this.destroy();
+        this._onPageHide = (event) => {
+            // Avoid breaking BFCache restores (Safari/iOS) when the page is cached.
+            if (event && event.persisted) return;
+            this.destroy();
+        };
         window.addEventListener('beforeunload', this._onBeforeUnload);
         window.addEventListener('pagehide', this._onPageHide);
 

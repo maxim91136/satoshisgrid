@@ -377,6 +377,7 @@ export class TransactionManager {
             if (event.target.closest('.tx-panel') ||
                 event.target.closest('.hud') ||
                 event.target.closest('.side-menu') ||
+                event.target.closest('.share-modal') ||
                 event.target.closest('button')) {
                 return;
             }

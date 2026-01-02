@@ -53,6 +53,7 @@ export class HUD {
         this._docClickHandler = null;
         this._docKeydownHandler = null;
         this._fullscreenClickHandler = null;
+        this._fullscreenChangeHandler = null;
 
         this._quoteStartTimeout = null;
         this._quoteFadeTimeout = null;
@@ -109,6 +110,12 @@ export class HUD {
             // Don't trigger shortcuts if typing in an input
             if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
 
+            // If Share modal is open, don't trigger HUD shortcuts (except Escape).
+            const shareModal = document.getElementById('share-modal');
+            if (shareModal && !shareModal.classList.contains('hidden')) {
+                if ((e.key || '').toLowerCase() !== 'escape') return;
+            }
+
             switch (e.key.toLowerCase()) {
                 case 'escape':
                     // Close any open panel/menu
@@ -146,9 +153,10 @@ export class HUD {
         }
 
         // Update icon on fullscreen change
-        document.addEventListener('fullscreenchange', () => {
+        this._fullscreenChangeHandler = () => {
             this.updateFullscreenIcon();
-        });
+        };
+        document.addEventListener('fullscreenchange', this._fullscreenChangeHandler);
     }
 
     toggleFullscreen() {
@@ -165,7 +173,7 @@ export class HUD {
         if (this.elements.fullscreenToggle) {
             const icon = this.elements.fullscreenToggle.querySelector('.fullscreen-icon');
             if (icon) {
-                icon.textContent = document.fullscreenElement ? '⛶' : '⛶';
+                icon.textContent = document.fullscreenElement ? '⤡' : '⤢';
             }
         }
     }
@@ -430,10 +438,14 @@ export class HUD {
         if (this._docKeydownHandler) {
             document.removeEventListener('keydown', this._docKeydownHandler);
         }
+        if (this._fullscreenChangeHandler) {
+            document.removeEventListener('fullscreenchange', this._fullscreenChangeHandler);
+        }
 
         this._logoClickHandler = null;
         this._menuCloseClickHandler = null;
         this._fullscreenClickHandler = null;
+        this._fullscreenChangeHandler = null;
         this._docClickHandler = null;
         this._docKeydownHandler = null;
 

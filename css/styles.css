@@ -914,9 +914,11 @@ html, body {
 
     /* Stacked layout for bottom on mobile - 3 rows */
     .hud-bottom-left {
-        bottom: 90px; /* Top row: Logo */
+        top: 50%;
+        bottom: auto;
         left: var(--hud-padding);
         right: auto;
+        transform: translateY(-50%);
         max-width: none;
         width: auto;
     }

@@ -198,7 +198,10 @@ export class WebSocketManager {
     handleMempoolBlocks(blocks) {
         if (blocks.length > 0) {
             const nextBlock = blocks[0];
-            this.hud.updateFeeRate(nextBlock.medianFee);
+            const fee = Number(nextBlock.medianFee);
+            if (Number.isFinite(fee) && fee > 0) {
+                this.hud.updateFeeRate(fee);
+            }
         }
     }
 
@@ -220,14 +223,28 @@ export class WebSocketManager {
 
     processTransaction(tx) {
         // Calculate transaction value
-        const value = tx.value || (tx.vout ? tx.vout.reduce((sum, out) => sum + out.value, 0) : 0);
+        const value = (typeof tx.value === 'number' && Number.isFinite(tx.value))
+            ? tx.value
+            : (tx.vout ? tx.vout.reduce((sum, out) => sum + (out?.value || 0), 0) : 0);
+
+        // Calculate fee rate safely (avoid NaN)
+        const vsize = Number(tx.vsize);
+        const fee = Number(tx.fee);
+        let feeRate = Number(tx.rate);
+        if (!Number.isFinite(feeRate)) feeRate = Number(tx.feePerVsize);
+        if (!Number.isFinite(feeRate) && Number.isFinite(fee) && Number.isFinite(vsize) && vsize > 0) {
+            feeRate = Math.round(fee / vsize);
+        }
+        if (!Number.isFinite(feeRate) || feeRate <= 0) {
+            feeRate = 10;
+        }
 
         const txData = {
             txid: tx.txid,
             value: value,
-            feeRate: tx.rate || tx.feePerVsize || Math.round(tx.fee / tx.vsize),
-            fee: tx.fee,
-            vsize: tx.vsize,
+            feeRate,
+            fee: Number.isFinite(fee) ? fee : tx.fee,
+            vsize: Number.isFinite(vsize) ? vsize : tx.vsize,
             timestamp: Date.now()
         };
 

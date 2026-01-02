@@ -95,11 +95,9 @@ echo -e "${GREEN}[6/6]${NC} Creating GitHub Release..."
 
 # Check if release already exists
 if gh release view "v${NEW_VERSION}" &>/dev/null; then
-    echo "  ⚠️  Release v${NEW_VERSION} already exists, deleting..."
-    gh release delete "v${NEW_VERSION}" --yes
-    # Also delete the tag if it exists
-    git tag -d "v${NEW_VERSION}" 2>/dev/null || true
-    git push origin --delete "v${NEW_VERSION}" 2>/dev/null || true
+    echo -e "${RED}  ❌ Release v${NEW_VERSION} already exists. Aborting to avoid deleting anything.${NC}"
+    echo "  If you intended to re-release the same version, delete it manually first."
+    exit 1
 fi
 
 # Create release with --latest flag
