@@ -314,11 +314,11 @@ export class LightCycle {
         );
         group.add(outline);
 
-        // Position in front of bike
+        // Position in front of bike (negative Z is forward direction)
         group.position.set(
             this.vehiclePosition.x,
             2,
-            this.vehiclePosition.z - 8  // 8 units in front
+            this.vehiclePosition.z - 12  // 12 units in front
         );
 
         group.userData.blockData = blockData;
@@ -336,17 +336,19 @@ export class LightCycle {
     releasePushingBlock() {
         if (!this.pushingBlock) return;
 
-        // Move to scene (out of cubeGroup) and animate fall
-        const worldPos = new THREE.Vector3();
-        this.pushingBlock.getWorldPosition(worldPos);
-
+        // Simply remove the block (disappears after 30s)
         this.cubeGroup.remove(this.pushingBlock);
-        this.pushingBlock.position.copy(worldPos);
-        this.sceneManager.add(this.pushingBlock);
-        this.monuments.push(this.pushingBlock);
 
-        // Animate falling back
-        this.animateMonumentFall(this.pushingBlock);
+        // Dispose materials
+        this.pushingBlock.traverse((child) => {
+            if (child.material) {
+                if (Array.isArray(child.material)) {
+                    child.material.forEach(m => m.dispose());
+                } else {
+                    child.material.dispose();
+                }
+            }
+        });
 
         this.pushingBlock = null;
         if (this.pushingBlockTimeout) {
@@ -354,23 +356,7 @@ export class LightCycle {
             this.pushingBlockTimeout = null;
         }
 
-        // Cleanup old monuments
-        while (this.monuments.length > this.maxMonuments) {
-            const oldest = this.monuments.shift();
-            oldest.userData.disposed = true;
-            this.sceneManager.remove(oldest);
-            oldest.traverse((child) => {
-                if (child.material) {
-                    if (Array.isArray(child.material)) {
-                        child.material.forEach(m => m.dispose());
-                    } else {
-                        child.material.dispose();
-                    }
-                }
-            });
-        }
-
-        console.log('📦 Block released → Monument');
+        console.log('📦 Block disappeared after 30s');
     }
 
     createMonument(blockData) {
