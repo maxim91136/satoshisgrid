@@ -12,6 +12,8 @@ import { AudioManager } from './audio.js';
 import { HUD } from './hud.js';
 import { Effects } from './effects.js';
 import { ShareManager } from './share.js';
+import { Aurora } from './aurora.js';
+import { Stars } from './stars.js';
 
 class SatoshisGrid {
     constructor() {
@@ -26,6 +28,8 @@ class SatoshisGrid {
         this.hud = null;
         this.effects = null;
         this.shareManager = null;
+        this.aurora = null;
+        this.stars = null;
         this._rafId = null;
 
         this._onBeforeUnload = () => this.destroy();
@@ -123,6 +127,14 @@ class SatoshisGrid {
             // Initialize Grid
             this.grid = new Grid(this.sceneManager);
 
+            // Initialize Stars (background)
+            this.stars = new Stars(this.sceneManager);
+            this.stars.init();
+
+            // Initialize Aurora (horizon lights)
+            this.aurora = new Aurora(this.sceneManager);
+            this.aurora.init();
+
             // Initialize Light Cycle
             this.lightCycle = new LightCycle(this.sceneManager, this.effects);
 
@@ -181,6 +193,8 @@ class SatoshisGrid {
 
         // Update components
         this.grid.update(delta);
+        this.stars.update(delta);
+        this.aurora.update(delta);
         this.transactionManager.update(delta);
         this.lightCycle.update(delta);
         this.effects.update(delta);
@@ -243,6 +257,16 @@ class SatoshisGrid {
             this.grid.dispose();
         }
         this.grid = null;
+
+        if (this.aurora && typeof this.aurora.dispose === 'function') {
+            this.aurora.dispose();
+        }
+        this.aurora = null;
+
+        if (this.stars && typeof this.stars.dispose === 'function') {
+            this.stars.dispose();
+        }
+        this.stars = null;
 
         // Audio
         if (this.audioManager && typeof this.audioManager.dispose === 'function') {

@@ -2,6 +2,12 @@
 
 All notable changes to SATOSHI'S GRID will be documented in this file.
 
+## [1.0.23] - 2026-01-03
+
+### Added
+- **Aurora Borealis** - Dynamic cyberpunk aurora lights at the horizon with animated arc
+- **Twinkling Stars** - Background starfield with shader-based twinkle effect
+
 ## [1.0.22] - 2026-01-03
 
 ### Added
