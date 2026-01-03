@@ -315,13 +315,17 @@ export class HUD {
             this.elements.feeRate.textContent = `${Math.round(feeRate)} sat/vB`;
 
             // Color code based on fee level
-            if (feeRate > 50) {
-                this.elements.feeRate.style.color = '#ff0000';
-            } else if (feeRate > 20) {
-                this.elements.feeRate.style.color = '#f7931a';
+            let color;
+            if (feeRate < 10) {
+                color = '#00ff88'; // Green - cheap
+            } else if (feeRate < 50) {
+                color = '#ffff00'; // Yellow - normal
+            } else if (feeRate < 100) {
+                color = '#ff8800'; // Orange - elevated
             } else {
-                this.elements.feeRate.style.color = '#00ffff';
+                color = '#ff4444'; // Red - expensive
             }
+            this.elements.feeRate.style.color = color;
         }
     }
 
