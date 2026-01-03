@@ -807,7 +807,7 @@ html, body {
 
 .side-menu {
     position: fixed;
-    top: 20%;
+    top: 50%;
     left: 0;
     width: 280px;
     max-height: 75vh;
@@ -816,7 +816,7 @@ html, body {
     border-left: none;
     border-radius: 0 8px 8px 0;
     z-index: 300;
-    transform: translateX(-100%);
+    transform: translateX(-100%) translateY(-50%);
     transition: transform var(--transition-medium);
     display: flex;
     flex-direction: column;
@@ -824,7 +824,7 @@ html, body {
 }
 
 .side-menu:not(.hidden) {
-    transform: translateX(0);
+    transform: translateX(0) translateY(-50%);
 }
 
 .menu-header {
@@ -1078,12 +1078,34 @@ html, body {
 
     .side-menu {
         width: 100%;
-        top: 10%;
+        top: 50%;
+        transform: translateX(-100%) translateY(-50%);
         max-height: 80vh;
         border-radius: 0;
         border: 1px solid var(--electric-cyan);
         border-left: none;
         border-right: none;
+    }
+
+    .side-menu:not(.hidden) {
+        transform: translateX(0) translateY(-50%);
+    }
+
+    /* Button positioning for tablet - avoid logo overlap */
+    .music-toggle {
+        left: calc(50% - 100px);
+    }
+
+    .sfx-toggle {
+        left: calc(50% - 42px);
+    }
+
+    .share-toggle {
+        left: calc(50% + 16px);
+    }
+
+    .fullscreen-toggle {
+        left: calc(50% + 74px);
     }
 
     .floating-quote {
