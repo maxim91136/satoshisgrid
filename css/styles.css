@@ -807,16 +807,16 @@ html, body {
 
 .side-menu {
     position: fixed;
-    top: 50%;
+    top: 20%;
     left: 0;
     width: 280px;
-    max-height: 90vh;
+    max-height: 75vh;
     background: rgba(10, 10, 10, 0.98);
     border: 1px solid var(--electric-cyan);
     border-left: none;
     border-radius: 0 8px 8px 0;
     z-index: 300;
-    transform: translate(-100%, -50%);
+    transform: translateX(-100%);
     transition: transform var(--transition-medium);
     display: flex;
     flex-direction: column;
@@ -824,7 +824,7 @@ html, body {
 }
 
 .side-menu:not(.hidden) {
-    transform: translate(0, -50%);
+    transform: translateX(0);
 }
 
 .menu-header {
