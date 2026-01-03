@@ -1078,6 +1078,12 @@ html, body {
 
     .side-menu {
         width: 100%;
+        top: 10%;
+        max-height: 80vh;
+        border-radius: 0;
+        border: 1px solid var(--electric-cyan);
+        border-left: none;
+        border-right: none;
     }
 
     .floating-quote {
