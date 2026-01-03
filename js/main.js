@@ -67,21 +67,39 @@ class SatoshisGrid {
 
         // Enter Button führt ins Grid (Audio startet erst hier durch User-Klick)
         enterBtn.addEventListener('click', async () => {
+            // Read audio preferences from checkboxes
+            const musicEnabled = document.getElementById('music-enabled')?.checked ?? true;
+            const sfxEnabled = document.getElementById('sfx-enabled')?.checked ?? true;
+
             sessionStorage.setItem('satoshisgrid_entered', 'true');
+            sessionStorage.setItem('satoshisgrid_music', musicEnabled ? 'on' : 'off');
+            sessionStorage.setItem('satoshisgrid_sfx', sfxEnabled ? 'on' : 'off');
+
             splash.classList.add('hidden');
             await this.init();
             // Start audio now (user click enables AudioContext)
             await this.audioManager.init(this.selectedRide);
+            // Apply user preferences
+            this.audioManager.setMusicEnabled(musicEnabled);
+            this.audioManager.setSfxEnabled(sfxEnabled);
         });
 
         // Allow keyboard entry
         document.addEventListener('keydown', async (e) => {
             if (e.code === 'Enter' || e.code === 'Space') {
                 if (!this.isInitialized) {
+                    const musicEnabled = document.getElementById('music-enabled')?.checked ?? true;
+                    const sfxEnabled = document.getElementById('sfx-enabled')?.checked ?? true;
+
                     sessionStorage.setItem('satoshisgrid_entered', 'true');
+                    sessionStorage.setItem('satoshisgrid_music', musicEnabled ? 'on' : 'off');
+                    sessionStorage.setItem('satoshisgrid_sfx', sfxEnabled ? 'on' : 'off');
+
                     splash.classList.add('hidden');
                     await this.init();
                     await this.audioManager.init(this.selectedRide);
+                    this.audioManager.setMusicEnabled(musicEnabled);
+                    this.audioManager.setSfxEnabled(sfxEnabled);
                 }
             }
         });
@@ -92,6 +110,10 @@ class SatoshisGrid {
         const splash = document.getElementById('splash');
         splash.classList.add('hidden');
 
+        // Restore saved audio preferences
+        const musicEnabled = sessionStorage.getItem('satoshisgrid_music') !== 'off';
+        const sfxEnabled = sessionStorage.getItem('satoshisgrid_sfx') !== 'off';
+
         // Start grid immediately
         await this.init();
 
@@ -100,6 +122,9 @@ class SatoshisGrid {
             if (this.audioManager && !this.audioManager.isInitialized) {
                 console.log('🎵 Starting audio on first interaction...');
                 await this.audioManager.init();
+                // Restore preferences
+                this.audioManager.setMusicEnabled(musicEnabled);
+                this.audioManager.setSfxEnabled(sfxEnabled);
             }
             document.removeEventListener('click', startAudioOnce);
             document.removeEventListener('touchstart', startAudioOnce);

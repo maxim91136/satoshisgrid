@@ -62,6 +62,18 @@
                     <span class="ride-label">WILD</span>
                 </button>
             </div>
+            <div class="audio-options">
+                <label class="audio-option">
+                    <input type="checkbox" id="music-enabled" checked>
+                    <span class="audio-option-icon">🎶</span>
+                    <span class="audio-option-label">MUSIC</span>
+                </label>
+                <label class="audio-option">
+                    <input type="checkbox" id="sfx-enabled" checked>
+                    <span class="audio-option-icon">🔔</span>
+                    <span class="audio-option-label">SFX</span>
+                </label>
+            </div>
             <button id="enter-btn" class="enter-button">
                 <span class="btn-text">ENTER THE GRID</span>
                 <span class="btn-icon">▶</span>
@@ -129,9 +141,12 @@
             </div>
         </div>
 
-        <!-- Audio Toggle -->
-        <button id="audio-toggle" class="audio-toggle" title="Toggle Audio (Space)">
-            <span class="audio-icon">🔊</span>
+        <!-- Audio Toggles -->
+        <button id="music-toggle" class="audio-toggle music-toggle" title="Toggle Music (M)">
+            <span class="music-icon">🎶</span>
+        </button>
+        <button id="sfx-toggle" class="audio-toggle sfx-toggle" title="Toggle Sound Effects (X)">
+            <span class="sfx-icon">🔔</span>
         </button>
 
         <!-- Share Moment -->
@@ -210,8 +225,9 @@
             </p>
             <p class="menu-about-title">CONTROLS</p>
             <p class="menu-about-text">
+                <span class="key">M</span> Toggle music<br>
+                <span class="key">X</span> Toggle sound effects<br>
                 <span class="key">S</span> Share screenshot<br>
-                <span class="key">Space</span> Toggle audio<br>
                 <span class="key">F</span> Fullscreen<br>
                 <span class="key">Click TX</span> View transaction details
             </p>

@@ -217,6 +217,65 @@ html, body {
     }
 }
 
+/* Audio Options (Music/SFX toggles on splash) */
+.audio-options {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    margin-bottom: 24px;
+}
+
+.audio-option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    color: var(--electric-cyan);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 1px;
+    opacity: 0.8;
+    transition: all var(--transition-fast);
+}
+
+.audio-option:hover {
+    opacity: 1;
+}
+
+.audio-option input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 16px;
+    height: 16px;
+    border: 2px solid var(--electric-cyan);
+    background: transparent;
+    cursor: pointer;
+    position: relative;
+}
+
+.audio-option input[type="checkbox"]:checked {
+    background: var(--electric-cyan);
+}
+
+.audio-option input[type="checkbox"]:checked::after {
+    content: '✓';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: var(--void-black);
+    font-size: 10px;
+    font-weight: bold;
+}
+
+.audio-option-icon {
+    font-size: 16px;
+}
+
+.audio-option-label {
+    font-weight: 600;
+}
+
 .soon-badge {
     position: absolute;
     bottom: -22px;
@@ -444,12 +503,10 @@ html, body {
     color: var(--electric-cyan);
 }
 
-/* Audio Toggle - Left lane */
+/* Audio Toggle - Base styles */
 .audio-toggle {
     position: fixed;
     bottom: var(--hud-padding);
-    left: 38%;
-    transform: translateX(-50%);
     background: rgba(0, 0, 0, 0.7);
     border: 2px solid var(--electric-cyan);
     color: var(--electric-cyan);
@@ -471,16 +528,37 @@ html, body {
     box-shadow: 0 0 20px var(--core-orange-glow);
 }
 
-.audio-icon {
+.audio-icon,
+.music-icon,
+.sfx-icon {
     font-size: 20px;
 }
 
-/* Fullscreen Toggle - Right of center */
+/* Music Toggle - Left group */
+.music-toggle {
+    left: calc(50% - 180px);
+}
+
+/* SFX Toggle - Left group, next to music */
+.sfx-toggle {
+    left: calc(50% - 122px);
+}
+
+/* Muted state for audio toggles */
+.audio-toggle.muted {
+    opacity: 0.5;
+    border-color: rgba(0, 255, 255, 0.4);
+}
+
+.audio-toggle.muted:hover {
+    opacity: 0.8;
+}
+
+/* Fullscreen Toggle - Right group, rightmost */
 .fullscreen-toggle {
     position: fixed;
     bottom: var(--hud-padding);
-    left: 62%;
-    transform: translateX(-50%);
+    left: calc(50% + 122px);
     background: rgba(0, 0, 0, 0.7);
     border: 2px solid var(--electric-cyan);
     color: var(--electric-cyan);
@@ -506,12 +584,11 @@ html, body {
     font-size: 20px;
 }
 
-/* Share Toggle - Center */
+/* Share Toggle - Right group, left of fullscreen */
 .share-toggle {
     position: fixed;
     bottom: var(--hud-padding);
-    left: 50%;
-    transform: translateX(-50%);
+    left: calc(50% + 64px);
     background: rgba(0, 0, 0, 0.7);
     border: 2px solid var(--electric-cyan);
     color: var(--electric-cyan);
@@ -1057,13 +1134,19 @@ html, body {
         margin-bottom: 0;
     }
 
-    /* Audio toggle: Bottom left on mobile */
+    /* Audio toggles: Bottom left on mobile, side by side */
     .audio-toggle {
         bottom: var(--hud-padding);
-        left: var(--hud-padding);
-        transform: none;
         width: 40px;
         height: 40px;
+    }
+
+    .music-toggle {
+        left: var(--hud-padding);
+    }
+
+    .sfx-toggle {
+        left: calc(var(--hud-padding) + 48px);
     }
 
     /* Share toggle: Bottom right on mobile */
@@ -1080,7 +1163,8 @@ html, body {
         font-size: 16px;
     }
 
-    .audio-icon {
+    .music-icon,
+    .sfx-icon {
         font-size: 16px;
     }
 

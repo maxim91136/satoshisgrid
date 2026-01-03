@@ -7,8 +7,12 @@ export class AudioManager {
     constructor() {
         this.audioContext = null;
         this.masterGain = null;
+        this.musicGain = null;  // For soundtrack + drone
+        this.sfxGain = null;    // For sound effects
         this.isInitialized = false;
         this.isMuted = false;
+        this.isMusicMuted = false;
+        this.isSfxMuted = false;
 
         // Drone oscillator (ambient)
         this.droneOscillator = null;
@@ -61,6 +65,15 @@ export class AudioManager {
             this.masterGain.gain.value = 0.5;
             this.masterGain.connect(this.audioContext.destination);
 
+            // Separate gain nodes for music and SFX
+            this.musicGain = this.audioContext.createGain();
+            this.musicGain.gain.value = 1.0;
+            this.musicGain.connect(this.masterGain);
+
+            this.sfxGain = this.audioContext.createGain();
+            this.sfxGain.gain.value = 1.0;
+            this.sfxGain.connect(this.masterGain);
+
             // Start ambient drone
             this.startDrone();
 
@@ -76,12 +89,22 @@ export class AudioManager {
     }
 
     setupMuteButton() {
-        this._muteBtn = document.getElementById('audio-toggle');
-        if (this._muteBtn) {
-            this._muteClickHandler = () => {
-                this.toggleMute();
+        // Music toggle button
+        this._musicBtn = document.getElementById('music-toggle');
+        if (this._musicBtn) {
+            this._musicClickHandler = () => {
+                this.toggleMusic();
             };
-            this._muteBtn.addEventListener('click', this._muteClickHandler);
+            this._musicBtn.addEventListener('click', this._musicClickHandler);
+        }
+
+        // SFX toggle button
+        this._sfxBtn = document.getElementById('sfx-toggle');
+        if (this._sfxBtn) {
+            this._sfxClickHandler = () => {
+                this.toggleSfx();
+            };
+            this._sfxBtn.addEventListener('click', this._sfxClickHandler);
         }
     }
 
@@ -109,15 +132,80 @@ export class AudioManager {
         }
     }
 
+    // Toggle music (soundtrack + drone) independently
+    toggleMusic() {
+        this.isMusicMuted = !this.isMusicMuted;
+
+        if (this.musicGain) {
+            this.musicGain.gain.setTargetAtTime(
+                this.isMusicMuted ? 0 : 1.0,
+                this.audioContext.currentTime,
+                0.1
+            );
+        }
+
+        this.updateMusicButton();
+    }
+
+    // Toggle sound effects independently
+    toggleSfx() {
+        this.isSfxMuted = !this.isSfxMuted;
+
+        if (this.sfxGain) {
+            this.sfxGain.gain.setTargetAtTime(
+                this.isSfxMuted ? 0 : 1.0,
+                this.audioContext.currentTime,
+                0.1
+            );
+        }
+
+        this.updateSfxButton();
+    }
+
+    // Update music button state
+    updateMusicButton() {
+        const musicBtn = document.getElementById('music-toggle');
+        if (musicBtn) {
+            musicBtn.classList.toggle('muted', this.isMusicMuted);
+            musicBtn.querySelector('.music-icon').textContent = this.isMusicMuted ? '🎵' : '🎶';
+        }
+    }
+
+    // Update SFX button state
+    updateSfxButton() {
+        const sfxBtn = document.getElementById('sfx-toggle');
+        if (sfxBtn) {
+            sfxBtn.classList.toggle('muted', this.isSfxMuted);
+            sfxBtn.querySelector('.sfx-icon').textContent = this.isSfxMuted ? '🔕' : '🔔';
+        }
+    }
+
+    // Set initial state from splash screen selection
+    setMusicEnabled(enabled) {
+        this.isMusicMuted = !enabled;
+        if (this.musicGain) {
+            this.musicGain.gain.value = enabled ? 1.0 : 0;
+        }
+        this.updateMusicButton();
+    }
+
+    setSfxEnabled(enabled) {
+        this.isSfxMuted = !enabled;
+        if (this.sfxGain) {
+            this.sfxGain.gain.value = enabled ? 1.0 : 0;
+        }
+        this.updateSfxButton();
+    }
+
     // Tron-Style Ambient Drone - Deep cinematic synth pad
     startDrone() {
         if (!this.audioContext) return;
 
-        // Drone Gain mit Fade-in
+        // Drone Gain mit Fade-in (routes through musicGain)
         this.droneGain = this.audioContext.createGain();
         this.droneGain.gain.setValueAtTime(0, this.audioContext.currentTime);
         this.droneGain.gain.linearRampToValueAtTime(0.12, this.audioContext.currentTime + 3);
-        this.droneGain.connect(this.masterGain);
+        this.droneGain.connect(this.musicGain);
 
         // Stereo Panner für Bewegung
         const panner = this.audioContext.createStereoPanner();
@@ -257,7 +345,7 @@ export class AudioManager {
         }
 
         source.connect(gain);
-        gain.connect(this.masterGain);
+        gain.connect(this.musicGain);
         source.start();
 
         if (which === 'A') {
@@ -365,14 +453,14 @@ export class AudioManager {
             el.crossOrigin = 'anonymous';
             this.soundtrackElement = el;
 
-            // Route through WebAudio so mute/master gain still works
+            // Route through WebAudio so mute/music gain still works
             try {
                 this.soundtrackElementSource = this.audioContext.createMediaElementSource(el);
                 this.soundtrackGain = this.audioContext.createGain();
                 this.soundtrackGain.gain.setValueAtTime(0, this.audioContext.currentTime);
                 this.soundtrackGain.gain.linearRampToValueAtTime(0.4, this.audioContext.currentTime + 3);
                 this.soundtrackElementSource.connect(this.soundtrackGain);
-                this.soundtrackGain.connect(this.masterGain);
+                this.soundtrackGain.connect(this.musicGain);
             } catch (routingError) {
                 // If routing fails, still attempt direct element playback
                 console.warn('⚠️ Could not route soundtrack element through AudioContext:', routingError);
@@ -394,7 +482,7 @@ export class AudioManager {
 
     // Transaction pass sound - digital whoosh with stereo movement
     playTransactionSound() {
-        if (!this.audioContext || this.isMuted) return;
+        if (!this.audioContext || this.isMuted || this.isSfxMuted) return;
 
         const now = this.audioContext.currentTime;
 
@@ -402,7 +490,7 @@ export class AudioManager {
         const panner = this.audioContext.createStereoPanner();
         panner.pan.setValueAtTime(-0.5, now);
         panner.pan.linearRampToValueAtTime(0.5, now + 0.12);
-        panner.connect(this.masterGain);
+        panner.connect(this.sfxGain);
 
         // High-pitched digital sweep
         const osc = this.audioContext.createOscillator();
@@ -439,7 +527,7 @@ export class AudioManager {
 
     // Whale alert - deep sub-bass "BWAAAH" (Inception horn)
     playWhaleSound(isLarge = false) {
-        if (!this.audioContext || this.isMuted) return;
+        if (!this.audioContext || this.isMuted || this.isSfxMuted) return;
 
         const now = this.audioContext.currentTime;
         const duration = isLarge ? 2 : 1.5;
@@ -449,12 +537,12 @@ export class AudioManager {
         const fundamentalFreq = isLarge ? 40 : 55;
         const harmonics = [1, 2, 3, 4, 5];
 
-        const masterGain = this.audioContext.createGain();
-        masterGain.gain.setValueAtTime(0, now);
-        masterGain.gain.linearRampToValueAtTime(0.4 * intensity, now + 0.1);
-        masterGain.gain.setValueAtTime(0.4 * intensity, now + duration - 0.5);
-        masterGain.gain.linearRampToValueAtTime(0, now + duration);
-        masterGain.connect(this.masterGain);
+        const whaleGain = this.audioContext.createGain();
+        whaleGain.gain.setValueAtTime(0, now);
+        whaleGain.gain.linearRampToValueAtTime(0.4 * intensity, now + 0.1);
+        whaleGain.gain.setValueAtTime(0.4 * intensity, now + duration - 0.5);
+        whaleGain.gain.linearRampToValueAtTime(0, now + duration);
+        whaleGain.connect(this.sfxGain);
 
         // Low-pass filter sweep
         const filter = this.audioContext.createBiquadFilter();
@@ -463,7 +551,7 @@ export class AudioManager {
         filter.frequency.linearRampToValueAtTime(800, now + 0.3);
         filter.frequency.linearRampToValueAtTime(300, now + duration);
         filter.Q.value = 2;
-        filter.connect(masterGain);
+        filter.connect(whaleGain);
 
         harmonics.forEach((harmonic, i) => {
             const osc = this.audioContext.createOscillator();
@@ -491,7 +579,7 @@ export class AudioManager {
         subGain.gain.linearRampToValueAtTime(0, now + duration);
 
         subOsc.connect(subGain);
-        subGain.connect(this.masterGain);
+        subGain.connect(this.sfxGain);
 
         subOsc.start(now);
         subOsc.stop(now + duration + 0.1);
@@ -501,7 +589,7 @@ export class AudioManager {
 
     // Block mined - cinematic impact with reverb
     playBlockSound() {
-        if (!this.audioContext || this.isMuted) return;
+        if (!this.audioContext || this.isMuted || this.isSfxMuted) return;
 
         const now = this.audioContext.currentTime;
 
@@ -511,7 +599,7 @@ export class AudioManager {
         const delayGain = this.audioContext.createGain();
         delayGain.gain.value = 0.3;
         delay.connect(delayGain);
-        delayGain.connect(this.masterGain);
+        delayGain.connect(this.sfxGain);
 
         // Second delay tap
         const delay2 = this.audioContext.createDelay(1);
@@ -519,7 +607,7 @@ export class AudioManager {
         const delay2Gain = this.audioContext.createGain();
         delay2Gain.gain.value = 0.15;
         delay2.connect(delay2Gain);
-        delay2Gain.connect(this.masterGain);
+        delay2Gain.connect(this.sfxGain);
 
         // Deep sub impact (cinema style)
         const subOsc = this.audioContext.createOscillator();
@@ -532,7 +620,7 @@ export class AudioManager {
         subGain.gain.exponentialRampToValueAtTime(0.001, now + 1);
 
         subOsc.connect(subGain);
-        subGain.connect(this.masterGain);
+        subGain.connect(this.sfxGain);
         subOsc.start(now);
         subOsc.stop(now + 1.2);
 
@@ -552,7 +640,7 @@ export class AudioManager {
             gain.gain.exponentialRampToValueAtTime(0.001, now + 2.5);
 
             osc.connect(gain);
-            gain.connect(this.masterGain);
+            gain.connect(this.sfxGain);
             gain.connect(delay);
             gain.connect(delay2);
 
@@ -582,7 +670,7 @@ export class AudioManager {
 
         noise.connect(noiseFilter);
         noiseFilter.connect(noiseGain);
-        noiseGain.connect(this.masterGain);
+        noiseGain.connect(this.sfxGain);
 
         noise.start(now);
 
@@ -591,7 +679,7 @@ export class AudioManager {
 
     // Screen shake sound (subtle rumble)
     playShakeSound() {
-        if (!this.audioContext || this.isMuted) return;
+        if (!this.audioContext || this.isMuted || this.isSfxMuted) return;
 
         const now = this.audioContext.currentTime;
 
@@ -611,7 +699,7 @@ export class AudioManager {
 
         osc.connect(filter);
         filter.connect(gain);
-        gain.connect(this.masterGain);
+        gain.connect(this.sfxGain);
 
         osc.start(now);
         osc.stop(now + 0.6);
@@ -630,11 +718,17 @@ export class AudioManager {
 
     // Cleanup
     dispose() {
-        if (this._muteBtn && this._muteClickHandler) {
-            this._muteBtn.removeEventListener('click', this._muteClickHandler);
+        if (this._musicBtn && this._musicClickHandler) {
+            this._musicBtn.removeEventListener('click', this._musicClickHandler);
         }
-        this._muteBtn = null;
-        this._muteClickHandler = null;
+        this._musicBtn = null;
+        this._musicClickHandler = null;
+
+        if (this._sfxBtn && this._sfxClickHandler) {
+            this._sfxBtn.removeEventListener('click', this._sfxClickHandler);
+        }
+        this._sfxBtn = null;
+        this._sfxClickHandler = null;
 
         if (this.droneOscillators) {
             this.droneOscillators.forEach(osc => {

@@ -133,14 +133,15 @@ export class HUD {
                     }
                     break;
                 case 'm':
-                    // Toggle menu
-                    this.toggleMenu();
-                    break;
-                case ' ':
-                    // Toggle audio (Space)
-                    e.preventDefault();
+                    // Toggle music
                     if (this.audioManager) {
-                        this.audioManager.toggle();
+                        this.audioManager.toggleMusic();
+                    }
+                    break;
+                case 'x':
+                    // Toggle sound effects
+                    if (this.audioManager) {
+                        this.audioManager.toggleSfx();
                     }
                     break;
                 case 'f':
