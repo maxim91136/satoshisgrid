@@ -202,6 +202,7 @@ export class WebSocketManager {
         if (blocks.length > 0) {
             const nextBlock = blocks[0];
             const fee = Number(nextBlock.medianFee);
+            console.log('📊 WS mempool-blocks fee:', fee, 'raw:', nextBlock.medianFee);
             if (Number.isFinite(fee) && fee > 0) {
                 this.hud.updateFeeRate(fee);
             }
@@ -426,11 +427,12 @@ export class WebSocketManager {
         try {
             const response = await fetch('https://mempool.space/api/v1/fees/recommended');
             const data = await response.json();
-            if (data.fastestFee) {
+            console.log('📊 Fee API response:', data);
+            if (data.fastestFee && data.fastestFee > 0) {
                 this.hud.updateFeeRate(data.fastestFee);
             }
         } catch (error) {
-            // Silent fail - WebSocket or mempool-blocks will provide data
+            console.error('Fee fetch error:', error);
         }
     }
 
