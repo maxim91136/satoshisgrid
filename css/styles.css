@@ -83,6 +83,8 @@ html, body {
 .splash-content {
     text-align: center;
     z-index: 2;
+    padding: 0 20px;
+    max-width: 100%;
 }
 
 .splash-logo {
@@ -1156,9 +1158,27 @@ html, body {
         font-size: 14px;
     }
 
-    .tx-panel {
+    .tx-panel,
+    .block-panel {
         width: 90%;
         min-width: auto;
+        padding: 16px;
+    }
+
+    .tx-panel-title,
+    .block-panel-title {
+        font-size: 11px;
+        letter-spacing: 2px;
+    }
+
+    .tx-value,
+    .block-value {
+        font-size: 12px;
+    }
+
+    .tx-hash,
+    .block-link {
+        font-size: 10px;
     }
 
     .side-menu {
@@ -1334,15 +1354,38 @@ html, body {
         padding: 8px 14px;
         font-size: 11px;
         letter-spacing: 1px;
+        min-width: 110px;
     }
 
     .ride-icon {
         font-size: 10px;
     }
 
+    .audio-options {
+        gap: 16px;
+    }
+
+    .audio-option {
+        font-size: 11px;
+        gap: 6px;
+    }
+
+    .audio-option-icon {
+        font-size: 14px;
+    }
+
     .soon-badge {
         font-size: 7px;
         bottom: -14px;
+    }
+
+    .splash-hint {
+        font-size: 10px;
+        letter-spacing: 1px;
+    }
+
+    .splash-warning {
+        font-size: 9px;
     }
 
     .beta-badge {
@@ -1364,6 +1407,116 @@ html, body {
         font-size: 10px;
     }
 
+}
+
+/* Extra Small Mobile (under 400px) */
+@media (max-width: 400px) {
+    .splash-content {
+        padding: 0 16px;
+    }
+
+    .logo-text {
+        font-size: 16px;
+        letter-spacing: 2px;
+    }
+
+    .logo-symbol {
+        font-size: 32px;
+        margin-bottom: 12px;
+    }
+
+    .splash-tagline {
+        font-size: 9px;
+        letter-spacing: 2px;
+        margin-bottom: 24px;
+    }
+
+    .beta-badge {
+        font-size: 7px;
+        padding: 2px 6px;
+        letter-spacing: 2px;
+        margin-top: 12px;
+    }
+
+    .ride-selector {
+        margin-bottom: 20px;
+    }
+
+    .ride-option {
+        padding: 8px 12px;
+        font-size: 10px;
+        letter-spacing: 0.5px;
+        min-width: 100px;
+    }
+
+    .ride-icon {
+        font-size: 9px;
+    }
+
+    .audio-options {
+        flex-direction: column;
+        gap: 12px;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .audio-option {
+        font-size: 11px;
+    }
+
+    .audio-option-icon {
+        font-size: 14px;
+    }
+
+    .enter-button {
+        padding: 10px 20px;
+        font-size: 11px;
+        letter-spacing: 1px;
+        gap: 8px;
+    }
+
+    .btn-icon {
+        font-size: 10px;
+    }
+
+    .splash-hint {
+        font-size: 9px;
+        letter-spacing: 1px;
+        margin-top: 20px;
+    }
+
+    .splash-warning {
+        font-size: 8px;
+        letter-spacing: 0.5px;
+        margin-top: 12px;
+    }
+}
+
+/* Extremely Small Mobile (under 340px) */
+@media (max-width: 340px) {
+    .splash-content {
+        padding: 0 12px;
+    }
+
+    .logo-text {
+        font-size: 14px;
+        letter-spacing: 1px;
+    }
+
+    .logo-symbol {
+        font-size: 28px;
+    }
+
+    .ride-option {
+        padding: 6px 10px;
+        font-size: 9px;
+        min-width: 85px;
+    }
+
+    .enter-button {
+        padding: 8px 16px;
+        font-size: 10px;
+    }
 }
 
 /* ============================================
