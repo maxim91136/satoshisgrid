@@ -50,6 +50,17 @@ class SatoshisGrid {
         const splash = document.getElementById('splash');
         const enterBtn = document.getElementById('enter-btn');
 
+        // Ride Mode Selector (prepared for Wild Ride)
+        this.selectedRide = 'chilled'; // Default mode
+        const rideOptions = document.querySelectorAll('.ride-option:not(.disabled)');
+        rideOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                document.querySelectorAll('.ride-option').forEach(o => o.classList.remove('active'));
+                option.classList.add('active');
+                this.selectedRide = option.dataset.ride;
+            });
+        });
+
         // Enter Button führt ins Grid (Audio startet erst hier durch User-Klick)
         enterBtn.addEventListener('click', async () => {
             sessionStorage.setItem('satoshisgrid_entered', 'true');

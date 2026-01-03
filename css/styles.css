@@ -130,7 +130,102 @@ html, body {
     font-size: 14px;
     letter-spacing: 6px;
     color: var(--text-dim);
-    margin-bottom: 48px;
+    margin-bottom: 32px;
+}
+
+/* Ride Mode Selector */
+.ride-selector {
+    display: flex;
+    justify-content: center;
+    gap: 0;
+    margin-bottom: 28px;
+}
+
+.ride-option {
+    background: transparent;
+    border: 2px solid var(--electric-cyan);
+    color: var(--electric-cyan);
+    padding: 12px 24px;
+    font-family: var(--font-mono);
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    position: relative;
+    min-width: 140px;
+}
+
+.ride-option:first-child {
+    border-radius: 4px 0 0 4px;
+    border-right: 1px solid var(--electric-cyan);
+}
+
+.ride-option:last-child {
+    border-radius: 0 4px 4px 0;
+    border-left: 1px solid var(--electric-cyan);
+}
+
+.ride-option.active {
+    background: var(--electric-cyan);
+    color: var(--void-black);
+}
+
+.ride-option.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    border-color: rgba(0, 255, 255, 0.4);
+    color: rgba(0, 255, 255, 0.6);
+}
+
+.ride-option.disabled:hover {
+    background: transparent;
+    color: rgba(0, 255, 255, 0.6);
+}
+
+.ride-icon {
+    font-size: 12px;
+}
+
+/* Glitch Animation for Wild Ride */
+.ride-label.glitch {
+    animation: text-glitch 3s infinite;
+}
+
+@keyframes text-glitch {
+    0%, 90%, 100% {
+        opacity: 0.6;
+        transform: translateX(0);
+    }
+    92% {
+        opacity: 0.8;
+        transform: translateX(-2px);
+        text-shadow: 2px 0 var(--core-orange);
+    }
+    94% {
+        opacity: 0.5;
+        transform: translateX(2px);
+        text-shadow: -2px 0 var(--electric-cyan);
+    }
+    96% {
+        opacity: 0.7;
+        transform: translateX(0);
+    }
+}
+
+.soon-badge {
+    position: absolute;
+    bottom: -22px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: rgba(0, 255, 255, 0.5);
+    white-space: nowrap;
 }
 
 .enter-button {
@@ -1006,6 +1101,25 @@ html, body {
         padding: 10px 24px;
         font-size: 12px;
         letter-spacing: 2px;
+    }
+
+    .ride-selector {
+        flex-direction: row;
+    }
+
+    .ride-option {
+        padding: 8px 14px;
+        font-size: 11px;
+        letter-spacing: 1px;
+    }
+
+    .ride-icon {
+        font-size: 10px;
+    }
+
+    .soon-badge {
+        font-size: 7px;
+        bottom: -14px;
     }
 
     .beta-badge {

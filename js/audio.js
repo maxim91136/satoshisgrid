@@ -196,7 +196,7 @@ export class AudioManager {
     // Versuche Soundtrack zu laden (falls vorhanden)
     async loadSoundtrack() {
         try {
-            const response = await fetch('/audio/soundtrack.mp3');
+            const response = await fetch('/audio/chilled.mp3');
             if (!response.ok) return false;
 
             const arrayBuffer = await response.arrayBuffer();
@@ -355,7 +355,7 @@ export class AudioManager {
                 this.soundtrackElementSource = null;
             }
 
-            const el = new Audio('/audio/soundtrack.mp3');
+            const el = new Audio('/audio/chilled.mp3');
             el.loop = true;
             el.preload = 'auto';
             el.crossOrigin = 'anonymous';

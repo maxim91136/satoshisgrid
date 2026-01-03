@@ -55,7 +55,8 @@ satoshisgrid/
 │   ├── effects.js      # Camera shake, flash
 │   └── share.js        # Screenshot capture & sharing
 ├── audio/
-│   └── soundtrack.mp3  # Background music
+│   ├── chilled.mp3     # Chilled Ride soundtrack
+│   └── wild.mp3        # Wild Ride soundtrack (coming soon)
 ├── models/
 │   └── light-cycle.glb # 3D bike model
 └── VERSION
