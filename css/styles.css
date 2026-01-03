@@ -807,21 +807,24 @@ html, body {
 
 .side-menu {
     position: fixed;
-    top: 0;
+    top: 50%;
     left: 0;
     width: 280px;
-    height: 100%;
+    max-height: 90vh;
     background: rgba(10, 10, 10, 0.98);
-    border-right: 1px solid var(--electric-cyan);
+    border: 1px solid var(--electric-cyan);
+    border-left: none;
+    border-radius: 0 8px 8px 0;
     z-index: 300;
-    transform: translateX(-100%);
+    transform: translate(-100%, -50%);
     transition: transform var(--transition-medium);
     display: flex;
     flex-direction: column;
+    overflow-y: auto;
 }
 
 .side-menu:not(.hidden) {
-    transform: translateX(0);
+    transform: translate(0, -50%);
 }
 
 .menu-header {
