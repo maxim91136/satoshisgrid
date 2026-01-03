@@ -8,6 +8,7 @@ A cinematic 3D visualization of the Bitcoin blockchain, inspired by TRON: Legacy
 
 - **Real-time Bitcoin Data** - Live transactions from mempool.space
 - **Tron Light Cycle** - Animated 3D model with Bitcoin orange glow
+- **Dual Ride Modes** - Chilled Ride (live) and Wild Ride (coming soon)
 - **Cyberpunk Soundtrack** - Epic ambient music with procedural fallback
 - **Block Events** - Visual and audio effects when new blocks are mined
 - **Whale Alerts** - Inception-style horn for large transactions (>10 BTC)
