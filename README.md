@@ -11,13 +11,15 @@ A cinematic 3D visualization of the Bitcoin blockchain, inspired by TRON: Legacy
 - **Dual Ride Modes** - Chilled Ride and Wild Ride with different soundtracks
 - **Cyberpunk Soundtrack** - Epic ambient music with procedural fallback
 - **Block Events** - Visual and audio effects when new blocks are mined
+- **Clickable Block Info** - Click the pushing block to see Height, Hash, TX count, Size, Time
 - **Whale Alerts** - Inception-style horn for large transactions (>10 BTC)
 - **Fee Rate Colors** - Green/Yellow/Orange/Red based on sat/vB thresholds
 - **Halving Countdown** - Blocks remaining until next halving
 - **Difficulty Adjustment** - Epoch progress and expected change
+- **Separate Audio Controls** - Independent toggles for Music and Sound Effects
 - **Fullscreen Mode** - Immersive fullscreen toggle (press F)
 - **Share Moment** - Capture branded 1200x630 screenshot with HUD overlay (press S)
-- **Keyboard Shortcuts** - M (menu), Space (audio), S (share), Esc (close), F (fullscreen)
+- **Keyboard Shortcuts** - M (music), X (SFX), S (share), Esc (close), F (fullscreen)
 - **Clickable TXIDs** - Transaction IDs link to mempool.space
 
 ## Tech Stack

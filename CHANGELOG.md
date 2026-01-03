@@ -2,6 +2,20 @@
 
 All notable changes to SATOSHI'S GRID will be documented in this file.
 
+## [1.0.28] - 2026-01-04
+
+### Added
+- **Clickable Block Info Panel** - Click the orange pushing block (after mining) to see block details: Height, Hash, TX count, Size, Time
+- **Separate Music/SFX Controls** - Independent toggles for music and sound effects
+  - Splash screen checkboxes to pre-select audio preferences
+  - HUD toggle buttons (bottom center)
+  - Keyboard shortcuts: `M` for music, `X` for SFX
+- **Block Panel Link** - Hash links directly to mempool.space block page
+
+### Improved
+- **Side Menu** - Vertically centered on all screen sizes
+- **Tablet Layout** - Toggle buttons repositioned to avoid logo overlap at 768px
+
 ## [1.0.27] - 2026-01-03
 
 ### Added
