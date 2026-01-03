@@ -279,7 +279,7 @@ export class HUD {
             // Calibrated formula: 786.7 GB @ Block 930,777
             // Factor: 0.000845 GB/block
             const sizeGB = (blockHeight * 0.000845).toFixed(1);
-            this.elements.chainSize.textContent = `${sizeGB} GB`;
+            this.elements.chainSize.textContent = `≈${sizeGB} GB`;
         }
     }
 
