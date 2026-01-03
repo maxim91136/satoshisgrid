@@ -2,6 +2,11 @@
 
 All notable changes to SATOSHI'S GRID will be documented in this file.
 
+## [1.0.25] - 2026-01-03
+
+### Added
+- **Fee Rate Colors** - Dynamic color coding for fee display: green (<10), yellow (10-50), orange (50-100), red (>100 sat/vB)
+
 ## [1.0.24] - 2026-01-03
 
 ### Changed
