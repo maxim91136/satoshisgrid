@@ -36,11 +36,13 @@ export class AudioManager {
 
         this._muteBtn = null;
         this._muteClickHandler = null;
+        this.rideMode = 'chilled'; // Default ride mode
 
         this.setupMuteButton();
     }
 
-    async init() {
+    async init(rideMode = 'chilled') {
+        this.rideMode = rideMode;
         try {
             // Create audio context (requires user interaction)
             this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -195,8 +197,10 @@ export class AudioManager {
 
     // Versuche Soundtrack zu laden (falls vorhanden)
     async loadSoundtrack() {
+        const trackPath = `/audio/${this.rideMode}.mp3`;
+        console.log(`🎵 Loading ${this.rideMode} ride soundtrack...`);
         try {
-            const response = await fetch('/audio/chilled.mp3');
+            const response = await fetch(trackPath);
             if (!response.ok) return false;
 
             const arrayBuffer = await response.arrayBuffer();
@@ -355,7 +359,7 @@ export class AudioManager {
                 this.soundtrackElementSource = null;
             }
 
-            const el = new Audio('/audio/chilled.mp3');
+            const el = new Audio(`/audio/${this.rideMode}.mp3`);
             el.loop = true;
             el.preload = 'auto';
             el.crossOrigin = 'anonymous';

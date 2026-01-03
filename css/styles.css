@@ -794,6 +794,29 @@ html, body {
     color: var(--electric-cyan);
 }
 
+.menu-button {
+    display: block;
+    width: 100%;
+    padding: 16px 0;
+    background: none;
+    border: none;
+    border-bottom: 1px solid rgba(102, 102, 102, 0.2);
+    cursor: pointer;
+    font-family: var(--font-mono);
+    font-size: 14px;
+    letter-spacing: 2px;
+    color: var(--text-dim);
+    text-align: left;
+    -webkit-appearance: none;
+    appearance: none;
+    outline: none;
+    transition: color var(--transition-fast);
+}
+
+.menu-button:hover {
+    color: var(--electric-cyan);
+}
+
 .menu-about {
     padding: 20px 24px;
     border-top: 1px solid rgba(102, 102, 102, 0.3);

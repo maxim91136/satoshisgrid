@@ -8,7 +8,7 @@ A cinematic 3D visualization of the Bitcoin blockchain, inspired by TRON: Legacy
 
 - **Real-time Bitcoin Data** - Live transactions from mempool.space
 - **Tron Light Cycle** - Animated 3D model with Bitcoin orange glow
-- **Dual Ride Modes** - Chilled Ride (live) and Wild Ride (coming soon)
+- **Dual Ride Modes** - Chilled Ride and Wild Ride with different soundtracks
 - **Cyberpunk Soundtrack** - Epic ambient music with procedural fallback
 - **Block Events** - Visual and audio effects when new blocks are mined
 - **Whale Alerts** - Inception-style horn for large transactions (>10 BTC)
@@ -57,7 +57,7 @@ satoshisgrid/
 │   └── share.js        # Screenshot capture & sharing
 ├── audio/
 │   ├── chilled.mp3     # Chilled Ride soundtrack
-│   └── wild.mp3        # Wild Ride soundtrack (coming soon)
+│   └── wild.mp3        # Wild Ride soundtrack
 ├── models/
 │   └── light-cycle.glb # 3D bike model
 └── VERSION
@@ -78,7 +78,8 @@ satoshisgrid/
 
 ### Assets
 - **Light Cycle Model:** "TRON: Uprising - ArgonCity Light Cycle" by TheTinDog ([CC BY 4.0](https://skfb.ly/pEW9S))
-- **Soundtrack:** "80's Synth Futuristic Cyberpunk" by Roman Forster ([Pond5](https://www.pond5.com/de/royalty-free-music/item/94791064-80s-synth-futuristic-cyberpunk-fashion-film-music-ads-youtub))
+- **Chilled Ride Soundtrack:** "80's Synth Futuristic Cyberpunk" by Roman Forster ([Pond5](https://www.pond5.com/de/royalty-free-music/item/94791064-80s-synth-futuristic-cyberpunk-fashion-film-music-ads-youtub))
+- **Wild Ride Soundtrack:** "Cyberpunk Energy Electro" by AleXZavesa ([Pond5](https://www.pond5.com/royalty-free-music/item/163053128-cyberpunk-energy-electro-main-version))
 
 ### Libraries
 - [Three.js](https://threejs.org/) - 3D WebGL rendering

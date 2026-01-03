@@ -67,7 +67,7 @@ class SatoshisGrid {
             splash.classList.add('hidden');
             await this.init();
             // Start audio now (user click enables AudioContext)
-            await this.audioManager.init();
+            await this.audioManager.init(this.selectedRide);
         });
 
         // Allow keyboard entry
@@ -77,7 +77,7 @@ class SatoshisGrid {
                     sessionStorage.setItem('satoshisgrid_entered', 'true');
                     splash.classList.add('hidden');
                     await this.init();
-                    await this.audioManager.init();
+                    await this.audioManager.init(this.selectedRide);
                 }
             }
         });
@@ -268,3 +268,12 @@ const app = new SatoshisGrid();
 
 // Export for debugging
 window.SatoshisGrid = app;
+
+// Load version from VERSION file
+fetch('/VERSION')
+    .then(r => r.text())
+    .then(v => {
+        const el = document.getElementById('menu-version');
+        if (el) el.textContent = 'v' + v.trim();
+    })
+    .catch(() => {});

@@ -92,6 +92,15 @@ export class HUD {
             this.elements.menuClose.addEventListener('click', this._menuCloseClickHandler);
         }
 
+        // Change ride button - returns to splash screen
+        const changeRideBtn = document.getElementById('change-ride');
+        if (changeRideBtn) {
+            changeRideBtn.addEventListener('click', () => {
+                sessionStorage.removeItem('satoshisgrid_entered');
+                window.location.reload();
+            });
+        }
+
         // Close menu on outside click
         this._docClickHandler = (e) => {
             if (this.elements.sideMenu &&

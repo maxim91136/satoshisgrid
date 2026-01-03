@@ -2,6 +2,13 @@
 
 All notable changes to SATOSHI'S GRID will be documented in this file.
 
+## [1.0.22] - 2026-01-03
+
+### Added
+- **Wild Ride Mode** - Second soundtrack "Cyberpunk Energy Electro" by AleXZavesa now live
+- **Change Ride** - Menu option to return to splash screen and switch ride modes
+- **Dynamic Version** - Menu version now loads from VERSION file automatically
+
 ## [1.0.21] - 2026-01-03
 
 ### Added

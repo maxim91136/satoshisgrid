@@ -57,10 +57,9 @@
                     <span class="ride-icon">▶</span>
                     <span class="ride-label">CHILLED</span>
                 </button>
-                <button class="ride-option disabled" data-ride="wild" disabled>
+                <button class="ride-option" data-ride="wild">
                     <span class="ride-icon">⚡</span>
-                    <span class="ride-label glitch">WILD</span>
-                    <span class="soon-badge">SOON</span>
+                    <span class="ride-label">WILD</span>
                 </button>
             </div>
             <button id="enter-btn" class="enter-button">
@@ -194,6 +193,7 @@
             <button id="menu-close" class="menu-close">×</button>
         </div>
         <div class="menu-content">
+            <a href="#" id="change-ride" class="menu-item" onclick="sessionStorage.removeItem('satoshisgrid_entered'); location.reload(); return false;">CHANGE RIDE</a>
             <a href="https://github.com/maxim91136/satoshisgrid" target="_blank" class="menu-item">GITHUB</a>
             <a href="https://mempool.space" target="_blank" class="menu-item">MEMPOOL.SPACE</a>
         </div>
@@ -219,10 +219,11 @@
                 <small>Licensed under <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank">CC BY 4.0</a></small>
             </p>
             <p class="menu-credits">
-                Soundtrack: <a href="https://www.pond5.com/de/royalty-free-music/item/94791064-80s-synth-futuristic-cyberpunk-fashion-film-music-ads-youtub" target="_blank">"80's Synth Futuristic Cyberpunk"</a> by Roman Forster<br>
+                Chilled Ride: <a href="https://www.pond5.com/de/royalty-free-music/item/94791064-80s-synth-futuristic-cyberpunk-fashion-film-music-ads-youtub" target="_blank">"80's Synth Futuristic Cyberpunk"</a> by Roman Forster<br>
+                Wild Ride: <a href="https://www.pond5.com/royalty-free-music/item/163053128-cyberpunk-energy-electro-main-version" target="_blank">"Cyberpunk Energy Electro"</a> by AleXZavesa<br>
                 <small>Licensed from <a href="https://www.pond5.com" target="_blank">Pond5</a></small>
             </p>
-            <p class="menu-version">v1.0.18</p>
+            <p class="menu-version" id="menu-version">v-.-.-</p>
         </div>
     </div>
 
