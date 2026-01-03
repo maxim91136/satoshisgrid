@@ -356,25 +356,41 @@ export class TransactionManager {
         this._closeBtn = null;
         this._panel = null;
 
+        // Block panel elements
+        this._blockCloseBtn = null;
+        this._blockPanel = null;
+
         this.setupClickHandler();
     }
 
     setupClickHandler() {
-        // Setup close button handler once
+        // Setup TX panel close button handler once
         this._closeBtn = document.getElementById('tx-panel-close');
         this._panel = document.getElementById('tx-panel');
         if (this._closeBtn && this._panel) {
             this._closeClickHandler = (event) => {
-                event.stopPropagation(); // Prevent raycast interference
+                event.stopPropagation();
                 this._panel.classList.add('hidden');
             };
             this._closeBtn.addEventListener('click', this._closeClickHandler);
+        }
+
+        // Setup Block panel close button handler
+        this._blockCloseBtn = document.getElementById('block-panel-close');
+        this._blockPanel = document.getElementById('block-panel');
+        if (this._blockCloseBtn && this._blockPanel) {
+            this._blockCloseHandler = (event) => {
+                event.stopPropagation();
+                this._blockPanel.classList.add('hidden');
+            };
+            this._blockCloseBtn.addEventListener('click', this._blockCloseHandler);
         }
 
         // Raycast click handler - ignore UI elements
         this._windowClickHandler = (event) => {
             // Ignore clicks on UI elements
             if (event.target.closest('.tx-panel') ||
+                event.target.closest('.block-panel') ||
                 event.target.closest('.hud') ||
                 event.target.closest('.side-menu') ||
                 event.target.closest('.share-modal') ||
@@ -387,18 +403,27 @@ export class TransactionManager {
 
             this.raycaster.setFromCamera(this.mouse, this.sceneManager.camera);
 
+            // Collect transaction meshes
             const meshes = this.transactions
                 .filter(tx => tx.mesh)
                 .map(tx => tx.mesh);
+
+            // Add pushing block mesh if exists
+            if (this.lightCycle?.pushingBlock) {
+                meshes.push(this.lightCycle.pushingBlock);
+            }
 
             const intersects = this.raycaster.intersectObjects(meshes, true);
 
             if (intersects.length > 0) {
                 let obj = intersects[0].object;
-                while (obj.parent && !obj.userData.txData) {
+                // Traverse up to find userData
+                while (obj.parent && !obj.userData.txData && !obj.userData.blockData) {
                     obj = obj.parent;
                 }
-                if (obj.userData.txData) {
+                if (obj.userData.blockData) {
+                    this.showBlockInfo(obj.userData.blockData);
+                } else if (obj.userData.txData) {
                     this.showTransactionInfo(obj.userData.txData);
                 }
             }
@@ -427,6 +452,38 @@ export class TransactionManager {
 
         panel.classList.remove('hidden');
         // Close button handler is set up once in setupClickHandler()
+    }
+
+    showBlockInfo(data) {
+        const panel = document.getElementById('block-panel');
+
+        // Block height
+        document.getElementById('block-height-info').textContent =
+            data.height?.toLocaleString() || '---';
+
+        // Block hash with link
+        const hashEl = document.getElementById('block-hash');
+        const hash = data.id || 'Unknown';
+        hashEl.textContent = hash !== 'Unknown' ? hash.substring(0, 16) + '...' : '---';
+        hashEl.href = hash !== 'Unknown'
+            ? `https://mempool.space/block/${hash}`
+            : '#';
+
+        // Transaction count
+        document.getElementById('block-tx-count').textContent =
+            data.tx_count?.toLocaleString() || '---';
+
+        // Size in MB
+        const sizeMB = data.size ? (data.size / 1000000).toFixed(2) : '---';
+        document.getElementById('block-size').textContent = `${sizeMB} MB`;
+
+        // Timestamp
+        const time = data.timestamp
+            ? new Date(data.timestamp * 1000).toLocaleTimeString()
+            : '---';
+        document.getElementById('block-time').textContent = time;
+
+        panel.classList.remove('hidden');
     }
 
     addTransaction(txData) {

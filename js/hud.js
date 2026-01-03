@@ -131,6 +131,7 @@ export class HUD {
                     if (this.elements.txPanel) {
                         this.elements.txPanel.classList.add('hidden');
                     }
+                    document.getElementById('block-panel')?.classList.add('hidden');
                     break;
                 case 'm':
                     // Toggle music
