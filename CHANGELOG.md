@@ -2,6 +2,11 @@
 
 All notable changes to SATOSHI'S GRID will be documented in this file.
 
+## [1.0.24] - 2026-01-03
+
+### Changed
+- **Curated Quotes** - Removed Bill Gates and Tyler Winklevoss quotes from rotation
+
 ## [1.0.23] - 2026-01-03
 
 ### Added
