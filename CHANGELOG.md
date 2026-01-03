@@ -2,6 +2,12 @@
 
 All notable changes to SATOSHI'S GRID will be documented in this file.
 
+## [1.0.26] - 2026-01-03
+
+### Fixed
+- **Instant Fee Rate Loading** - Fee rate now loads immediately using dedicated `/api/v1/fees/recommended` endpoint
+- **Fee Rate Display** - Added ≈ symbol to indicate approximate median value
+
 ## [1.0.25] - 2026-01-03
 
 ### Added

@@ -74,6 +74,7 @@ satoshisgrid/
 | BTC Price (Fallback) | [CoinGecko API](https://www.coingecko.com/api/documentation) | 30s |
 | Hashrate | [mempool.space REST](https://mempool.space/docs/api/rest) | 5min |
 | Difficulty Adjustment | [mempool.space REST](https://mempool.space/docs/api/rest) | 60s |
+| Fee Rate | [mempool.space REST](https://mempool.space/docs/api/rest) | Real-time |
 
 ## Credits
 

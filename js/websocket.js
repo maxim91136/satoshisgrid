@@ -94,6 +94,9 @@ export class WebSocketManager {
         this.fetchDifficultyAdjustment();
         this.startDifficultyPolling();
 
+        // Fetch fee rate immediately (fast dedicated endpoint)
+        this.fetchFeeRate();
+
         // Fetch mempool stats (REST fallback for WebSocket)
         this.fetchMempoolStats();
         this.startMempoolPolling();
@@ -416,6 +419,19 @@ export class WebSocketManager {
         this.difficultyInterval = setInterval(() => {
             this.fetchDifficultyAdjustment();
         }, 60000);
+    }
+
+    // Fetch fee rate immediately via fast dedicated endpoint
+    async fetchFeeRate() {
+        try {
+            const response = await fetch('https://mempool.space/api/v1/fees/recommended');
+            const data = await response.json();
+            if (data.fastestFee) {
+                this.hud.updateFeeRate(data.fastestFee);
+            }
+        } catch (error) {
+            // Silent fail - WebSocket or mempool-blocks will provide data
+        }
     }
 
     // Fetch mempool stats (size + fees) via REST

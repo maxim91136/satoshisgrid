@@ -311,8 +311,9 @@ export class HUD {
 
     // Update fee rate display
     updateFeeRate(feeRate) {
-        if (this.elements.feeRate && feeRate != null) {
-            this.elements.feeRate.textContent = `${Math.round(feeRate)} sat/vB`;
+        // Only update if we have a valid positive fee rate
+        if (this.elements.feeRate && feeRate != null && feeRate > 0) {
+            this.elements.feeRate.textContent = `≈${Math.round(feeRate)} sat/vB`;
 
             // Color code based on fee level
             let color;
