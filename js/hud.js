@@ -35,6 +35,7 @@ export class HUD {
             halvingCountdown: document.getElementById('halving-countdown'),
             difficultyAdj: document.getElementById('difficulty-adj'),
             hashRate: document.getElementById('hash-rate'),
+            chainSize: document.getElementById('chain-size'),
             btcPrice: document.getElementById('btc-price'),
             mempoolSize: document.getElementById('mempool-size'),
             feeRate: document.getElementById('fee-rate'),
@@ -209,6 +210,9 @@ export class HUD {
             // Update halving countdown
             this.currentBlockHeight = height;
             this.updateHalvingCountdown(height);
+
+            // Update blockchain size (calculated from height)
+            this.updateChainSize(height);
         }
     }
 
@@ -266,6 +270,16 @@ export class HUD {
             // Convert to EH/s
             const ehps = (hashrate / 1e18).toFixed(0);
             this.elements.hashRate.textContent = `${ehps} EH/s`;
+        }
+    }
+
+    // Update blockchain size display (calculated from block height)
+    updateChainSize(blockHeight) {
+        if (this.elements.chainSize && blockHeight) {
+            // Calibrated formula: 786.7 GB @ Block 930,777
+            // Factor: 0.000845 GB/block
+            const sizeGB = (blockHeight * 0.000845).toFixed(1);
+            this.elements.chainSize.textContent = `${sizeGB} GB`;
         }
     }
 
