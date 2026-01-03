@@ -2,6 +2,13 @@
 
 All notable changes to SATOSHI'S GRID will be documented in this file.
 
+## [1.0.21] - 2026-01-03
+
+### Added
+- **Dual Ride Mode Selector** - Landing page now shows Chilled/Wild ride options
+- **Wild Ride Teaser** - Wild mode disabled with glitch animation and "SOON" badge
+- **Soundtrack Prep** - Renamed audio to chilled.mp3, prepared for wild.mp3
+
 ## [1.0.20] - 2026-01-02
 
 ### Fixed
