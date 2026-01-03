@@ -75,6 +75,7 @@ satoshisgrid/
 | Hashrate | [mempool.space REST](https://mempool.space/docs/api/rest) | 5min |
 | Difficulty Adjustment | [mempool.space REST](https://mempool.space/docs/api/rest) | 60s |
 | Fee Rate | [mempool.space REST](https://mempool.space/docs/api/rest) | Real-time |
+| Chain Size | Calculated from block height | Per block |
 
 ## Credits
 

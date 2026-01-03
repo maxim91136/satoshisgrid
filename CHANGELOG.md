@@ -2,6 +2,14 @@
 
 All notable changes to SATOSHI'S GRID will be documented in this file.
 
+## [1.0.27] - 2026-01-03
+
+### Added
+- **Blockchain Size Display** - Chain size now shown in HUD (top-right), calculated from block height (~787 GB)
+
+### Fixed
+- **Fee Rate Decimals** - Always show 2 decimal places for accurate sub-1 sat/vB display
+
 ## [1.0.26] - 2026-01-03
 
 ### Fixed
