@@ -2,6 +2,18 @@
 
 All notable changes to SATOSHI'S GRID will be documented in this file.
 
+## [1.0.31] - 2026-01-04
+
+### Added
+- **3-Tier Whale Detection System** - Escalating alerts based on transaction size:
+  - 10+ BTC: WHALE (orange, 1.5s sound)
+  - 50+ BTC: MEGA WHALE (bright orange, 2s sound)
+  - 500+ BTC: LEVIATHAN (red, 3s deep bass, pulsing animation, max screen shake)
+
+### Improved
+- **Audio Effects** - Deeper bass and longer duration for higher whale tiers
+- **Visual Effects** - Stronger bloom, shake, and screen darken for mega whales
+
 ## [1.0.30] - 2026-01-04
 
 ### Added

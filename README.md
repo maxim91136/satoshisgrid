@@ -12,7 +12,10 @@ A cinematic 3D visualization of the Bitcoin blockchain, inspired by TRON: Legacy
 - **Cyberpunk Soundtrack** - Epic ambient music with procedural fallback
 - **Block Events** - Visual and audio effects when new blocks are mined
 - **Clickable Block Info** - Click the pushing block to see Height, Hash, TX count, Size, Time
-- **Whale Alerts** - Inception-style horn for large transactions (>10 BTC)
+- **3-Tier Whale Alerts** - Inception-style horn with escalating effects:
+  - 10+ BTC: WHALE (orange)
+  - 50+ BTC: MEGA WHALE (bright orange)
+  - 500+ BTC: LEVIATHAN (red, maximum effects, pulsing)
 - **Fee Rate Colors** - Green/Yellow/Orange/Red based on sat/vB thresholds
 - **Halving Countdown** - Blocks remaining until next halving
 - **Difficulty Adjustment** - Epoch progress and expected change
