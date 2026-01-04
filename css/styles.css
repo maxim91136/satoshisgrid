@@ -1120,6 +1120,12 @@ html, body {
     100% { opacity: 0; transform: translate(-50%, -50%) scale(1); }
 }
 
+/* Continuous pulse animation for leviathan tier */
+@keyframes pulse {
+    0%, 100% { transform: translate(-50%, -50%) scale(1); }
+    50% { transform: translate(-50%, -50%) scale(1.1); }
+}
+
 /* ============================================
    SCREEN SHAKE
    ============================================ */

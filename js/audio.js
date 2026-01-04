@@ -607,16 +607,22 @@ export class AudioManager {
     }
 
     // Whale alert - deep sub-bass "BWAAAH" (Inception horn)
-    playWhaleSound(isLarge = false) {
+    // tier: 0 = whale (10 BTC), 1 = mega whale (50 BTC), 2 = leviathan (500 BTC)
+    playWhaleSound(tier = 0) {
         if (!this.audioContext || this.isMuted || this.isSfxMuted) return;
 
         const now = this.audioContext.currentTime;
-        const duration = isLarge ? 2 : 1.5;
-        const intensity = isLarge ? 1 : 0.7;
 
-        // Multiple harmonics for brass-like sound
-        const fundamentalFreq = isLarge ? 40 : 55;
-        const harmonics = [1, 2, 3, 4, 5];
+        // Duration and intensity scale with tier
+        const durations = [1.5, 2.0, 3.0];
+        const intensities = [0.7, 0.9, 1.0];
+        const fundamentalFreqs = [55, 45, 30]; // Lower = more ominous
+
+        const duration = durations[tier] || durations[0];
+        const intensity = intensities[tier] || intensities[0];
+        const fundamentalFreq = fundamentalFreqs[tier] || fundamentalFreqs[0];
+
+        const harmonics = tier === 2 ? [1, 2, 3, 4, 5, 6] : [1, 2, 3, 4, 5];
 
         const whaleGain = this.audioContext.createGain();
         whaleGain.gain.setValueAtTime(0, now);
@@ -625,13 +631,13 @@ export class AudioManager {
         whaleGain.gain.linearRampToValueAtTime(0, now + duration);
         whaleGain.connect(this.sfxGain);
 
-        // Low-pass filter sweep
+        // Low-pass filter sweep - wider for leviathan
         const filter = this.audioContext.createBiquadFilter();
         filter.type = 'lowpass';
-        filter.frequency.setValueAtTime(200, now);
-        filter.frequency.linearRampToValueAtTime(800, now + 0.3);
+        filter.frequency.setValueAtTime(tier === 2 ? 150 : 200, now);
+        filter.frequency.linearRampToValueAtTime(tier === 2 ? 1200 : 800, now + 0.3);
         filter.frequency.linearRampToValueAtTime(300, now + duration);
-        filter.Q.value = 2;
+        filter.Q.value = tier === 2 ? 3 : 2;
         filter.connect(whaleGain);
 
         harmonics.forEach((harmonic, i) => {
@@ -649,14 +655,15 @@ export class AudioManager {
             osc.stop(now + duration + 0.1);
         });
 
-        // Add sub-bass layer
+        // Add sub-bass layer - stronger for higher tiers
         const subOsc = this.audioContext.createOscillator();
         subOsc.type = 'sine';
         subOsc.frequency.value = fundamentalFreq / 2;
 
         const subGain = this.audioContext.createGain();
+        const subIntensity = tier === 2 ? 0.7 : (tier === 1 ? 0.6 : 0.5);
         subGain.gain.setValueAtTime(0, now);
-        subGain.gain.linearRampToValueAtTime(0.5 * intensity, now + 0.2);
+        subGain.gain.linearRampToValueAtTime(subIntensity * intensity, now + 0.2);
         subGain.gain.linearRampToValueAtTime(0, now + duration);
 
         subOsc.connect(subGain);
@@ -665,7 +672,8 @@ export class AudioManager {
         subOsc.start(now);
         subOsc.stop(now + duration + 0.1);
 
-        console.log('🐋 WHALE ALERT!');
+        const labels = ['WHALE', 'MEGA WHALE', 'LEVIATHAN'];
+        console.log(`🐋 ${labels[tier] || 'WHALE'} ALERT!`);
     }
 
     // Block mined - cinematic impact with reverb

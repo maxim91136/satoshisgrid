@@ -9,8 +9,9 @@ import * as THREE from 'three';
 const THRESHOLDS = {
     SMALL: 0.1,      // < 0.1 BTC = Light Cycle
     MEDIUM: 10,      // 0.1 - 10 BTC = Armored Transport
-    LARGE: 100,      // 10 - 100 BTC = Small Recognizer
-    WHALE: 100       // > 100 BTC = Large Recognizer + Effects
+    WHALE: 10,       // 10 - 50 BTC = Small Recognizer (Whale)
+    MEGA_WHALE: 50,  // 50 - 500 BTC = Large Recognizer (Mega Whale)
+    LEVIATHAN: 500   // > 500 BTC = Large Recognizer + Maximum Effects
 };
 
 // Colors
@@ -75,7 +76,7 @@ class Transaction {
 
         if (btcValue < THRESHOLDS.SMALL) return 'lightCycle';
         if (btcValue < THRESHOLDS.MEDIUM) return 'armoredTransport';
-        if (btcValue < THRESHOLDS.LARGE) return 'recognizerSmall';
+        if (btcValue < THRESHOLDS.MEGA_WHALE) return 'recognizerSmall';
         return 'recognizerLarge';
     }
 
@@ -495,10 +496,17 @@ export class TransactionManager {
         const tx = new Transaction(txData, this.sceneManager);
         this.transactions.push(tx);
 
-        // Trigger effects for large transactions
+        // Trigger effects for whale transactions (3-tier system)
         const btcValue = txData.value / 100000000;
-        if (btcValue >= THRESHOLDS.LARGE) {
-            this.effects.onWhaleTransaction(btcValue >= THRESHOLDS.WHALE);
+        if (btcValue >= THRESHOLDS.WHALE) {
+            // Determine whale tier: 0 = whale, 1 = mega whale, 2 = leviathan
+            let tier = 0;
+            if (btcValue >= THRESHOLDS.LEVIATHAN) {
+                tier = 2;
+            } else if (btcValue >= THRESHOLDS.MEGA_WHALE) {
+                tier = 1;
+            }
+            this.effects.onWhaleTransaction(tier);
         }
 
         return tx;

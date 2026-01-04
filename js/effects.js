@@ -75,27 +75,34 @@ export class Effects {
     }
 
     // Combined effect for whale transactions (throttled)
-    onWhaleTransaction(isLarge = false) {
+    // tier: 0 = whale (10 BTC), 1 = mega whale (50 BTC), 2 = leviathan (500 BTC)
+    onWhaleTransaction(tier = 0) {
         // Throttle to prevent spam
         const now = Date.now();
         if (now - this.lastWhaleTime < this.whaleThrottle) return;
         this.lastWhaleTime = now;
 
-        const intensity = isLarge ? 0.8 : 0.4;  // Reduced intensity
+        // Intensity scales with tier
+        const intensities = [0.4, 0.7, 1.0];
+        const intensity = intensities[tier] || intensities[0];
 
-        // Camera shake
-        this.shake(intensity, 0.3);
+        // Camera shake - duration scales with tier
+        const shakeDurations = [0.3, 0.4, 0.6];
+        this.shake(intensity, shakeDurations[tier] || 0.3);
 
         // Bloom pulse (only if not already animating)
         if (!this.isBloomAnimating) {
-            this.pulseBloom(isLarge ? 1.2 : 0.9, 0.4);
+            const bloomStrengths = [0.9, 1.2, 1.5];
+            const bloomDurations = [0.4, 0.5, 0.8];
+            this.pulseBloom(bloomStrengths[tier] || 0.9, bloomDurations[tier] || 0.4);
         }
 
-        // Subtle screen darken
-        this.darkenScreen(0.2, 0.2);
+        // Screen darken - more intense for higher tiers
+        const darkenIntensities = [0.2, 0.3, 0.4];
+        this.darkenScreen(darkenIntensities[tier] || 0.2, 0.2);
 
         // Show whale indicator
-        this.showWhaleIndicator(isLarge);
+        this.showWhaleIndicator(tier);
     }
 
     // Pulse bloom effect (with animation lock)
@@ -176,7 +183,8 @@ export class Effects {
     }
 
     // Show whale indicator (reuses single element)
-    showWhaleIndicator(isLarge) {
+    // tier: 0 = whale, 1 = mega whale, 2 = leviathan
+    showWhaleIndicator(tier = 0) {
         // Clear previous timeout
         if (this.whaleTimeout) {
             clearTimeout(this.whaleTimeout);
@@ -201,19 +209,38 @@ export class Effects {
             document.body.appendChild(this.whaleIndicator);
         }
 
-        // Update content and style
-        this.whaleIndicator.innerHTML = isLarge ? 'MEGA WHALE DETECTED' : 'WHALE ALERT';
-        this.whaleIndicator.style.fontSize = isLarge ? '18px' : '14px';
-        this.whaleIndicator.style.color = isLarge ? '#ff0000' : '#f7931a';
-        this.whaleIndicator.style.textShadow = `0 0 20px ${isLarge ? 'rgba(255,0,0,0.5)' : 'rgba(247,147,26,0.5)'}`;
+        // 3-tier configuration
+        const labels = ['🐋 WHALE ALERT', '🐋🐋 MEGA WHALE DETECTED', '🐋🐋🐋 LEVIATHAN'];
+        const fontSizes = ['14px', '18px', '24px'];
+        const colors = ['#f7931a', '#ff8800', '#ff0000'];
+        const glows = [
+            'rgba(247,147,26,0.5)',
+            'rgba(255,136,0,0.6)',
+            'rgba(255,0,0,0.8)'
+        ];
+        const displayDurations = [1500, 2000, 3000];
+
+        // Update content and style based on tier
+        this.whaleIndicator.innerHTML = labels[tier] || labels[0];
+        this.whaleIndicator.style.fontSize = fontSizes[tier] || fontSizes[0];
+        this.whaleIndicator.style.color = colors[tier] || colors[0];
+        this.whaleIndicator.style.textShadow = `0 0 20px ${glows[tier] || glows[0]}, 0 0 40px ${glows[tier] || glows[0]}`;
+
+        // Add pulsing animation for leviathan
+        if (tier === 2) {
+            this.whaleIndicator.style.animation = 'pulse 0.5s ease-in-out infinite';
+        } else {
+            this.whaleIndicator.style.animation = '';
+        }
 
         // Show
         this.whaleIndicator.style.opacity = '1';
 
-        // Hide after delay
+        // Hide after delay (longer for higher tiers)
         this.whaleTimeout = setTimeout(() => {
             this.whaleIndicator.style.opacity = '0';
-        }, 1500);
+            this.whaleIndicator.style.animation = '';
+        }, displayDurations[tier] || 1500);
     }
 
     // Update method called each frame

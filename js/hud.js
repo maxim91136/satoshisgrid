@@ -510,6 +510,16 @@ export class HUD {
         const notification = document.createElement('div');
         notification.className = `notification notification-${type}`;
         notification.textContent = message;
+
+        // Color based on notification type
+        const colors = {
+            whale: '#f7931a',
+            megawhale: '#ff8800',
+            leviathan: '#ff0000',
+            info: '#00ffff'
+        };
+        const color = colors[type] || colors.info;
+
         notification.style.cssText = `
             position: fixed;
             top: 50%;
@@ -517,13 +527,14 @@ export class HUD {
             transform: translate(-50%, -50%);
             padding: 16px 32px;
             background: rgba(0, 0, 0, 0.9);
-            border: 1px solid ${type === 'whale' ? '#f7931a' : '#00ffff'};
-            color: ${type === 'whale' ? '#f7931a' : '#00ffff'};
+            border: 1px solid ${color};
+            color: ${color};
             font-family: var(--font-mono);
-            font-size: 14px;
+            font-size: ${type === 'leviathan' ? '18px' : '14px'};
             letter-spacing: 2px;
             z-index: 1000;
             animation: notification-fade 2s ease-out forwards;
+            box-shadow: 0 0 20px ${color}40;
         `;
 
         document.body.appendChild(notification);
@@ -533,10 +544,13 @@ export class HUD {
         }, 2000);
     }
 
-    // Show whale alert
-    showWhaleAlert(btcAmount) {
+    // Show whale alert (3-tier system)
+    // tier: 0 = whale, 1 = mega whale, 2 = leviathan
+    showWhaleAlert(btcAmount, tier = 0) {
         const formatted = btcAmount.toFixed(2);
-        this.showNotification(`🐋 WHALE ALERT: ${formatted} BTC`, 'whale');
+        const labels = ['🐋 WHALE', '🐋🐋 MEGA WHALE', '🐋🐋🐋 LEVIATHAN'];
+        const types = ['whale', 'megawhale', 'leviathan'];
+        this.showNotification(`${labels[tier] || labels[0]}: ${formatted} BTC`, types[tier] || types[0]);
     }
 }
 

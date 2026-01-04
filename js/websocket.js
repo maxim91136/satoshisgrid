@@ -257,10 +257,17 @@ export class WebSocketManager {
         // Add to mining cube
         this.lightCycle.addTransaction(txData);
 
-        // Only whale alerts (≥10 BTC), no transaction beeps
+        // Whale alerts (3-tier system): 10 BTC = whale, 50 BTC = mega, 500 BTC = leviathan
         const btcValue = value / 100000000;
         if (btcValue >= 10) {
-            this.audioManager.playWhaleSound(btcValue >= 100);
+            // Determine whale tier: 0 = whale, 1 = mega whale, 2 = leviathan
+            let tier = 0;
+            if (btcValue >= 500) {
+                tier = 2;
+            } else if (btcValue >= 50) {
+                tier = 1;
+            }
+            this.audioManager.playWhaleSound(tier);
         }
     }
 
