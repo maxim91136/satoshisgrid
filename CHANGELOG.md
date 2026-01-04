@@ -2,6 +2,16 @@
 
 All notable changes to SATOSHI'S GRID will be documented in this file.
 
+## [1.0.30] - 2026-01-04
+
+### Added
+- **iOS Audio Resume** - Tap overlay to resume audio after returning from background
+  - Works in Safari browser when returning to tab
+  - iOS PWA workaround: minimize/maximize to enable audio
+
+### Improved
+- **Visibility Change Handler** - Smart detection of suspended AudioContext
+
 ## [1.0.29] - 2026-01-04
 
 ### Added

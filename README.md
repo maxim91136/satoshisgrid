@@ -23,6 +23,7 @@ A cinematic 3D visualization of the Bitcoin blockchain, inspired by TRON: Legacy
 - **Clickable TXIDs** - Transaction IDs link to mempool.space
 - **Clickable Block Height** - Block height in HUD links to mempool.space
 - **Mobile Responsive** - Optimized splash screen for all screen sizes (320px+)
+- **iOS Audio Resume** - Tap overlay to resume audio after background/foreground switch
 
 ## Tech Stack
 
