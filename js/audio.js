@@ -43,6 +43,7 @@ export class AudioManager {
         this.rideMode = 'chilled'; // Default ride mode
         this._resumeOverlay = null;
         this._boundVisibilityHandler = null;
+        this._audioWasRunning = false; // Track if audio ever worked
 
         this.setupMuteButton();
         this.setupVisibilityHandler();
@@ -56,8 +57,8 @@ export class AudioManager {
 
     // Check audio state when app returns to foreground
     handleVisibilityChange() {
-        if (document.visibilityState === 'visible' && this.isInitialized) {
-            // Give iOS a moment to catch up
+        if (document.visibilityState === 'visible' && this.isInitialized && this._audioWasRunning) {
+            // Only show overlay if audio was previously running (not iOS PWA where it never worked)
             setTimeout(() => {
                 if (this.audioContext && this.audioContext.state === 'suspended') {
                     console.log('🔇 AudioContext suspended after returning to foreground');
@@ -154,16 +155,14 @@ export class AudioManager {
             this.loadSoundtrack();
 
             this.isInitialized = true;
-            console.log('🔊 Audio initialized');
 
-            // iOS PWA: Check if AudioContext is still suspended after init
-            // This happens when iOS blocks audio even with user gesture
-            setTimeout(() => {
-                if (this.audioContext && this.audioContext.state === 'suspended') {
-                    console.log('🔇 AudioContext still suspended after init (iOS PWA)');
-                    this.showResumeOverlay();
-                }
-            }, 500);
+            // Track if audio actually started running (for visibility change handler)
+            if (this.audioContext.state === 'running') {
+                this._audioWasRunning = true;
+                console.log('🔊 Audio initialized and running');
+            } else {
+                console.log('🔊 Audio initialized (suspended - iOS PWA limitation)');
+            }
 
         } catch (error) {
             console.error('❌ Audio initialization failed:', error);
