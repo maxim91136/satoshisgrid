@@ -145,6 +145,15 @@ export class AudioManager {
             this.isInitialized = true;
             console.log('🔊 Audio initialized');
 
+            // iOS PWA: Check if AudioContext is still suspended after init
+            // This happens when iOS blocks audio even with user gesture
+            setTimeout(() => {
+                if (this.audioContext && this.audioContext.state === 'suspended') {
+                    console.log('🔇 AudioContext still suspended after init (iOS PWA)');
+                    this.showResumeOverlay();
+                }
+            }, 500);
+
         } catch (error) {
             console.error('❌ Audio initialization failed:', error);
         }
