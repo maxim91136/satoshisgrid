@@ -1531,6 +1531,57 @@ html, body {
 }
 
 /* ============================================
+   AUDIO RESUME OVERLAY (iOS PWA workaround)
+   ============================================ */
+
+.audio-resume-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.audio-resume-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    animation: pulse-glow 2s ease-in-out infinite;
+}
+
+.audio-resume-icon {
+    font-size: 64px;
+    filter: drop-shadow(0 0 20px var(--core-orange-glow));
+}
+
+.audio-resume-text {
+    font-family: var(--font-mono);
+    font-size: 16px;
+    letter-spacing: 4px;
+    color: var(--core-orange);
+    text-shadow: 0 0 20px var(--core-orange-glow);
+}
+
+@keyframes pulse-glow {
+    0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.7;
+        transform: scale(1.05);
+    }
+}
+
+/* ============================================
    UTILITY CLASSES
    ============================================ */
 

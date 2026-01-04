@@ -41,8 +41,70 @@ export class AudioManager {
         this._muteBtn = null;
         this._muteClickHandler = null;
         this.rideMode = 'chilled'; // Default ride mode
+        this._resumeOverlay = null;
+        this._boundVisibilityHandler = null;
 
         this.setupMuteButton();
+        this.setupVisibilityHandler();
+    }
+
+    // iOS PWA workaround: handle visibility changes
+    setupVisibilityHandler() {
+        this._boundVisibilityHandler = () => this.handleVisibilityChange();
+        document.addEventListener('visibilitychange', this._boundVisibilityHandler);
+    }
+
+    // Check audio state when app returns to foreground
+    handleVisibilityChange() {
+        if (document.visibilityState === 'visible' && this.isInitialized) {
+            // Give iOS a moment to catch up
+            setTimeout(() => {
+                if (this.audioContext && this.audioContext.state === 'suspended') {
+                    console.log('🔇 AudioContext suspended after returning to foreground');
+                    this.showResumeOverlay();
+                }
+            }, 100);
+        }
+    }
+
+    // Show "Tap to Resume Audio" overlay
+    showResumeOverlay() {
+        if (this._resumeOverlay) return; // Already showing
+
+        this._resumeOverlay = document.getElementById('audio-resume-overlay');
+        if (this._resumeOverlay) {
+            this._resumeOverlay.classList.remove('hidden');
+
+            const resumeHandler = async () => {
+                try {
+                    await this.audioContext.resume();
+                    console.log('🔊 AudioContext resumed via user gesture');
+
+                    // Re-initialize soundtrack if it was playing
+                    if (this.soundtrackBuffer && !this.isMusicMuted) {
+                        this.playSoundtrack();
+                    } else if (this.soundtrackElement && !this.isMusicMuted) {
+                        try {
+                            await this.soundtrackElement.play();
+                        } catch (_) { /* ignore */ }
+                    }
+
+                    this.hideResumeOverlay();
+                } catch (err) {
+                    console.warn('❌ Failed to resume AudioContext:', err);
+                }
+            };
+
+            this._resumeOverlay.addEventListener('click', resumeHandler, { once: true });
+        }
+    }
+
+    // Hide the resume overlay
+    hideResumeOverlay() {
+        if (this._resumeOverlay) {
+            this._resumeOverlay.classList.add('hidden');
+            this._resumeOverlay = null;
+        }
     }
 
     async init(rideMode = 'chilled') {
@@ -718,6 +780,13 @@ export class AudioManager {
 
     // Cleanup
     dispose() {
+        // Remove visibility change handler
+        if (this._boundVisibilityHandler) {
+            document.removeEventListener('visibilitychange', this._boundVisibilityHandler);
+            this._boundVisibilityHandler = null;
+        }
+        this.hideResumeOverlay();
+
         if (this._musicBtn && this._musicClickHandler) {
             this._musicBtn.removeEventListener('click', this._musicClickHandler);
         }
