@@ -582,18 +582,18 @@ export class LightCycle {
         this.cubeGroup.add(group);
         this.pushingBlock = group;
 
-        // After 30 seconds, release the block
+        // After 60 seconds, release the block
         this.pushingBlockTimeout = setTimeout(() => {
             this.releasePushingBlock();
-        }, 30000);
+        }, 60000);
 
-        console.log('📦 Pushing block created (30s)');
+        console.log('📦 Pushing block created (60s)');
     }
 
     releasePushingBlock() {
         if (!this.pushingBlock) return;
 
-        // Simply remove the block (disappears after 30s)
+        // Simply remove the block (disappears after 60s)
         this.cubeGroup.remove(this.pushingBlock);
 
         // Dispose materials
@@ -613,7 +613,7 @@ export class LightCycle {
             this.pushingBlockTimeout = null;
         }
 
-        console.log('📦 Block disappeared after 30s');
+        console.log('📦 Block disappeared after 60s');
     }
 
     createMonument(blockData) {
