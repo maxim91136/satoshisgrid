@@ -11,7 +11,7 @@ A cinematic 3D visualization of the Bitcoin blockchain, inspired by TRON: Legacy
 - **Dual Ride Modes** - Chilled Ride and Wild Ride with different soundtracks
 - **Cyberpunk Soundtrack** - Epic ambient music with procedural fallback
 - **Block Events** - Visual and audio effects when new blocks are mined
-- **Clickable Block Info** - Click the pushing block to see Height, Hash, TX count, Size, Time
+- **Clickable Block Info** - Click the pushing block to see Miner, Height, Hash, TX count, Size, Time
 - **3-Tier Whale Alerts** - Inception-style horn with escalating effects:
   - 10+ BTC: WHALE (orange)
   - 50+ BTC: MEGA WHALE (bright orange)

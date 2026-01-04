@@ -2,6 +2,12 @@
 
 All notable changes to SATOSHI'S GRID will be documented in this file.
 
+## [1.0.33] - 2026-01-04
+
+### Added
+- **Mining Pool Display** - Block panel now shows which pool mined the block (Foundry USA, AntPool, etc.)
+  - Click pool name to view on mempool.space
+
 ## [1.0.32] - 2026-01-04
 
 ### Changed

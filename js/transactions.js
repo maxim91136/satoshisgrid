@@ -507,7 +507,7 @@ export class TransactionManager {
 
     async fetchPoolInfo(blockHash, minerEl) {
         try {
-            const response = await fetch(`https://mempool.space/api/block/${blockHash}`);
+            const response = await fetch(`https://mempool.space/api/v1/block/${blockHash}`);
             const blockData = await response.json();
             const poolName = blockData.extras?.pool?.name;
             const poolSlug = blockData.extras?.pool?.slug;
