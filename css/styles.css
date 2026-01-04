@@ -454,6 +454,17 @@ html, body {
     text-shadow: 0 0 10px var(--electric-cyan-glow);
 }
 
+.hud-link {
+    text-decoration: none;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.hud-link:hover {
+    color: var(--core-orange);
+    text-shadow: 0 0 15px var(--core-orange-glow);
+}
+
 /* Logo in HUD */
 .hud-logo {
     display: flex;

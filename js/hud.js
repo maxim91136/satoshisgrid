@@ -205,6 +205,7 @@ export class HUD {
         if (this.elements.blockHeight && height) {
             const formatted = height.toLocaleString();
             this.elements.blockHeight.textContent = formatted;
+            this.elements.blockHeight.href = `https://mempool.space/block/${height}`;
 
             // Flash effect on new block
             this.flashElement(this.elements.blockHeight);
