@@ -11,7 +11,7 @@ A cinematic 3D visualization of the Bitcoin blockchain, inspired by TRON: Legacy
 - **Dual Ride Modes** - Chilled Ride and Wild Ride with different soundtracks
 - **Cyberpunk Soundtrack** - Epic ambient music with procedural fallback
 - **Block Events** - Visual and audio effects when new blocks are mined
-- **Clickable Block Info** - Click the pushing block to see Height, Hash, TX count, Size, Time
+- **Clickable Block Info** - Click the pushing block to see Miner, Height, Hash, TX count, Size, Time
 - **3-Tier Whale Alerts** - Inception-style horn with escalating effects:
   - 10+ BTC: WHALE (orange)
   - 50+ BTC: MEGA WHALE (bright orange)
@@ -83,6 +83,7 @@ satoshisgrid/
 | Hashrate | [mempool.space REST](https://mempool.space/docs/api/rest) | 5min |
 | Difficulty Adjustment | [mempool.space REST](https://mempool.space/docs/api/rest) | 60s |
 | Fee Rate | [mempool.space REST](https://mempool.space/docs/api/rest) | Real-time |
+| Mining Pool | [mempool.space REST](https://mempool.space/docs/api/rest) | Per block |
 | Chain Size | Calculated from block height | Per block |
 
 ## Credits
