@@ -465,16 +465,11 @@ export class TransactionManager {
         // Miner/Pool info
         const minerEl = document.getElementById('block-miner');
         const poolName = data.extras?.pool?.name;
-        const poolSlug = data.extras?.pool?.slug;
         if (poolName) {
             minerEl.textContent = poolName;
-            minerEl.href = poolSlug
-                ? `https://mempool.space/mining/pool/${poolSlug}`
-                : '#';
         } else {
             // Fetch pool info if not in WebSocket data
             minerEl.textContent = '...';
-            minerEl.href = '#';
             if (data.id) {
                 this.fetchPoolInfo(data.id, minerEl);
             }
@@ -507,19 +502,16 @@ export class TransactionManager {
 
     async fetchPoolInfo(blockHash, minerEl) {
         try {
-            const response = await fetch(`https://mempool.space/api/block/${blockHash}`);
+            const response = await fetch(`https://mempool.space/api/v1/block/${blockHash}`);
             const blockData = await response.json();
             const poolName = blockData.extras?.pool?.name;
-            const poolSlug = blockData.extras?.pool?.slug;
             if (poolName) {
                 minerEl.textContent = poolName;
-                minerEl.href = poolSlug
-                    ? `https://mempool.space/mining/pool/${poolSlug}`
-                    : '#';
             } else {
                 minerEl.textContent = 'Unknown';
             }
         } catch (error) {
+            console.error('Failed to fetch pool info:', error);
             minerEl.textContent = 'Unknown';
         }
     }
