@@ -21,6 +21,8 @@ A cinematic 3D visualization of the Bitcoin blockchain, inspired by TRON: Legacy
 - **Share Moment** - Capture branded 1200x630 screenshot with HUD overlay (press S)
 - **Keyboard Shortcuts** - M (music), X (SFX), S (share), Esc (close), F (fullscreen)
 - **Clickable TXIDs** - Transaction IDs link to mempool.space
+- **Clickable Block Height** - Block height in HUD links to mempool.space
+- **Mobile Responsive** - Optimized splash screen for all screen sizes (320px+)
 
 ## Tech Stack
 

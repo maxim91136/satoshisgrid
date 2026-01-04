@@ -2,6 +2,18 @@
 
 All notable changes to SATOSHI'S GRID will be documented in this file.
 
+## [1.0.29] - 2026-01-04
+
+### Added
+- **Clickable Block Height** - Block height in HUD now links to mempool.space/block/{height}
+- **Mobile Responsive Splash** - Optimized for all screen sizes (320px-1440px+)
+  - New breakpoints: 400px (extra small), 340px (extremely small)
+  - Stacked audio options on small screens
+  - Responsive fonts and spacing
+
+### Improved
+- **Info Panels** - TX and Block panels now responsive on tablet/mobile
+
 ## [1.0.28] - 2026-01-04
 
 ### Added
