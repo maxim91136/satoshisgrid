@@ -75,7 +75,14 @@ export class AudioManager {
         if (this._resumeOverlay) {
             this._resumeOverlay.classList.remove('hidden');
 
-            const resumeHandler = async () => {
+            const resumeHandler = async (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+
+                // Remove listeners immediately to prevent double-firing
+                this._resumeOverlay.removeEventListener('click', resumeHandler);
+                this._resumeOverlay.removeEventListener('touchend', resumeHandler);
+
                 try {
                     await this.audioContext.resume();
                     console.log('🔊 AudioContext resumed via user gesture');
@@ -92,10 +99,14 @@ export class AudioManager {
                     this.hideResumeOverlay();
                 } catch (err) {
                     console.warn('❌ Failed to resume AudioContext:', err);
+                    // Still hide overlay even if resume fails
+                    this.hideResumeOverlay();
                 }
             };
 
-            this._resumeOverlay.addEventListener('click', resumeHandler, { once: true });
+            // Use both click and touchend for iOS compatibility
+            this._resumeOverlay.addEventListener('click', resumeHandler);
+            this._resumeOverlay.addEventListener('touchend', resumeHandler);
         }
     }
 

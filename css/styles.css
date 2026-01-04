@@ -1547,6 +1547,10 @@ html, body {
     z-index: 1000;
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
 }
 
 .audio-resume-content {
