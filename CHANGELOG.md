@@ -2,6 +2,14 @@
 
 All notable changes to SATOSHI'S GRID will be documented in this file.
 
+## [1.0.34] - 2026-01-05
+
+### Added
+- **Whale Watching Hours** - Splash screen now shows optimal times (UTC) for whale activity:
+  - Peak: 16:00-17:00
+  - Extended: 13:00-17:00
+  - Low-Fee Window: 00:00-06:00
+
 ## [1.0.33] - 2026-01-04
 
 ### Added

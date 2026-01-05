@@ -278,6 +278,54 @@ html, body {
     font-weight: 600;
 }
 
+/* Whale Watching Hours Info */
+.whale-hours {
+    background: rgba(0, 0, 0, 0.6);
+    border: 1px solid var(--core-orange-dim);
+    border-radius: 8px;
+    padding: 12px 20px;
+    margin: 0 auto 24px auto;
+    max-width: 320px;
+    text-align: center;
+}
+
+.whale-hours-title {
+    color: var(--core-orange);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+    font-weight: 600;
+}
+
+.whale-hours-content {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+}
+
+.whale-peak {
+    color: var(--core-orange);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.whale-extended {
+    color: var(--text-dim);
+    font-family: var(--font-mono);
+    font-size: 11px;
+}
+
+.whale-hours-low {
+    color: var(--electric-cyan);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    opacity: 0.8;
+}
+
 .soon-badge {
     position: absolute;
     bottom: -22px;
@@ -1355,6 +1403,25 @@ html, body {
     .splash-tagline {
         font-size: 10px;
         letter-spacing: 3px;
+    }
+
+    .whale-hours {
+        padding: 10px 16px;
+        max-width: 280px;
+    }
+
+    .whale-hours-title {
+        font-size: 10px;
+    }
+
+    .whale-hours-content {
+        gap: 12px;
+    }
+
+    .whale-peak,
+    .whale-extended,
+    .whale-hours-low {
+        font-size: 10px;
     }
 
     .enter-button {
