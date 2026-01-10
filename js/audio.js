@@ -45,6 +45,10 @@ export class AudioManager {
         this._boundVisibilityHandler = null;
         this._audioWasRunning = false; // Track if audio ever worked
 
+        // Custom radio stream support
+        this.radioAudio = null;
+        this.isRadioMode = false;
+
         this.setupMuteButton();
         this.setupVisibilityHandler();
     }
@@ -213,11 +217,18 @@ export class AudioManager {
         }
     }
 
-    // Toggle music (soundtrack + drone) independently
+    // Toggle music (soundtrack + drone) or radio independently
     toggleMusic() {
         this.isMusicMuted = !this.isMusicMuted;
 
-        if (this.musicGain) {
+        // If radio mode is active, control radio instead of built-in music
+        if (this.isRadioMode && this.radioAudio) {
+            if (this.isMusicMuted) {
+                this.radioAudio.pause();
+            } else {
+                this.radioAudio.play().catch(e => console.warn('Radio play failed:', e));
+            }
+        } else if (this.musicGain) {
             this.musicGain.gain.setTargetAtTime(
                 this.isMusicMuted ? 0 : 1.0,
                 this.audioContext.currentTime,
@@ -248,7 +259,14 @@ export class AudioManager {
         const musicBtn = document.getElementById('music-toggle');
         if (musicBtn) {
             musicBtn.classList.toggle('muted', this.isMusicMuted);
-            musicBtn.querySelector('.music-icon').textContent = this.isMusicMuted ? '🎵' : '🎶';
+            // Show radio icon when in radio mode
+            if (this.isRadioMode) {
+                musicBtn.querySelector('.music-icon').textContent = this.isMusicMuted ? '📻' : '📻';
+                musicBtn.title = 'Toggle Radio (M)';
+            } else {
+                musicBtn.querySelector('.music-icon').textContent = this.isMusicMuted ? '🎵' : '🎶';
+                musicBtn.title = 'Toggle Music (M)';
+            }
         }
     }
 
@@ -276,6 +294,29 @@ export class AudioManager {
             this.sfxGain.gain.value = enabled ? 1.0 : 0;
         }
         this.updateSfxButton();
+    }
+
+    // Set radio audio element (from main.js)
+    setRadioAudio(audioElement) {
+        this.radioAudio = audioElement;
+        this.isRadioMode = !!audioElement;
+
+        // When radio mode is active, show button as enabled (not muted)
+        if (this.isRadioMode) {
+            this.isMusicMuted = false;
+            this.updateMusicButton();
+        }
+    }
+
+    // Toggle radio playback
+    toggleRadio() {
+        if (!this.radioAudio) return;
+
+        if (this.radioAudio.paused) {
+            this.radioAudio.play().catch(e => console.warn('Radio play failed:', e));
+        } else {
+            this.radioAudio.pause();
+        }
     }
 
     // Tron-Style Ambient Drone - Deep cinematic synth pad

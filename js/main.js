@@ -65,11 +65,15 @@ class SatoshisGrid {
             });
         });
 
+        // Custom Radio Stream Setup
+        this.setupRadioStream();
+
         // Enter Button führt ins Grid (Audio startet erst hier durch User-Klick)
         enterBtn.addEventListener('click', async () => {
             // Read audio preferences from checkboxes
             const musicEnabled = document.getElementById('music-enabled')?.checked ?? true;
             const sfxEnabled = document.getElementById('sfx-enabled')?.checked ?? true;
+            const radioEnabled = this.isRadioEnabled();
 
             sessionStorage.setItem('satoshisgrid_entered', 'true');
             sessionStorage.setItem('satoshisgrid_music', musicEnabled ? 'on' : 'off');
@@ -77,10 +81,18 @@ class SatoshisGrid {
 
             splash.classList.add('hidden');
             await this.init();
+
             // Start audio now (user click enables AudioContext)
             await this.audioManager.init(this.selectedRide);
-            // Apply user preferences
-            this.audioManager.setMusicEnabled(musicEnabled);
+
+            // If radio is enabled, use radio instead of built-in music
+            if (radioEnabled) {
+                this.audioManager.setMusicEnabled(false); // Disable built-in music
+                this.audioManager.setRadioAudio(this.radioAudio); // Pass radio to audio manager
+                this.startRadioStream();
+            } else {
+                this.audioManager.setMusicEnabled(musicEnabled);
+            }
             this.audioManager.setSfxEnabled(sfxEnabled);
         });
 
@@ -90,6 +102,7 @@ class SatoshisGrid {
                 if (!this.isInitialized) {
                     const musicEnabled = document.getElementById('music-enabled')?.checked ?? true;
                     const sfxEnabled = document.getElementById('sfx-enabled')?.checked ?? true;
+                    const radioEnabled = this.isRadioEnabled();
 
                     sessionStorage.setItem('satoshisgrid_entered', 'true');
                     sessionStorage.setItem('satoshisgrid_music', musicEnabled ? 'on' : 'off');
@@ -98,7 +111,14 @@ class SatoshisGrid {
                     splash.classList.add('hidden');
                     await this.init();
                     await this.audioManager.init(this.selectedRide);
-                    this.audioManager.setMusicEnabled(musicEnabled);
+
+                    if (radioEnabled) {
+                        this.audioManager.setMusicEnabled(false);
+                        this.audioManager.setRadioAudio(this.radioAudio);
+                        this.startRadioStream();
+                    } else {
+                        this.audioManager.setMusicEnabled(musicEnabled);
+                    }
                     this.audioManager.setSfxEnabled(sfxEnabled);
                 }
             }
@@ -113,6 +133,13 @@ class SatoshisGrid {
         // Restore saved audio preferences
         const musicEnabled = sessionStorage.getItem('satoshisgrid_music') !== 'off';
         const sfxEnabled = sessionStorage.getItem('satoshisgrid_sfx') !== 'off';
+        const radioEnabled = this.isRadioEnabled();
+
+        // Create radio audio element if radio was enabled
+        if (radioEnabled) {
+            this.radioAudio = new Audio();
+            this.radioAudio.crossOrigin = 'anonymous';
+        }
 
         // Start grid immediately
         await this.init();
@@ -122,8 +149,15 @@ class SatoshisGrid {
             if (this.audioManager && !this.audioManager.isInitialized) {
                 console.log('🎵 Starting audio on first interaction...');
                 await this.audioManager.init();
-                // Restore preferences
-                this.audioManager.setMusicEnabled(musicEnabled);
+
+                // Handle radio mode
+                if (radioEnabled) {
+                    this.audioManager.setMusicEnabled(false);
+                    this.audioManager.setRadioAudio(this.radioAudio);
+                    this.startRadioStream();
+                } else {
+                    this.audioManager.setMusicEnabled(musicEnabled);
+                }
                 this.audioManager.setSfxEnabled(sfxEnabled);
             }
             document.removeEventListener('click', startAudioOnce);
@@ -133,6 +167,173 @@ class SatoshisGrid {
         document.addEventListener('click', startAudioOnce);
         document.addEventListener('touchstart', startAudioOnce);
         document.addEventListener('keydown', startAudioOnce);
+    }
+
+    // Custom Radio Stream Setup
+    setupRadioStream() {
+        const radioCheckbox = document.getElementById('radio-enabled');
+        const radioInputContainer = document.getElementById('radio-input-container');
+        const radioUrlInput = document.getElementById('radio-url');
+        const radioTestBtn = document.getElementById('radio-test');
+        const radioStatus = document.getElementById('radio-status');
+        const radioHint = document.getElementById('radio-hint');
+        const radioStreamBox = document.querySelector('.radio-stream');
+        const musicCheckbox = document.getElementById('music-enabled');
+
+        if (!radioCheckbox || !radioInputContainer || !radioUrlInput) return;
+
+        // Create audio element for radio stream
+        this.radioAudio = new Audio();
+        this.radioAudio.crossOrigin = 'anonymous';
+        this.isRadioPlaying = false;
+
+        // Load saved URL from localStorage
+        const savedUrl = localStorage.getItem('satoshisgrid_radio_url');
+        if (savedUrl) {
+            radioUrlInput.value = savedUrl;
+        }
+
+        // Load saved radio enabled state
+        const radioWasEnabled = localStorage.getItem('satoshisgrid_radio_enabled') === 'true';
+        if (radioWasEnabled && savedUrl) {
+            radioCheckbox.checked = true;
+            radioInputContainer.classList.remove('hidden');
+            radioHint?.classList.remove('hidden');
+            radioStreamBox?.classList.add('active');
+            // Uncheck built-in music when radio is enabled
+            if (musicCheckbox) {
+                musicCheckbox.checked = false;
+            }
+        }
+
+        // Toggle radio input visibility
+        radioCheckbox.addEventListener('change', () => {
+            if (radioCheckbox.checked) {
+                radioInputContainer.classList.remove('hidden');
+                radioHint?.classList.remove('hidden');
+                radioStreamBox?.classList.add('active');
+                // Uncheck built-in music
+                if (musicCheckbox) {
+                    musicCheckbox.checked = false;
+                }
+                localStorage.setItem('satoshisgrid_radio_enabled', 'true');
+            } else {
+                radioInputContainer.classList.add('hidden');
+                radioHint?.classList.add('hidden');
+                radioStreamBox?.classList.remove('active');
+                this.stopRadio();
+                localStorage.setItem('satoshisgrid_radio_enabled', 'false');
+            }
+        });
+
+        // Music checkbox: when enabled, disable radio
+        if (musicCheckbox) {
+            musicCheckbox.addEventListener('change', () => {
+                if (musicCheckbox.checked && radioCheckbox.checked) {
+                    // Disable radio when music is enabled
+                    radioCheckbox.checked = false;
+                    radioInputContainer.classList.add('hidden');
+                    radioHint?.classList.add('hidden');
+                    radioStreamBox?.classList.remove('active');
+                    this.stopRadio();
+                    localStorage.setItem('satoshisgrid_radio_enabled', 'false');
+                }
+            });
+        }
+
+        // Save URL on input change
+        radioUrlInput.addEventListener('input', () => {
+            localStorage.setItem('satoshisgrid_radio_url', radioUrlInput.value);
+        });
+
+        // Test stream button
+        radioTestBtn.addEventListener('click', () => {
+            if (this.isRadioPlaying) {
+                this.stopRadio();
+                radioTestBtn.textContent = '▶';
+                radioTestBtn.classList.remove('playing');
+                radioStatus.classList.add('hidden');
+            } else {
+                this.testRadioStream(radioUrlInput.value, radioStatus);
+            }
+        });
+
+        // Handle audio events
+        this.radioAudio.addEventListener('playing', () => {
+            this.isRadioPlaying = true;
+            radioTestBtn.textContent = '⏹';
+            radioTestBtn.classList.add('playing');
+            radioStatus.textContent = 'STREAM ACTIVE';
+            radioStatus.className = 'radio-stream-status success';
+            radioStatus.classList.remove('hidden');
+        });
+
+        this.radioAudio.addEventListener('error', () => {
+            this.isRadioPlaying = false;
+            radioTestBtn.textContent = '▶';
+            radioTestBtn.classList.remove('playing');
+            radioStatus.textContent = 'STREAM ERROR';
+            radioStatus.className = 'radio-stream-status error';
+            radioStatus.classList.remove('hidden');
+        });
+
+        // Example URL click to copy
+        const radioExample = document.getElementById('radio-example');
+        if (radioExample) {
+            radioExample.addEventListener('click', () => {
+                const exampleUrl = 'https://ice1.somafm.com/defcon-128-mp3';
+                radioUrlInput.value = exampleUrl;
+                localStorage.setItem('satoshisgrid_radio_url', exampleUrl);
+                radioExample.textContent = 'Copied!';
+                setTimeout(() => {
+                    radioExample.textContent = 'ice1.somafm.com/defcon-128-mp3';
+                }, 1500);
+            });
+        }
+    }
+
+    testRadioStream(url, statusEl) {
+        if (!url || url.trim() === '') {
+            statusEl.textContent = 'ENTER URL';
+            statusEl.className = 'radio-stream-status error';
+            statusEl.classList.remove('hidden');
+            return;
+        }
+
+        statusEl.textContent = 'CONNECTING...';
+        statusEl.className = 'radio-stream-status loading';
+        statusEl.classList.remove('hidden');
+
+        this.radioAudio.src = url.trim();
+        this.radioAudio.load();
+        this.radioAudio.play().catch(() => {
+            statusEl.textContent = 'PLAYBACK FAILED';
+            statusEl.className = 'radio-stream-status error';
+        });
+    }
+
+    stopRadio() {
+        if (this.radioAudio) {
+            this.radioAudio.pause();
+            this.radioAudio.src = '';
+            this.isRadioPlaying = false;
+        }
+    }
+
+    // Check if radio should play instead of built-in music
+    isRadioEnabled() {
+        return localStorage.getItem('satoshisgrid_radio_enabled') === 'true' &&
+               localStorage.getItem('satoshisgrid_radio_url');
+    }
+
+    // Start radio stream (called after entering the grid)
+    startRadioStream() {
+        const url = localStorage.getItem('satoshisgrid_radio_url');
+        if (url && this.isRadioEnabled()) {
+            this.radioAudio.src = url;
+            this.radioAudio.load();
+            this.radioAudio.play().catch(e => console.warn('Radio autoplay blocked:', e));
+        }
     }
 
     async init() {

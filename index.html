@@ -74,6 +74,24 @@
                     <span class="audio-option-label">SFX</span>
                 </label>
             </div>
+            <div class="radio-stream">
+                <div class="radio-stream-header">
+                    <label class="radio-option">
+                        <input type="checkbox" id="radio-enabled">
+                        <span class="radio-option-icon">📻</span>
+                        <span class="radio-option-label">CUSTOM RADIO</span>
+                    </label>
+                </div>
+                <div class="radio-stream-input hidden" id="radio-input-container">
+                    <input type="text" id="radio-url" placeholder="Paste stream URL..." autocomplete="off">
+                    <button id="radio-test" class="radio-test-btn" title="Test Stream">▶</button>
+                </div>
+                <div class="radio-stream-hint hidden" id="radio-hint">
+                    Paste direct stream URL (MP3/OGG)<br>
+                    Example: <span class="radio-example-url" id="radio-example" title="Click to paste">ice1.somafm.com/defcon-128-mp3</span>
+                </div>
+                <div class="radio-stream-status hidden" id="radio-status"></div>
+            </div>
             <div class="whale-hours">
                 <div class="whale-hours-title">🐋 WHALE WATCHING HOURS (UTC)</div>
                 <div class="whale-hours-content">

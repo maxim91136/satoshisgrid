@@ -10,6 +10,7 @@ A cinematic 3D visualization of the Bitcoin blockchain, inspired by TRON: Legacy
 - **Tron Light Cycle** - Animated 3D model with Bitcoin orange glow
 - **Dual Ride Modes** - Chilled Ride and Wild Ride with different soundtracks
 - **Cyberpunk Soundtrack** - Epic ambient music with procedural fallback
+- **Custom Radio Stream** - Paste your own audio stream URL (MP3/OGG, e.g., SomaFM)
 - **Block Events** - Visual and audio effects when new blocks are mined
 - **Clickable Block Info** - Click the pushing block to see Miner, Height, Hash, TX count, Size, Time
 - **3-Tier Whale Alerts** - Inception-style horn with escalating effects:

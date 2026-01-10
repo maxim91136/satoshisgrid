@@ -2,6 +2,16 @@
 
 All notable changes to SATOSHI'S GRID will be documented in this file.
 
+## [1.0.35] - 2026-01-10
+
+### Added
+- **Custom Radio Stream** - Paste your own audio stream URL on splash screen
+  - Supports MP3/OGG direct streams (e.g., SomaFM)
+  - Test button to verify stream before entering
+  - Click example URL to auto-paste
+  - Persists across sessions via localStorage
+  - HUD music toggle controls radio when active
+
 ## [1.0.34] - 2026-01-05
 
 ### Added
