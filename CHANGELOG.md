@@ -2,6 +2,11 @@
 
 All notable changes to SATOSHI'S GRID will be documented in this file.
 
+## [1.0.36] - 2026-01-10
+
+### Changed
+- **Radio Stream Examples** - 3 reliable SomaFM presets: Drone Zone, DEF CON, Space Station
+
 ## [1.0.35] - 2026-01-10
 
 ### Added

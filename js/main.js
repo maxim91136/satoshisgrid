@@ -277,19 +277,20 @@ class SatoshisGrid {
             radioStatus.classList.remove('hidden');
         });
 
-        // Example URL click to copy
-        const radioExample = document.getElementById('radio-example');
-        if (radioExample) {
-            radioExample.addEventListener('click', () => {
-                const exampleUrl = 'https://ice1.somafm.com/defcon-128-mp3';
+        // Example URL clicks to paste
+        const radioExamples = document.querySelectorAll('.radio-example-url');
+        radioExamples.forEach(example => {
+            const originalText = example.textContent;
+            example.addEventListener('click', () => {
+                const exampleUrl = example.dataset.url;
                 radioUrlInput.value = exampleUrl;
                 localStorage.setItem('satoshisgrid_radio_url', exampleUrl);
-                radioExample.textContent = 'Copied!';
+                example.textContent = 'Pasted!';
                 setTimeout(() => {
-                    radioExample.textContent = 'ice1.somafm.com/defcon-128-mp3';
+                    example.textContent = originalText;
                 }, 1500);
             });
-        }
+        });
     }
 
     testRadioStream(url, statusEl) {
