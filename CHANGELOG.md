@@ -2,6 +2,14 @@
 
 All notable changes to SATOSHI'S GRID will be documented in this file.
 
+## [1.0.37] - 2026-01-14
+
+### Added
+- **Lightning Network Capacity** - HUD shows total Lightning Network capacity in BTC
+  - Fetched from mempool.space API, updates every 5 minutes
+  - Click to open mempool.space/lightning in new tab
+  - Hidden if API unavailable
+
 ## [1.0.36] - 2026-01-10
 
 ### Changed

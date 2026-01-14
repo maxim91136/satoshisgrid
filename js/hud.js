@@ -39,6 +39,8 @@ export class HUD {
             btcPrice: document.getElementById('btc-price'),
             mempoolSize: document.getElementById('mempool-size'),
             feeRate: document.getElementById('fee-rate'),
+            lightningItem: document.getElementById('lightning-item'),
+            lightningCapacity: document.getElementById('lightning-capacity'),
             logoBtn: document.getElementById('logo-btn'),
             sideMenu: document.getElementById('side-menu'),
             menuClose: document.getElementById('menu-close'),
@@ -344,6 +346,26 @@ export class HUD {
                 color = '#ff4444'; // Red - expensive
             }
             this.elements.feeRate.style.color = color;
+        }
+    }
+
+    // Update Lightning Network capacity display
+    updateLightningCapacity(capacitySats) {
+        if (this.elements.lightningCapacity && this.elements.lightningItem && capacitySats != null && capacitySats > 0) {
+            const btcValue = capacitySats / 100000000;
+            const formatted = btcValue.toLocaleString('en-US', {
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            });
+            this.elements.lightningCapacity.textContent = `⚡ ${formatted} BTC`;
+            this.elements.lightningItem.style.display = 'block';
+        }
+    }
+
+    // Hide Lightning display (on API error)
+    hideLightning() {
+        if (this.elements.lightningItem) {
+            this.elements.lightningItem.style.display = 'none';
         }
     }
 

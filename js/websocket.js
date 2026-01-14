@@ -100,6 +100,9 @@ export class WebSocketManager {
         // Fetch mempool stats (REST fallback for WebSocket)
         this.fetchMempoolStats();
         this.startMempoolPolling();
+
+        // Fetch Lightning Network stats (every 5 minutes)
+        this.startLightningPolling();
     }
 
     onOpen() {
@@ -476,6 +479,36 @@ export class WebSocketManager {
         }, 30000);
     }
 
+    // Fetch Lightning Network statistics
+    async fetchLightningStats() {
+        try {
+            const response = await fetch('https://mempool.space/api/v1/lightning/statistics/latest');
+            const data = await response.json();
+            if (data.latest && data.latest.total_capacity) {
+                this.hud.updateLightningCapacity(data.latest.total_capacity);
+            }
+        } catch (error) {
+            this.hud.hideLightning();
+        }
+    }
+
+    // Start Lightning stats polling (every 5 minutes)
+    startLightningPolling() {
+        // Prevent duplicate intervals
+        if (this.lightningInterval) {
+            clearInterval(this.lightningInterval);
+            this.lightningInterval = null;
+        }
+
+        // Initial fetch
+        this.fetchLightningStats();
+
+        // Poll every 5 minutes (300000ms)
+        this.lightningInterval = setInterval(() => {
+            this.fetchLightningStats();
+        }, 300000);
+    }
+
     // Demo mode - simulated transactions when WS unavailable
     startDemoMode() {
         if (this.demoMode) return;
@@ -540,6 +573,10 @@ export class WebSocketManager {
         if (this.mempoolInterval) {
             clearInterval(this.mempoolInterval);
             this.mempoolInterval = null;
+        }
+        if (this.lightningInterval) {
+            clearInterval(this.lightningInterval);
+            this.lightningInterval = null;
         }
     }
 

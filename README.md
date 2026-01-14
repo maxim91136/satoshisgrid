@@ -19,6 +19,7 @@ A cinematic 3D visualization of the Bitcoin blockchain, inspired by TRON: Legacy
   - 500+ BTC: LEVIATHAN (red, maximum effects, pulsing)
 - **Whale Watching Hours** - Splash screen shows peak whale activity times (UTC)
 - **Fee Rate Colors** - Green/Yellow/Orange/Red based on sat/vB thresholds
+- **Lightning Network Capacity** - Total LN capacity in BTC (click to explore)
 - **Halving Countdown** - Blocks remaining until next halving
 - **Difficulty Adjustment** - Epoch progress and expected change
 - **Separate Audio Controls** - Independent toggles for Music and Sound Effects
@@ -85,6 +86,7 @@ satoshisgrid/
 | Hashrate | [mempool.space REST](https://mempool.space/docs/api/rest) | 5min |
 | Difficulty Adjustment | [mempool.space REST](https://mempool.space/docs/api/rest) | 60s |
 | Fee Rate | [mempool.space REST](https://mempool.space/docs/api/rest) | Real-time |
+| Lightning Capacity | [mempool.space REST](https://mempool.space/docs/api/rest) | 5min |
 | Chain Size | Calculated from block height | Per block |
 
 ## Credits
