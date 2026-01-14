@@ -1500,6 +1500,11 @@ html, body {
         margin-bottom: 0;
     }
 
+    /* Hide Lightning on mobile - less critical info */
+    #lightning-item {
+        display: none !important;
+    }
+
     /* Audio toggles: Bottom left on mobile, side by side */
     .audio-toggle {
         bottom: var(--hud-padding);
