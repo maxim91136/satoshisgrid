@@ -3,9 +3,12 @@
  * Overlay UI for blockchain stats
  */
 
-// Famous Bitcoin Quotes (kept short to avoid overlap with Mempool Load indicator)
+// Famous Bitcoin Quotes
 const QUOTES = [
+    { text: "The Times 03/Jan/2009 Chancellor on brink of second bailout for banks", author: "Genesis Block" },
     { text: "Running bitcoin", author: "Hal Finney, 2009" },
+    { text: "If you don't believe it or don't get it, I don't have the time to try to convince you, sorry.", author: "Satoshi Nakamoto" },
+    { text: "The root problem with conventional currency is all the trust that's required to make it work.", author: "Satoshi Nakamoto" },
     { text: "Bitcoin is a remarkable cryptographic achievement.", author: "Eric Schmidt" },
     { text: "Bitcoin is not just code. It is energy.", author: "Unknown" },
     { text: "In cryptography we trust.", author: "Bitcoiner Wisdom" },
