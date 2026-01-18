@@ -2,6 +2,15 @@
 
 All notable changes to SATOSHI'S GRID will be documented in this file.
 
+## [1.0.38] - 2026-01-18
+
+### Improved
+- **Grid Stability** - Completely rebuilt grid system for flicker-free rendering
+  - Static line-based grid eliminates all visual artifacts
+  - Highway extends smoothly to horizon line
+  - No more black gaps or z-fighting issues
+- **Lightning HUD** - Hidden on mobile (<500px) to preserve layout
+
 ## [1.0.37] - 2026-01-14
 
 ### Added

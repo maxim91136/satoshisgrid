@@ -1,6 +1,6 @@
 /**
  * SATOSHIS GRID - Infinite Grid
- * Scrolling neon grid floor with Tron aesthetic
+ * Static line-based grid - movement suggested by other elements
  */
 
 import * as THREE from 'three';
@@ -9,84 +9,80 @@ export class Grid {
     constructor(sceneManager) {
         this.sceneManager = sceneManager;
         this.gridGroup = new THREE.Group();
-        this.scrollSpeed = 15; // Units per second
-        this.gridSize = 200;
-        this.gridDivisions = 40;
-        this.gridOffset = 0;
 
-        this.createGrid();
+        this.createLineGrid();
+        this.createCenterHighway();
         this.createHorizonGlow();
 
         this.sceneManager.add(this.gridGroup);
     }
 
-    createGrid() {
-        // Create two grids for seamless scrolling
-        this.grids = [];
+    createLineGrid() {
+        const gridSize = 600;
+        const divisions = 60;
+        const step = gridSize / divisions;
+        const halfSize = gridSize / 2;
+        const highwayWidth = 6;
 
-        for (let i = 0; i < 2; i++) {
-            const grid = this.createSingleGrid();
-            grid.position.z = -i * this.gridSize;
-            this.gridGroup.add(grid);
-            this.grids.push(grid);
+        const points = [];
+
+        // Horizontal lines (along X axis) - skip center highway area
+        for (let i = 0; i <= divisions; i++) {
+            const z = -halfSize + i * step;
+            // Left side
+            points.push(-halfSize, 0, z);
+            points.push(-highwayWidth, 0, z);
+            // Right side
+            points.push(highwayWidth, 0, z);
+            points.push(halfSize, 0, z);
         }
-    }
 
-    createSingleGrid() {
-        const group = new THREE.Group();
+        // Vertical lines (along Z axis) - skip center highway area
+        for (let i = 0; i <= divisions; i++) {
+            const x = -halfSize + i * step;
+            if (Math.abs(x) > highwayWidth) {
+                points.push(x, 0, -halfSize);
+                points.push(x, 0, halfSize);
+            }
+        }
 
-        // Main grid lines
-        const gridHelper = new THREE.GridHelper(
-            this.gridSize,
-            this.gridDivisions,
-            0x00ffff,  // Center line color
-            0x004444   // Grid line color
-        );
-        gridHelper.rotation.x = 0;
-        gridHelper.position.y = 0;
-        group.add(gridHelper);
+        const geometry = new THREE.BufferGeometry();
+        geometry.setAttribute('position', new THREE.Float32BufferAttribute(points, 3));
 
-        // Add glowing center line (the "highway") - wider for more presence
-        const centerLineGeometry = new THREE.PlaneGeometry(8, this.gridSize);
-        const centerLineMaterial = new THREE.MeshBasicMaterial({
-            color: 0x00ffff,
-            transparent: true,
-            opacity: 0.2,
-            side: THREE.DoubleSide
-        });
-        const centerLine = new THREE.Mesh(centerLineGeometry, centerLineMaterial);
-        centerLine.rotation.x = -Math.PI / 2;
-        centerLine.position.y = 0.03;
-        group.add(centerLine);
-
-        // Side boundary lines
-        const boundaryMaterial = new THREE.LineBasicMaterial({
-            color: 0x00ffff,
-            transparent: true,
-            opacity: 0.5
+        const material = new THREE.LineBasicMaterial({
+            color: 0x004444,
+            transparent: false
         });
 
-        const leftBoundary = this.createBoundaryLine(-this.gridSize / 2, this.gridSize, boundaryMaterial);
-        const rightBoundary = this.createBoundaryLine(this.gridSize / 2, this.gridSize, boundaryMaterial);
-
-        group.add(leftBoundary);
-        group.add(rightBoundary);
-
-        return group;
+        const grid = new THREE.LineSegments(geometry, material);
+        grid.position.y = -0.01; // Slightly below highway to prevent z-fighting
+        grid.position.z = -200;
+        this.gridGroup.add(grid);
     }
 
-    createBoundaryLine(xPos, length, material) {
-        const points = [
-            new THREE.Vector3(xPos, 0.1, length / 2),
-            new THREE.Vector3(xPos, 0.1, -length / 2)
-        ];
-        const geometry = new THREE.BufferGeometry().setFromPoints(points);
-        return new THREE.Line(geometry, material);
+    createCenterHighway() {
+        // Highway from behind camera (z=+100) to horizon line (z=-450)
+        const geometry = new THREE.PlaneGeometry(12, 550);
+        const material = new THREE.MeshBasicMaterial({
+            color: 0x00ffff,
+            transparent: true,
+            opacity: 0.12,
+            side: THREE.DoubleSide,
+            depthWrite: false,
+            fog: false
+        });
+
+        const highway = new THREE.Mesh(geometry, material);
+        highway.rotation.x = -Math.PI / 2;
+        highway.position.y = 0.15;
+        highway.position.z = -175; // Center: from z=+100 to z=-450
+        highway.renderOrder = -1;
+
+        this.gridGroup.add(highway);
     }
 
     createHorizonGlow() {
-        // Create a subtle glow at the horizon
-        const glowGeometry = new THREE.PlaneGeometry(this.gridSize * 2, 50);
+        const glowGeometry = new THREE.PlaneGeometry(600, 80);
         const glowMaterial = new THREE.ShaderMaterial({
             uniforms: {
                 color: { value: new THREE.Color(0x00ffff) }
@@ -103,7 +99,7 @@ export class Grid {
                 varying vec2 vUv;
                 void main() {
                     float alpha = smoothstep(0.0, 0.5, vUv.y) * (1.0 - smoothstep(0.5, 1.0, vUv.y));
-                    alpha *= 0.15;
+                    alpha *= 0.25;
                     gl_FragColor = vec4(color, alpha);
                 }
             `,
@@ -115,30 +111,20 @@ export class Grid {
 
         const horizonGlow = new THREE.Mesh(glowGeometry, glowMaterial);
         horizonGlow.rotation.x = -Math.PI / 2;
-        horizonGlow.position.y = 0.5;  // Raised higher to prevent z-fighting
-        horizonGlow.position.z = -this.gridSize;
-        horizonGlow.renderOrder = 999;  // Render last
+        horizonGlow.position.y = 0.1;
+        horizonGlow.position.z = -450;
+        horizonGlow.renderOrder = 999;
 
         this.gridGroup.add(horizonGlow);
     }
 
     update(delta) {
-        // Scroll the grids toward the camera
-        this.gridOffset += this.scrollSpeed * delta;
-
-        this.grids.forEach((grid, index) => {
-            grid.position.z = -index * this.gridSize + (this.gridOffset % this.gridSize);
-
-            // Reset grid position when it passes the camera
-            if (grid.position.z > this.gridSize / 2) {
-                grid.position.z -= this.gridSize * 2;
-            }
-        });
+        // Static grid - no update needed
+        // Movement is suggested by bike trail and transactions
     }
 
-    // Adjust scroll speed (e.g., based on mempool activity)
     setScrollSpeed(speed) {
-        this.scrollSpeed = speed;
+        // No-op for static grid
     }
 
     dispose() {
@@ -163,7 +149,5 @@ export class Grid {
             this.gridGroup.clear();
             this.gridGroup = null;
         }
-
-        this.grids = [];
     }
 }

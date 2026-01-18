@@ -52,7 +52,7 @@ export class SceneManager {
 
     createCamera() {
         const aspect = window.innerWidth / window.innerHeight;
-        this.camera = new THREE.PerspectiveCamera(60, aspect, 0.1, 2000);
+        this.camera = new THREE.PerspectiveCamera(60, aspect, 1, 2000);
         this.camera.position.copy(this.cameraBasePosition);
         this.camera.lookAt(this.cameraLookAt);
     }
@@ -63,7 +63,8 @@ export class SceneManager {
         this.renderer = new THREE.WebGLRenderer({
             antialias: true,
             alpha: false,
-            powerPreference: 'high-performance'
+            powerPreference: 'high-performance',
+            logarithmicDepthBuffer: true
         });
 
         this.renderer.setSize(window.innerWidth, window.innerHeight);
