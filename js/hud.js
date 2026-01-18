@@ -19,6 +19,7 @@ const QUOTES = [
     { text: "The blockchain is an incorruptible digital ledger.", author: "Don Tapscott" },
     { text: "21 million. Forever.", author: "The Protocol" },
     { text: "Tick Tock, Next Block.", author: "Bitcoin Proverb" },
+    { text: "Verify, don't trust.", author: "Bitcoin Proverb" },
 ];
 
 // Halving schedule constant
