@@ -69,6 +69,7 @@ export class HUD {
         this.setupFullscreenToggle();
         this.startClock();
         this.initQuoteSystem();
+        this.initCongestionDisplay();
     }
 
     // Set audio manager reference for keyboard shortcuts
@@ -391,7 +392,7 @@ export class HUD {
         this.quoteContainer.className = 'floating-quote';
         this.quoteContainer.style.cssText = `
             position: fixed;
-            top: 15%;
+            top: 8%;
             left: 50%;
             transform: translateX(-50%);
             text-align: center;
@@ -473,6 +474,66 @@ export class HUD {
         this._quoteNextTimeout = setTimeout(() => this.showNextQuote(), nextDelay);
     }
 
+    // Initialize mempool congestion display above horizon
+    initCongestionDisplay() {
+        this.congestionContainer = document.createElement('div');
+        this.congestionContainer.className = 'congestion-display';
+        this.congestionContainer.style.cssText = `
+            position: fixed;
+            top: 33%;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            pointer-events: none;
+            z-index: 50;
+            opacity: 0.6;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            transition: color 1s ease, opacity 1s ease;
+        `;
+        document.body.appendChild(this.congestionContainer);
+        this.lastCongestionLevel = -1;
+    }
+
+    // Update mempool congestion display
+    updateCongestion(txCount) {
+        if (!this.congestionContainer || txCount == null) return;
+
+        let label, color, level;
+
+        if (txCount < 10000) {
+            label = 'Mempool Load: Clear';
+            color = '#00ff88';
+            level = 0;
+        } else if (txCount < 50000) {
+            label = 'Mempool Load: Normal';
+            color = '#00ffff';
+            level = 1;
+        } else if (txCount < 100000) {
+            label = 'Mempool Load: Busy';
+            color = '#ffff00';
+            level = 2;
+        } else if (txCount < 150000) {
+            label = 'Mempool Load: Congested';
+            color = '#ff8800';
+            level = 3;
+        } else {
+            label = 'Mempool Load: Full';
+            color = '#ff4444';
+            level = 4;
+        }
+
+        // Only update if level changed
+        if (level === this.lastCongestionLevel) return;
+        this.lastCongestionLevel = level;
+
+        this.congestionContainer.textContent = label;
+        this.congestionContainer.style.color = color;
+        this.congestionContainer.style.textShadow = `0 0 20px ${color}40`;
+    }
+
     dispose() {
         if (this.elements.logoBtn && this._logoClickHandler) {
             this.elements.logoBtn.removeEventListener('click', this._logoClickHandler);
@@ -516,6 +577,11 @@ export class HUD {
         this.quoteContainer = null;
         this.quoteText = null;
         this.quoteAuthor = null;
+
+        if (this.congestionContainer && this.congestionContainer.parentNode) {
+            this.congestionContainer.parentNode.removeChild(this.congestionContainer);
+        }
+        this.congestionContainer = null;
     }
 
     // Format large numbers

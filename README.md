@@ -18,6 +18,7 @@ A cinematic 3D visualization of the Bitcoin blockchain, inspired by TRON: Legacy
   - 50+ BTC: MEGA WHALE (bright orange)
   - 500+ BTC: LEVIATHAN (red, maximum effects, pulsing)
 - **Whale Watching Hours** - Splash screen shows peak whale activity times (UTC)
+- **Mempool Load Indicator** - Real-time congestion status above horizon (Clear/Normal/Busy/Congested/Full)
 - **Fee Rate Colors** - Green/Yellow/Orange/Red based on sat/vB thresholds
 - **Lightning Network Capacity** - Total LN capacity in BTC (click to explore)
 - **Halving Countdown** - Blocks remaining until next halving

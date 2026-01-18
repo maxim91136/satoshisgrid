@@ -198,6 +198,8 @@ export class WebSocketManager {
         const txCount = info.size || info.count;
         if (txCount) {
             this.hud.updateMempoolSize(txCount);
+            // Update congestion display above horizon
+            this.hud.updateCongestion(txCount);
         }
     }
 
@@ -452,6 +454,8 @@ export class WebSocketManager {
             const mempoolData = await mempoolRes.json();
             if (mempoolData.count) {
                 this.hud.updateMempoolSize(mempoolData.count);
+                // Update congestion display above horizon
+                this.hud.updateCongestion(mempoolData.count);
             }
 
             // Fetch fee rates from projected blocks

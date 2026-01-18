@@ -520,6 +520,22 @@ const app = new SatoshisGrid();
 // Export for debugging
 window.SatoshisGrid = app;
 
+// Test mempool load display: testLoad(0-4) or testLoadDemo()
+window.testLoad = (level) => {
+    const levels = [5000, 30000, 75000, 125000, 200000];
+    if (app.hud) {
+        app.hud.lastCongestionLevel = -1;
+        app.hud.updateCongestion(level <= 4 ? levels[level] : level);
+    }
+};
+window.testLoadDemo = () => {
+    let i = 0;
+    const run = () => window.testLoad(i++ % 5);
+    run();
+    const id = setInterval(run, 2000);
+    setTimeout(() => clearInterval(id), 10000);
+};
+
 // Load version from VERSION file
 fetch('/VERSION')
     .then(r => r.text())

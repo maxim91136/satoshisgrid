@@ -2,6 +2,13 @@
 
 All notable changes to SATOSHI'S GRID will be documented in this file.
 
+## [1.0.39] - 2026-01-18
+
+### Added
+- **Mempool Load Indicator** - Real-time network congestion displayed above horizon
+  - Clear (green), Normal (cyan), Busy (yellow), Congested (orange), Full (red)
+  - Updates automatically via WebSocket and REST fallback
+
 ## [1.0.38] - 2026-01-18
 
 ### Improved
