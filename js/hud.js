@@ -3,22 +3,16 @@
  * Overlay UI for blockchain stats
  */
 
-// Famous Bitcoin Quotes
+// Famous Bitcoin Quotes (kept short to avoid overlap with Mempool Load indicator)
 const QUOTES = [
-    { text: "The Times 03/Jan/2009 Chancellor on brink of second bailout for banks", author: "Genesis Block" },
     { text: "Running bitcoin", author: "Hal Finney, 2009" },
-    { text: "If you don't believe it or don't get it, I don't have the time to try to convince you, sorry.", author: "Satoshi Nakamoto" },
-    { text: "The root problem with conventional currency is all the trust that's required to make it work.", author: "Satoshi Nakamoto" },
     { text: "Bitcoin is a remarkable cryptographic achievement.", author: "Eric Schmidt" },
-    { text: "I think the internet is going to be one of the major forces for reducing the role of government. The one thing that's missing but that will soon be developed, is a reliable e-cash.", author: "Milton Friedman, 1999" },
     { text: "Bitcoin is not just code. It is energy.", author: "Unknown" },
     { text: "In cryptography we trust.", author: "Bitcoiner Wisdom" },
     { text: "Not your keys, not your coins.", author: "Bitcoin Proverb" },
     { text: "Stay humble, stack sats.", author: "Bitcoin Proverb" },
     { text: "HODL", author: "GameKyuubi, 2013" },
-    { text: "Money is just information. Bitcoin is the purest form of that information.", author: "Michael Saylor" },
     { text: "Bitcoin is the first money that is not controlled by an army.", author: "Saifedean Ammous" },
-    { text: "Every informed person needs to know about Bitcoin because it might be one of the world's most important developments.", author: "Leon Luow" },
     { text: "The blockchain is an incorruptible digital ledger.", author: "Don Tapscott" },
     { text: "21 million. Forever.", author: "The Protocol" },
     { text: "Tick Tock, Next Block.", author: "Bitcoin Proverb" },
