@@ -2,6 +2,11 @@
 
 All notable changes to SATOSHI'S GRID will be documented in this file.
 
+## [1.0.40] - 2026-01-18
+
+### Changed
+- **Bitcoin Quotes** - Curated collection of 15 short quotes to avoid UI overlap
+
 ## [1.0.39] - 2026-01-18
 
 ### Added
