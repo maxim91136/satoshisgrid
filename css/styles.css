@@ -560,6 +560,15 @@ html, body {
     opacity: 0.7;
 }
 
+.splash-dedication {
+    margin-top: 24px;
+    font-size: 11px;
+    color: var(--electric-cyan);
+    letter-spacing: 2px;
+    opacity: 0.6;
+    font-style: italic;
+}
+
 /* Animated Grid Background */
 .splash-grid {
     position: absolute;

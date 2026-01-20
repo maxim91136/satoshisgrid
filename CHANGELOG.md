@@ -2,6 +2,11 @@
 
 All notable changes to SATOSHI'S GRID will be documented in this file.
 
+## [1.0.41] - 2026-01-20
+
+### Added
+- **Dedication** - "for Flynn" on splash screen
+
 ## [1.0.40] - 2026-01-18
 
 ### Changed
