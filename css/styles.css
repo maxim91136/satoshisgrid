@@ -83,25 +83,28 @@ html, body {
 .splash-content {
     text-align: center;
     z-index: 2;
-    padding: 0 20px;
+    padding: 16px 20px;
     max-width: 100%;
+    max-height: 100vh;
+    min-height: 0;
+    overflow-y: auto;
 }
 
 .splash-logo {
-    margin-bottom: 24px;
+    margin-bottom: 14px;
 }
 
 .logo-symbol {
-    font-size: 72px;
+    font-size: 56px;
     color: var(--core-orange);
     display: block;
-    margin-bottom: 16px;
+    margin-bottom: 8px;
     text-shadow: 0 0 30px var(--core-orange-glow);
     animation: pulse-glow 2s ease-in-out infinite;
 }
 
 .logo-text {
-    font-size: 36px;
+    font-size: 30px;
     font-weight: 700;
     letter-spacing: 8px;
     color: var(--electric-cyan);
@@ -114,7 +117,7 @@ html, body {
     font-weight: 400;
     letter-spacing: 3px;
     padding: 4px 12px;
-    margin-top: 16px;
+    margin-top: 8px;
     border: 1px solid var(--electric-cyan);
     color: var(--electric-cyan);
     background: transparent;
@@ -132,7 +135,7 @@ html, body {
     font-size: 14px;
     letter-spacing: 6px;
     color: var(--text-dim);
-    margin-bottom: 32px;
+    margin-bottom: 16px;
 }
 
 /* Ride Mode Selector */
@@ -140,14 +143,14 @@ html, body {
     display: flex;
     justify-content: center;
     gap: 0;
-    margin-bottom: 28px;
+    margin-bottom: 16px;
 }
 
 .ride-option {
     background: transparent;
     border: 2px solid var(--electric-cyan);
     color: var(--electric-cyan);
-    padding: 12px 24px;
+    padding: 10px 24px;
     font-family: var(--font-mono);
     font-size: 14px;
     font-weight: 600;
@@ -224,7 +227,7 @@ html, body {
     display: flex;
     justify-content: center;
     gap: 24px;
-    margin-bottom: 24px;
+    margin-bottom: 14px;
 }
 
 .audio-option {
@@ -283,8 +286,8 @@ html, body {
     background: rgba(0, 0, 0, 0.6);
     border: 1px solid var(--core-orange-dim);
     border-radius: 8px;
-    padding: 12px 20px;
-    margin: 0 auto 24px auto;
+    padding: 10px 20px;
+    margin: 0 auto 14px auto;
     max-width: 320px;
     text-align: center;
 }
@@ -331,8 +334,8 @@ html, body {
     background: rgba(0, 0, 0, 0.6);
     border: 1px solid var(--electric-cyan-dim);
     border-radius: 8px;
-    padding: 12px 20px;
-    margin: 0 auto 24px auto;
+    padding: 10px 20px;
+    margin: 0 auto 14px auto;
     max-width: 320px;
     text-align: center;
 }
@@ -506,7 +509,7 @@ html, body {
     background: transparent;
     border: 2px solid var(--electric-cyan);
     color: var(--electric-cyan);
-    padding: 16px 48px;
+    padding: 12px 40px;
     font-family: var(--font-mono);
     font-size: 16px;
     font-weight: 700;
@@ -546,14 +549,14 @@ html, body {
 }
 
 .splash-hint {
-    margin-top: 24px;
+    margin-top: 12px;
     font-size: 11px;
     color: var(--text-dim);
     letter-spacing: 2px;
 }
 
 .splash-warning {
-    margin-top: 16px;
+    margin-top: 8px;
     font-size: 10px;
     color: var(--bitcoin-orange);
     letter-spacing: 1px;
@@ -561,7 +564,7 @@ html, body {
 }
 
 .splash-dedication {
-    margin-top: 24px;
+    margin-top: 12px;
     font-size: 11px;
     color: var(--electric-cyan);
     letter-spacing: 2px;
@@ -571,8 +574,8 @@ html, body {
 
 /* Series Footer */
 .series-footer {
-    margin-top: 28px;
-    padding-top: 20px;
+    margin-top: 14px;
+    padding-top: 10px;
     border-top: 1px solid rgba(0, 255, 255, 0.15);
 }
 
@@ -580,7 +583,7 @@ html, body {
     font-size: 9px;
     letter-spacing: 2px;
     color: var(--text-dim);
-    margin-bottom: 12px;
+    margin-bottom: 8px;
 }
 
 .series-footer-links {
@@ -596,7 +599,7 @@ html, body {
     align-items: center;
     gap: 2px;
     min-width: 150px;
-    padding: 10px 16px;
+    padding: 6px 14px;
     background: rgba(0, 0, 0, 0.6);
     border: 1px solid var(--electric-cyan-dim);
     border-radius: 6px;
@@ -1705,12 +1708,13 @@ html, body {
     }
 
     .series-footer {
-        margin-top: 20px;
-        padding-top: 14px;
+        margin-top: 12px;
+        padding-top: 8px;
     }
 
     .series-footer-label {
         font-size: 8px;
+        margin-bottom: 6px;
     }
 
     .series-footer-links {
@@ -1719,7 +1723,7 @@ html, body {
 
     .series-card {
         min-width: 130px;
-        padding: 8px 12px;
+        padding: 5px 12px;
     }
 
     .series-card-name {
@@ -1770,18 +1774,18 @@ html, body {
     .splash-tagline {
         font-size: 9px;
         letter-spacing: 2px;
-        margin-bottom: 24px;
+        margin-bottom: 10px;
     }
 
     .beta-badge {
         font-size: 7px;
         padding: 2px 6px;
         letter-spacing: 2px;
-        margin-top: 12px;
+        margin-top: 6px;
     }
 
     .ride-selector {
-        margin-bottom: 20px;
+        margin-bottom: 10px;
     }
 
     .ride-option {
@@ -1797,9 +1801,9 @@ html, body {
 
     .audio-options {
         flex-direction: column;
-        gap: 12px;
+        gap: 8px;
         align-items: center;
-        margin-bottom: 20px;
+        margin-bottom: 10px;
     }
 
     .audio-option {
@@ -1824,28 +1828,38 @@ html, body {
     .splash-hint {
         font-size: 9px;
         letter-spacing: 1px;
-        margin-top: 20px;
+        margin-top: 8px;
     }
 
     .splash-warning {
         font-size: 8px;
         letter-spacing: 0.5px;
-        margin-top: 12px;
+        margin-top: 6px;
+    }
+
+    .splash-dedication {
+        margin-top: 8px;
     }
 
     .series-footer {
-        margin-top: 16px;
-        padding-top: 12px;
+        margin-top: 10px;
+        padding-top: 8px;
+    }
+
+    .series-footer-label {
+        margin-bottom: 6px;
     }
 
     .series-footer-links {
         flex-direction: column;
         align-items: center;
+        gap: 6px;
     }
 
     .series-card {
         width: 100%;
         max-width: 220px;
+        padding: 4px 12px;
     }
 }
 
