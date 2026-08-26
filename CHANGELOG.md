@@ -2,6 +2,14 @@
 
 All notable changes to SATOSHI'S GRID will be documented in this file.
 
+## [1.0.42] - 2026-08-26
+
+### Added
+- **Series Footer** - Splash screen now links to sibling sites in the network decentralization series (NoSinglePoint.com, NotSoDeFi.com)
+
+### Improved
+- **Splash Screen Layout** - Tightened spacing throughout so the full screen fits without clipping on common desktop and mobile viewport heights; added scroll fallback for very short windows
+
 ## [1.0.41] - 2026-01-20
 
 ### Added
