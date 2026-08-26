@@ -569,6 +569,59 @@ html, body {
     font-style: italic;
 }
 
+/* Series Footer */
+.series-footer {
+    margin-top: 28px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(0, 255, 255, 0.15);
+}
+
+.series-footer-label {
+    font-size: 9px;
+    letter-spacing: 2px;
+    color: var(--text-dim);
+    margin-bottom: 12px;
+}
+
+.series-footer-links {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.series-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    min-width: 150px;
+    padding: 10px 16px;
+    background: rgba(0, 0, 0, 0.6);
+    border: 1px solid var(--electric-cyan-dim);
+    border-radius: 6px;
+    text-decoration: none;
+    transition: all var(--transition-fast);
+}
+
+.series-card:hover {
+    border-color: var(--electric-cyan);
+    box-shadow: 0 0 12px var(--electric-cyan-glow);
+}
+
+.series-card-name {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: var(--electric-cyan);
+}
+
+.series-card-desc {
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 0.5px;
+}
+
 /* Animated Grid Background */
 .splash-grid {
     position: absolute;
@@ -1651,6 +1704,32 @@ html, body {
         font-size: 9px;
     }
 
+    .series-footer {
+        margin-top: 20px;
+        padding-top: 14px;
+    }
+
+    .series-footer-label {
+        font-size: 8px;
+    }
+
+    .series-footer-links {
+        gap: 8px;
+    }
+
+    .series-card {
+        min-width: 130px;
+        padding: 8px 12px;
+    }
+
+    .series-card-name {
+        font-size: 11px;
+    }
+
+    .series-card-desc {
+        font-size: 9px;
+    }
+
     .beta-badge {
         font-size: 8px;
         padding: 3px 8px;
@@ -1752,6 +1831,21 @@ html, body {
         font-size: 8px;
         letter-spacing: 0.5px;
         margin-top: 12px;
+    }
+
+    .series-footer {
+        margin-top: 16px;
+        padding-top: 12px;
+    }
+
+    .series-footer-links {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .series-card {
+        width: 100%;
+        max-width: 220px;
     }
 }
 
