@@ -1,4 +1,4 @@
-# SATOSHI'S GRID
+# SatoshisGrid
 
 A cinematic 3D visualization of the Bitcoin blockchain, inspired by TRON: Legacy.
 

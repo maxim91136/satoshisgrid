@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to SATOSHI'S GRID will be documented in this file.
+All notable changes to SatoshisGrid will be documented in this file.
 
 ## [1.0.42] - 2026-08-26
 
