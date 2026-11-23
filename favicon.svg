@@ -1,0 +1,4 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180"><rect width="180" height="180" rx="36" fill="#000000"/><defs><clipPath id="c"><rect y="100" width="180" height="80"/></clipPath><linearGradient id="s" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffb347"/><stop offset="1" stop-color="#ff7a1a"/></linearGradient></defs>
+<g clip-path="url(#c)" stroke="#00e5ff" stroke-width="3" opacity=".8" fill="none"><path d="M90 100L-110 190" /><path d="M90 100L-70 190" /><path d="M90 100L-30 190" /><path d="M90 100L10 190" /><path d="M90 100L50 190" /><path d="M90 100L90 190" /><path d="M90 100L130 190" /><path d="M90 100L170 190" /><path d="M90 100L210 190" /><path d="M90 100L250 190" /><path d="M90 100L290 190" /><path d="M0 112H180" /><path d="M0 128H180" /><path d="M0 150H180" /><path d="M0 180H180" /></g>
+<path d="M0 100H180" stroke="#00e5ff" stroke-width="4"/>
+<path d="M54 100a36 36 0 0 1 72 0z" fill="url(#s)"/></svg>
