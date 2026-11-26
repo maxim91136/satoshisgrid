@@ -2,6 +2,7 @@
   "name": "satoshisgrid",
   "compatibility_date": "2026-01-01",
   "routes": [
+    { "pattern": "satoshisgrid.com", "custom_domain": true },
     { "pattern": "www.satoshisgrid.com", "custom_domain": true }
   ],
   "assets": {
