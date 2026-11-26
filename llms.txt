@@ -1,0 +1,12 @@
+# SatoshisGrid
+
+> Real-time 3D visualization of the Bitcoin blockchain, inspired by TRON: Legacy. Live transactions, blocks, whale alerts, mempool load, fee rates, halving countdown and difficulty adjustment, all drawn from public mempool.space data. A project of Dreier Labs (Steve Dreier). Not investment advice.
+
+## Core pages
+
+- [SatoshisGrid](https://satoshisgrid.com/): the live visualization (single page, runs in the browser with WebGL)
+
+## Source and legal
+
+- [Source code (GitHub)](https://github.com/maxim91136/satoshisgrid): README with feature list and tech stack, MIT license
+- [Legal notice](https://dreierlabs.com/impressum)
