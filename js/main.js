@@ -544,3 +544,10 @@ fetch('/VERSION')
         if (el) el.textContent = 'v' + v.trim();
     })
     .catch(() => {});
+
+// "Change ride": vorher als onclick im HTML, jetzt hier (Content-Security-Policy erlaubt keine Inline-Handler)
+document.getElementById('change-ride')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    sessionStorage.removeItem('satoshisgrid_entered');
+    location.reload();
+});
