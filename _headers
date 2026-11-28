@@ -1,6 +1,5 @@
 # CSP: zwei Inline-Skripte (Importmap, Splash) sind per Hash erlaubt. Werden sie geändert, Hash neu berechnen (sha256, base64).
 # Radio: Sender-Adressen gibt der Besucher selbst ein, deshalb media-src https:.
-# Cloudflare Web Analytics (Beacon) ist von Cloudflare eingefügt und deshalb erlaubt.
 /*
   X-Frame-Options: DENY
   X-Content-Type-Options: nosniff
