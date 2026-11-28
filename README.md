@@ -51,6 +51,8 @@ npx serve .
 # Open http://localhost:3000
 ```
 
+**Smoke test** (offline, no dependencies): `node tests/smoke.mjs` – checks that the CSP hashes in `_headers` match the inline scripts, that all local files (fonts, Three.js, model, audio) exist, and that no external scripts or stylesheets are loaded.
+
 ## Project Structure
 
 ```
